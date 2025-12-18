@@ -8,73 +8,122 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
     body {
-      background: #0a0a0a;
-      color: white;
+      margin: 0;
+      height: 100vh;
       font-family: Arial, sans-serif;
+      color: #fff;
+      background: radial-gradient(circle at top, #1a2a3a, #050505);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      background: rgba(15, 15, 15, 0.85);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 360px;
       text-align: center;
-      padding: 40px;
+      box-shadow: 0 0 40px rgba(0, 188, 212, 0.25);
     }
+
     h1 {
-      color: #00bcd4;
+      color: #00e5ff;
+      margin-bottom: 10px;
     }
-    button {
-      background: #00bcd4;
+
+    .balance-label {
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .balance {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 10px 0 20px;
+      transition: transform 0.15s ease;
+    }
+
+    .balance.bump {
+      transform: scale(1.08);
+    }
+
+    .mine-btn {
+      width: 100%;
+      padding: 18px;
+      font-size: 20px;
+      border-radius: 16px;
       border: none;
-      padding: 15px 30px;
-      font-size: 18px;
-      border-radius: 12px;
       cursor: pointer;
-      margin-top: 20px;
+      color: #000;
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4);
     }
-    .small {
-      font-size: 12px;
-      color: #888;
+
+    .mine-btn:active {
+      transform: scale(0.97);
+    }
+
+    .info {
       margin-top: 20px;
+      font-size: 12px;
+      color: #777;
     }
   </style>
 </head>
 <body>
 
-  <h1>🚀 Ton Plus</h1>
+  <div class="app">
+    <h1>🚀 Ton Plus</h1>
 
-  <p>Balance</p>
-  <h2 id="balance">0.000000 TON</h2>
+    <div class="balance-label">Balance</div>
+    <div id="balance" class="balance">0.000000 TON</div>
 
-  <button type="button" onclick="mine()">⛏ Mine</button>
+    <button class="mine-btn" type="button" onclick="mine()">⛏ Tap to Mine</button>
 
-  <p class="small">Mining power: 2.0 GH/s</p>
+    <div class="info">Mining power: 2.0 GH/s</div>
+  </div>
 
   <script>
-    // Telegram ready
     Telegram.WebApp.ready();
 
-    // prevent keyboard mining
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === "e") {
-        e.preventDefault();
-      }
+    // جلوگیری از تقلب با کیبورد
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === "e") e.preventDefault();
     });
 
-    // load balance
     let balance = localStorage.getItem("ton_balance");
     balance = balance ? parseFloat(balance) : 0;
+
+    const balanceEl = document.getElementById("balance");
     updateBalance();
 
     function mine() {
       balance += 0.0001;
       localStorage.setItem("ton_balance", balance);
+
       updateBalance();
+      animateBalance();
+
       Telegram.WebApp.HapticFeedback.impactOccurred("light");
     }
 
     function updateBalance() {
-      document.getElementById("balance").innerText =
-        balance.toFixed(6) + " TON";
+      balanceEl.innerText = balance.toFixed(6) + " TON";
+    }
+
+    function animateBalance() {
+      balanceEl.classList.add("bump");
+      setTimeout(() => balanceEl.classList.remove("bump"), 150);
     }
   </script>
 
 </body>
 </html>
-
-
