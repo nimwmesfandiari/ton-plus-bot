@@ -3,63 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <title>Ton Plus</title>
-
-  <!-- Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <style>
-    * { box-sizing: border-box; user-select: none; margin:0; padding:0; }
-    body {
-      height: 100vh;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
+    *{box-sizing:border-box;user-select:none;margin:0;padding:0;}
+    body{
+      height:100vh;
+      font-family:Arial,sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      color:white;
     }
-    .app {
-      background: rgba(0,0,0,0.7);
-      border-radius: 25px;
-      padding: 30px 25px;
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-      box-shadow: 0 0 40px rgba(0,188,212,0.3);
+    .app{
+      background:rgba(0,0,0,0.7);
+      border-radius:25px;
+      padding:30px 25px;
+      width:100%;
+      max-width:400px;
+      text-align:center;
+      box-shadow:0 0 50px rgba(0,188,212,0.3);
     }
-    h1 { color: #00e5ff; margin-bottom: 10px; }
-    .balance-label { font-size: 14px; color: #aaa; }
-    .balance { font-size: 36px; font-weight: bold; margin: 15px 0 15px; transition: transform 0.15s ease; }
-    .balance.bump { transform: scale(1.1); }
-    .mine-btn, .boost-btn, .referral-btn {
-      width: 100%;
-      padding: 16px;
-      font-size: 18px;
-      border-radius: 16px;
-      border: none;
-      cursor: pointer;
-      margin-top: 12px;
-      font-weight: bold;
+    h1{color:#00e5ff;margin-bottom:10px;}
+    .balance-label{font-size:14px;color:#aaa;}
+    .balance{
+      font-size:36px;font-weight:bold;margin:15px 0 20px;
+      transition:transform 0.15s ease;
     }
-    .mine-btn { background: linear-gradient(135deg, #00e5ff, #00bcd4); color:#000; }
-    .mine-btn:active { transform: scale(0.96); }
-    .boost-btn { background: linear-gradient(135deg, #ffd700, #ffb700); color:#000; }
-    .boost-btn:active { transform: scale(0.96); }
-    .referral-btn { background: linear-gradient(135deg, #8e44ad, #c0392b); color:#fff; }
-    .referral-btn:active { transform: scale(0.96); }
-    .info { margin-top: 15px; font-size: 12px; color: #ccc; }
+    .balance.bump{transform:scale(1.1);}
+    .btn{
+      width:100%;padding:16px;font-size:18px;border-radius:16px;border:none;cursor:pointer;margin-top:12px;font-weight:bold;
+    }
+    .mine-btn{background:linear-gradient(135deg,#00e5ff,#00bcd4);color:#000;}
+    .mine-btn:active{transform:scale(0.96);}
+    .boost-btn{background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;}
+    .boost-btn:active{transform:scale(0.96);}
+    .referral-btn{background:linear-gradient(135deg,#8e44ad,#c0392b);color:#fff;}
+    .referral-btn:active{transform:scale(0.96);}
+    .info{margin-top:15px;font-size:12px;color:#ccc;}
+    .spinner-container{
+      position:relative;
+      width:120px;height:120px;margin:20px auto;
+    }
+    .spinner{
+      width:100%;height:100%;border-radius:50%;
+      background:radial-gradient(circle,#00bcd4 0%,transparent 70%);
+      animation:breathe 3s infinite ease-in-out;
+    }
+    .spinner img{
+      position:absolute;top:0;left:0;width:100%;height:100%;
+      object-fit:contain;
+      animation:spin 6s linear infinite;
+    }
+    @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+    @keyframes breathe{0%,100%{transform:scale(0.9);opacity:0.5;}50%{transform:scale(1.1);opacity:1;}}
   </style>
 </head>
 <body>
-
   <div class="app">
     <h1>🚀 Ton Plus</h1>
     <div class="balance-label">Balance</div>
     <div id="balance" class="balance">0.000000 TON</div>
 
-    <button class="mine-btn" onclick="mine()">⛏ Tap to Mine</button>
-    <button class="boost-btn" onclick="boost()">⚡ Boost Mining</button>
-    <button class="referral-btn" onclick="invite()">👥 Invite Friend</button>
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <img src="https://cdn-icons-png.flaticon.com/512/270/270798.png" alt="spinner">
+    </div>
+
+    <button class="btn mine-btn" onclick="mine()">⛏ Tap to Mine</button>
+    <button class="btn boost-btn" onclick="boost()">⚡ Boost Mining</button>
+    <button class="btn referral-btn" onclick="invite()">👥 Invite Friend</button>
 
     <div class="info">
       Mining power: <span id="power">2.0</span> GH/s<br>
@@ -68,73 +81,59 @@
   </div>
 
   <script>
-    // Telegram WebApp آماده
     if(window.Telegram && Telegram.WebApp) Telegram.WebApp.ready();
+    document.addEventListener("keydown", e => { if(e.key==="Enter"||e.key==="e") e.preventDefault(); });
 
-    // جلوگیری از افزایش عدد با کیبورد
-    document.addEventListener("keydown", e => { if(e.key === "Enter" || e.key === "e") e.preventDefault(); });
+    let balance=parseFloat(localStorage.getItem("ton_balance"))||0;
+    let power=parseFloat(localStorage.getItem("ton_power"))||2.0;
+    let cooldown=0;
 
-    // بارگذاری بالانس و قدرت
-    let balance = parseFloat(localStorage.getItem("ton_balance")) || 0;
-    let power = parseFloat(localStorage.getItem("ton_power")) || 2.0; // GH/s
-    let cooldown = 0;
+    const balanceEl=document.getElementById("balance");
+    const powerEl=document.getElementById("power");
+    const cooldownEl=document.getElementById("cooldown");
 
-    const balanceEl = document.getElementById("balance");
-    const powerEl = document.getElementById("power");
-    const cooldownEl = document.getElementById("cooldown");
-
-    function updateUI() {
-      balanceEl.innerText = balance.toFixed(6) + " TON";
-      powerEl.innerText = power.toFixed(1);
-      cooldownEl.innerText = cooldown;
+    function updateUI(){
+      balanceEl.innerText=balance.toFixed(6)+" TON";
+      powerEl.innerText=power.toFixed(1);
+      cooldownEl.innerText=cooldown;
     }
-
-    function animateBalance() {
+    function animateBalance(){
       balanceEl.classList.add("bump");
-      setTimeout(() => balanceEl.classList.remove("bump"), 150);
+      setTimeout(()=>balanceEl.classList.remove("bump"),150);
     }
 
-    function mine() {
-      if(cooldown > 0) return; // اگر در حال cooldown هستیم کاری نکن
-      balance += 0.0001 * power; // اضافه کردن مقدار با توجه به قدرت
-      localStorage.setItem("ton_balance", balance.toFixed(6));
+    function mine(){
+      if(cooldown>0) return;
+      balance+=0.0001*power;
+      localStorage.setItem("ton_balance",balance.toFixed(6));
       animateBalance();
       updateUI();
-
-      // Haptic Feedback
       if(window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback)
         Telegram.WebApp.HapticFeedback.impactOccurred("light");
-
-      // شروع cooldown 1 ثانیه
-      cooldown = 1;
+      cooldown=1;
       updateUI();
-      const interval = setInterval(() => {
-        cooldown -= 1;
-        if(cooldown <= 0) {
-          cooldown = 0;
-          clearInterval(interval);
-        }
+      const interval=setInterval(()=>{
+        cooldown-=1;
+        if(cooldown<=0){cooldown=0;clearInterval(interval);}
         updateUI();
-      }, 1000);
+      },1000);
     }
 
-    function boost() {
-      power += 1.0;
-      localStorage.setItem("ton_power", power.toFixed(1));
+    function boost(){
+      power+=1.0;
+      localStorage.setItem("ton_power",power.toFixed(1));
       updateUI();
-      alert("Boost activated! Mining power increased by 1 GH/s");
+      alert("Boost activated! Mining power +1 GH/s");
     }
 
-    function invite() {
-      power += 0.5; // جایزه دعوت دوستان
-      localStorage.setItem("ton_power", power.toFixed(1));
+    function invite(){
+      power+=0.5;
+      localStorage.setItem("ton_power",power.toFixed(1));
       updateUI();
       alert("Referral bonus! +0.5 GH/s");
     }
 
-    // بارگذاری اولیه
     updateUI();
   </script>
 </body>
 </html>
-
