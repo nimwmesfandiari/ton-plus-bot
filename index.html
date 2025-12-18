@@ -27,6 +27,11 @@
       cursor: pointer;
       margin-top: 20px;
     }
+    .small {
+      font-size: 12px;
+      color: #888;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -37,19 +42,34 @@
 
   <button onclick="mine()">⛏ Mine</button>
 
+  <p class="small">Mining power: 2.0 GH/s</p>
+
   <script>
     Telegram.WebApp.ready();
 
-    let balance = 0;
+    // load saved balance
+    let balance = localStorage.getItem("ton_balance");
+    balance = balance ? parseFloat(balance) : 0;
+
+    updateBalance();
 
     function mine() {
       balance += 0.0001;
-      document.getElementById("balance").innerText =
-        balance.toFixed(6) + " TON";
+
+      // save balance
+      localStorage.setItem("ton_balance", balance);
+
+      updateBalance();
 
       Telegram.WebApp.HapticFeedback.impactOccurred("light");
+    }
+
+    function updateBalance() {
+      document.getElementById("balance").innerText =
+        balance.toFixed(6) + " TON";
     }
   </script>
 
 </body>
 </html>
+
