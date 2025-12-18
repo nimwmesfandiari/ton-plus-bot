@@ -1,2 +1,80 @@
-Final Ton Plus WebApp
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ton Plus</title>
+
+  <!-- Telegram WebApp -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      background: #0a0a0a;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #00bcd4;
+    }
+    button {
+      background: #00bcd4;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .small {
+      font-size: 12px;
+      color: #888;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚀 Ton Plus</h1>
+
+  <p>Balance</p>
+  <h2 id="balance">0.000000 TON</h2>
+
+  <button type="button" onclick="mine()">⛏ Mine</button>
+
+  <p class="small">Mining power: 2.0 GH/s</p>
+
+  <script>
+    // Telegram ready
+    Telegram.WebApp.ready();
+
+    // prevent keyboard mining
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === "e") {
+        e.preventDefault();
+      }
+    });
+
+    // load balance
+    let balance = localStorage.getItem("ton_balance");
+    balance = balance ? parseFloat(balance) : 0;
+    updateBalance();
+
+    function mine() {
+      balance += 0.0001;
+      localStorage.setItem("ton_balance", balance);
+      updateBalance();
+      Telegram.WebApp.HapticFeedback.impactOccurred("light");
+    }
+
+    function updateBalance() {
+      document.getElementById("balance").innerText =
+        balance.toFixed(6) + " TON";
+    }
+  </script>
+
+</body>
+</html>
+
 
