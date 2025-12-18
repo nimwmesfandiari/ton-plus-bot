@@ -8,53 +8,37 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      user-select: none;
-    }
-
+    * { box-sizing: border-box; user-select: none; margin:0; padding:0; }
     body {
-      margin: 0;
       height: 100vh;
       font-family: Arial, sans-serif;
-      color: #fff;
-      background: radial-gradient(circle at top, #1a2a3a, #050505);
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       display: flex;
       align-items: center;
       justify-content: center;
+      color: white;
     }
-
     .app {
-      background: rgba(15, 15, 15, 0.85);
-      border-radius: 20px;
-      padding: 30px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 25px;
+      padding: 30px 25px;
       width: 100%;
       max-width: 360px;
       text-align: center;
-      box-shadow: 0 0 40px rgba(0, 188, 212, 0.25);
+      box-shadow: 0 0 40px rgba(0,188,212,0.3);
     }
-
     h1 {
       color: #00e5ff;
       margin-bottom: 10px;
     }
-
-    .balance-label {
-      font-size: 14px;
-      color: #aaa;
-    }
-
+    .balance-label { font-size: 14px; color: #aaa; }
     .balance {
-      font-size: 32px;
+      font-size: 36px;
       font-weight: bold;
-      margin: 10px 0 20px;
+      margin: 15px 0 25px;
       transition: transform 0.15s ease;
     }
-
-    .balance.bump {
-      transform: scale(1.08);
-    }
-
+    .balance.bump { transform: scale(1.1); }
     .mine-btn {
       width: 100%;
       padding: 18px;
@@ -64,59 +48,33 @@
       cursor: pointer;
       color: #000;
       background: linear-gradient(135deg, #00e5ff, #00bcd4);
-      box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4);
+      box-shadow: 0 6px 20px rgba(0,188,212,0.4);
     }
-
-    .mine-btn:active {
-      transform: scale(0.97);
-    }
-
-    .info {
-      margin-top: 20px;
-      font-size: 12px;
-      color: #777;
-    }
+    .mine-btn:active { transform: scale(0.96); }
+    .info { margin-top: 18px; font-size: 12px; color: #ccc; }
   </style>
 </head>
 <body>
-
   <div class="app">
     <h1>🚀 Ton Plus</h1>
-
     <div class="balance-label">Balance</div>
     <div id="balance" class="balance">0.000000 TON</div>
-
-    <button class="mine-btn" type="button" onclick="mine()">⛏ Tap to Mine</button>
-
+    <button class="mine-btn" onclick="mine()">⛏ Tap to Mine</button>
     <div class="info">Mining power: 2.0 GH/s</div>
   </div>
 
   <script>
-    Telegram.WebApp.ready();
+    // Telegram WebApp آماده
+    if(window.Telegram && Telegram.WebApp) Telegram.WebApp.ready();
 
-    // جلوگیری از تقلب با کیبورد
+    // جلوگیری از افزایش عدد با کیبورد
     document.addEventListener("keydown", e => {
-      if (e.key === "Enter" || e.key === "e") e.preventDefault();
+      if(e.key === "Enter" || e.key === "e") e.preventDefault();
     });
 
-    // بارگذاری بالانس
-    let balance = localStorage.getItem("ton_balance");
-    balance = balance ? parseFloat(balance) : 0;
-
+    // بارگذاری بالانس از LocalStorage
+    let balance = parseFloat(localStorage.getItem("ton_balance")) || 0;
     const balanceEl = document.getElementById("balance");
-    updateBalance();
-
-    function mine() {
-      balance += 0.0001;
-      localStorage.setItem("ton_balance", balance);
-      updateBalance();
-      animateBalance();
-
-      // فقط اگر WebApp و HapticFeedback موجود باشد فعال شود
-      if (window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
-        Telegram.WebApp.HapticFeedback.impactOccurred("light");
-      }
-    }
 
     function updateBalance() {
       balanceEl.innerText = balance.toFixed(6) + " TON";
@@ -126,7 +84,26 @@
       balanceEl.classList.add("bump");
       setTimeout(() => balanceEl.classList.remove("bump"), 150);
     }
-  </script>
 
+    function mine() {
+      // اضافه کردن مقدار
+      balance += 0.0001;
+
+      // ذخیره در LocalStorage
+      localStorage.setItem("ton_balance", balance.toFixed(6));
+
+      // بروزرسانی UI
+      updateBalance();
+      animateBalance();
+
+      // Haptic Feedback فقط در WebApp فعال شود
+      if(window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+        Telegram.WebApp.HapticFeedback.impactOccurred("light");
+      }
+    }
+
+    // بارگذاری اولیه بالانس
+    updateBalance();
+  </script>
 </body>
 </html>
