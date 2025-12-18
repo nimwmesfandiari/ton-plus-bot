@@ -9,7 +9,7 @@
     *{box-sizing:border-box;margin:0;padding:0;}
     body{
       font-family:'Inter',sans-serif;
-      background:#050505;
+      background:#0a0a0a;
       background-image:
         radial-gradient(circle at 10% 20%, rgba(0,188,212,0.08) 0%, transparent 40%),
         radial-gradient(circle at 90% 80%, rgba(255,215,0,0.05) 0%, transparent 40%);
@@ -21,22 +21,39 @@
       min-height:100vh;
       padding:20px;
     }
-    .card{
-      background:rgba(20,20,25,0.7);
+
+    /* کارت بالانس */
+    .balance-card{
+      background:linear-gradient(145deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));
       backdrop-filter:blur(15px);
-      border-radius:25px;
-      padding:25px;
+      border-radius:30px;
+      padding:40px 25px;
       width:100%;
       max-width:380px;
-      margin-bottom:20px;
-      box-shadow:0 4px 25px rgba(0,0,0,0.5);
-      border:1px solid rgba(255,255,255,0.08);
+      margin-bottom:30px;
       text-align:center;
       position:relative;
+      box-shadow:0 0 30px rgba(0,188,212,0.4),0 0 50px rgba(255,215,0,0.2);
+      border:1px solid rgba(255,255,255,0.1);
     }
-    h1{color:#00e5ff;margin-bottom:15px;font-weight:700;}
-    .balance{font-family:'Chivo Mono', monospace;font-size:36px;margin:15px 0;transition: transform 0.15s; text-shadow:0 0 15px #00e5ff;}
-    .balance.bump{transform:scale(1.1);}
+
+    .balance-card h1{
+      color:#00e5ff;
+      font-weight:700;
+      font-size:32px;
+      margin-bottom:15px;
+    }
+
+    .balance-number{
+      font-family:'Chivo Mono', monospace;
+      font-size:42px;
+      margin:20px 0;
+      text-shadow:0 0 20px #00e5ff, 0 0 35px #00e5ff33;
+      transition: transform 0.15s;
+    }
+
+    .balance-number.bump{transform:scale(1.1);}
+
     button{
       width:100%;
       padding:16px;
@@ -47,60 +64,31 @@
       cursor:pointer;
       margin-top:14px;
       transition: transform 0.1s, box-shadow 0.2s;
-      box-shadow:0 0 15px rgba(0,188,212,0.3);
     }
+
     button:active{transform:scale(0.96);}
-    .mine-btn{background:linear-gradient(135deg,#00bcd4,#00e5ff);color:#000;}
+
+    .mine-btn{background:linear-gradient(135deg,#00bcd4,#00e5ff);color:#000;box-shadow:0 0 15px rgba(0,188,212,0.3);}
     .boost-btn{background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;box-shadow:0 0 20px rgba(255,215,0,0.4);}
     .referral-btn{background:linear-gradient(135deg,#8e44ad,#c0392b);color:#fff;box-shadow:0 0 15px rgba(255,0,150,0.4);}
-    .info{margin-top:10px;font-size:12px;color:#aaa;}
-    .spinner-container{
-      position:relative;
-      width:140px;height:140px;margin:20px auto;
+
+    .info{
+      margin-top:15px;
+      font-size:14px;
+      color:#aaa;
     }
-    .spinner-glow{
-      position:absolute;width:100%;height:100%;border-radius:50%;
-      background:radial-gradient(circle,#00bcd4 0%,transparent 70%);
-      animation:breathe 3s infinite ease-in-out;
-    }
-    .spinner-glow.yellow{background:radial-gradient(circle,#ffd700 0%,transparent 70%);}
-    .spinner-img{
-      position:absolute;top:0;left:0;width:100%;height:100%;
-      object-fit:contain;
-      animation:spin 6s linear infinite;
-    }
-    @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
-    @keyframes breathe{0%,100%{transform:scale(0.9);opacity:0.5;}50%{transform:scale(1.1);opacity:1;}}
-    .logo-ton{
-      position:absolute;
-      top:-30px;
-      left:50%;
-      transform:translateX(-50%);
-      width:60px;height:60px;
-      border-radius:50%;
-      background:#00e5ff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:bold;
-      font-size:24px;
-      color:#000;
-      box-shadow:0 0 25px #00e5ff;
+
+    /* افکت نئونی روی hover دکمه */
+    button:hover{
+      box-shadow:0 0 20px rgba(0,188,212,0.5),0 0 30px rgba(255,215,0,0.3);
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="logo-ton">TON</div>
-    <h1>Ton Plus</h1>
-    <div class="balance-label">Balance</div>
-    <div id="balance" class="balance">0.000000 TON</div>
 
-    <div class="spinner-container">
-      <div class="spinner-glow"></div>
-      <div class="spinner-glow yellow"></div>
-      <img class="spinner-img" src="https://cdn-icons-png.flaticon.com/512/270/270798.png">
-    </div>
+  <div class="balance-card">
+    <h1>Ton Plus</h1>
+    <div class="balance-number" id="balance">0.000000 TON</div>
 
     <button class="mine-btn" onclick="mine()">⛏ Tap to Mine</button>
     <button class="boost-btn" onclick="boost()">⚡ Boost Mining</button>
