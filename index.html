@@ -9,9 +9,10 @@
     *{box-sizing:border-box;margin:0;padding:0;}
     body{
       font-family:'Inter',sans-serif;
-      background: radial-gradient(circle at 10% 20%, rgba(0,188,212,0.08) 0%, transparent 40%),
-                  radial-gradient(circle at 90% 80%, rgba(255,215,0,0.05) 0%, transparent 40%);
-      background-color:#050505;
+      background:#050505;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(0,188,212,0.08) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(255,215,0,0.05) 0%, transparent 40%);
       color:white;
       display:flex;
       flex-direction:column;
@@ -22,38 +23,40 @@
     }
     .card{
       background:rgba(20,20,25,0.7);
-      backdrop-filter:blur(12px);
-      border-radius:20px;
-      padding:20px;
+      backdrop-filter:blur(15px);
+      border-radius:25px;
+      padding:25px;
       width:100%;
-      max-width:360px;
+      max-width:380px;
       margin-bottom:20px;
-      box-shadow:0 4px 20px rgba(0,0,0,0.4);
+      box-shadow:0 4px 25px rgba(0,0,0,0.5);
       border:1px solid rgba(255,255,255,0.08);
       text-align:center;
+      position:relative;
     }
-    h1{color:#00bcd4;margin-bottom:10px;}
-    .balance{font-family:'Chivo Mono', monospace;font-size:32px;margin:10px 0;transition: transform 0.15s;}
+    h1{color:#00e5ff;margin-bottom:15px;font-weight:700;}
+    .balance{font-family:'Chivo Mono', monospace;font-size:36px;margin:15px 0;transition: transform 0.15s; text-shadow:0 0 15px #00e5ff;}
     .balance.bump{transform:scale(1.1);}
     button{
       width:100%;
-      padding:14px;
-      border-radius:14px;
+      padding:16px;
+      border-radius:16px;
       font-size:18px;
       font-weight:700;
       border:none;
       cursor:pointer;
-      margin-top:12px;
-      transition: transform 0.1s;
+      margin-top:14px;
+      transition: transform 0.1s, box-shadow 0.2s;
+      box-shadow:0 0 15px rgba(0,188,212,0.3);
     }
     button:active{transform:scale(0.96);}
-    .mine-btn{background:linear-gradient(90deg,#00bcd4,#00e5ff);color:#000;}
-    .boost-btn{background:linear-gradient(90deg,#ffd700,#ffb700);color:#000;}
-    .referral-btn{background:linear-gradient(90deg,#8e44ad,#c0392b);color:#fff;}
+    .mine-btn{background:linear-gradient(135deg,#00bcd4,#00e5ff);color:#000;}
+    .boost-btn{background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;box-shadow:0 0 20px rgba(255,215,0,0.4);}
+    .referral-btn{background:linear-gradient(135deg,#8e44ad,#c0392b);color:#fff;box-shadow:0 0 15px rgba(255,0,150,0.4);}
     .info{margin-top:10px;font-size:12px;color:#aaa;}
     .spinner-container{
       position:relative;
-      width:120px;height:120px;margin:15px auto;
+      width:140px;height:140px;margin:20px auto;
     }
     .spinner-glow{
       position:absolute;width:100%;height:100%;border-radius:50%;
@@ -68,13 +71,28 @@
     }
     @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
     @keyframes breathe{0%,100%{transform:scale(0.9);opacity:0.5;}50%{transform:scale(1.1);opacity:1;}}
-    canvas{margin-top:20px;border-radius:20px;background:rgba(0,0,0,0.6);}
+    .logo-ton{
+      position:absolute;
+      top:-30px;
+      left:50%;
+      transform:translateX(-50%);
+      width:60px;height:60px;
+      border-radius:50%;
+      background:#00e5ff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:bold;
+      font-size:24px;
+      color:#000;
+      box-shadow:0 0 25px #00e5ff;
+    }
   </style>
 </head>
 <body>
-  <h1>🚀 Ton Plus</h1>
-
   <div class="card">
+    <div class="logo-ton">TON</div>
+    <h1>Ton Plus</h1>
     <div class="balance-label">Balance</div>
     <div id="balance" class="balance">0.000000 TON</div>
 
@@ -94,11 +112,6 @@
     </div>
   </div>
 
-  <div class="card">
-    <canvas id="chart" width="320" height="150"></canvas>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     if(window.Telegram && Telegram.WebApp) Telegram.WebApp.ready();
     document.addEventListener("keydown", e => { if(e.key==="Enter"||e.key==="e") e.preventDefault(); });
@@ -106,6 +119,7 @@
     let balance=parseFloat(localStorage.getItem("ton_balance"))||0;
     let power=parseFloat(localStorage.getItem("ton_power"))||2.0;
     let cooldown=0;
+
     const balanceEl=document.getElementById("balance");
     const powerEl=document.getElementById("power");
     const cooldownEl=document.getElementById("cooldown");
@@ -115,6 +129,7 @@
       powerEl.innerText=power.toFixed(1);
       cooldownEl.innerText=cooldown;
     }
+
     function animateBalance(){
       balanceEl.classList.add("bump");
       setTimeout(()=>balanceEl.classList.remove("bump"),150);
@@ -135,27 +150,12 @@
         if(cooldown<=0){cooldown=0;clearInterval(interval);}
         updateUI();
       },1000);
-      addChartData(balance);
     }
 
     function boost(){power+=1.0;localStorage.setItem("ton_power",power.toFixed(1));updateUI();alert("Boost activated! +1 GH/s");}
     function invite(){power+=0.5;localStorage.setItem("ton_power",power.toFixed(1));updateUI();alert("Referral bonus! +0.5 GH/s");}
 
-    // نمودار پیشرفت استخراج
-    const ctx=document.getElementById("chart").getContext("2d");
-    const data={labels:[],datasets:[{label:"Balance (TON)",data:[],borderColor:"#00e5ff",backgroundColor:"rgba(0,188,212,0.2)",fill:true,tension:0.3}]};
-    const config={type:"line",data:data,options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{beginAtZero:true}}}};
-    const chart=new Chart(ctx,config);
-    function addChartData(value){
-      const time=new Date().toLocaleTimeString();
-      data.labels.push(time);
-      data.datasets[0].data.push(value.toFixed(6));
-      if(data.labels.length>20){data.labels.shift();data.datasets[0].data.shift();}
-      chart.update();
-    }
-
     updateUI();
   </script>
 </body>
 </html>
-
