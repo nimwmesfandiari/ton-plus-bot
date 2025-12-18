@@ -4,75 +4,89 @@
   <meta charset="UTF-8">
   <title>Ton Plus</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Chivo+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    *{box-sizing:border-box;user-select:none;margin:0;padding:0;}
+    *{box-sizing:border-box;margin:0;padding:0;}
     body{
-      height:100vh;
-      font-family:Arial,sans-serif;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      font-family:'Inter',sans-serif;
+      background: radial-gradient(circle at 10% 20%, rgba(0,188,212,0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(255,215,0,0.05) 0%, transparent 40%);
+      background-color:#050505;
       color:white;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      min-height:100vh;
+      padding:20px;
     }
-    .app{
-      background:rgba(0,0,0,0.7);
-      border-radius:25px;
-      padding:30px 25px;
+    .card{
+      background:rgba(20,20,25,0.7);
+      backdrop-filter:blur(12px);
+      border-radius:20px;
+      padding:20px;
       width:100%;
-      max-width:400px;
+      max-width:360px;
+      margin-bottom:20px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.4);
+      border:1px solid rgba(255,255,255,0.08);
       text-align:center;
-      box-shadow:0 0 50px rgba(0,188,212,0.3);
     }
-    h1{color:#00e5ff;margin-bottom:10px;}
-    .balance-label{font-size:14px;color:#aaa;}
-    .balance{
-      font-size:36px;font-weight:bold;margin:15px 0 20px;
-      transition:transform 0.15s ease;
-    }
+    h1{color:#00bcd4;margin-bottom:10px;}
+    .balance{font-family:'Chivo Mono', monospace;font-size:32px;margin:10px 0;transition: transform 0.15s;}
     .balance.bump{transform:scale(1.1);}
-    .btn{
-      width:100%;padding:16px;font-size:18px;border-radius:16px;border:none;cursor:pointer;margin-top:12px;font-weight:bold;
+    button{
+      width:100%;
+      padding:14px;
+      border-radius:14px;
+      font-size:18px;
+      font-weight:700;
+      border:none;
+      cursor:pointer;
+      margin-top:12px;
+      transition: transform 0.1s;
     }
-    .mine-btn{background:linear-gradient(135deg,#00e5ff,#00bcd4);color:#000;}
-    .mine-btn:active{transform:scale(0.96);}
-    .boost-btn{background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;}
-    .boost-btn:active{transform:scale(0.96);}
-    .referral-btn{background:linear-gradient(135deg,#8e44ad,#c0392b);color:#fff;}
-    .referral-btn:active{transform:scale(0.96);}
-    .info{margin-top:15px;font-size:12px;color:#ccc;}
+    button:active{transform:scale(0.96);}
+    .mine-btn{background:linear-gradient(90deg,#00bcd4,#00e5ff);color:#000;}
+    .boost-btn{background:linear-gradient(90deg,#ffd700,#ffb700);color:#000;}
+    .referral-btn{background:linear-gradient(90deg,#8e44ad,#c0392b);color:#fff;}
+    .info{margin-top:10px;font-size:12px;color:#aaa;}
     .spinner-container{
       position:relative;
-      width:120px;height:120px;margin:20px auto;
+      width:120px;height:120px;margin:15px auto;
     }
-    .spinner{
-      width:100%;height:100%;border-radius:50%;
+    .spinner-glow{
+      position:absolute;width:100%;height:100%;border-radius:50%;
       background:radial-gradient(circle,#00bcd4 0%,transparent 70%);
       animation:breathe 3s infinite ease-in-out;
     }
-    .spinner img{
+    .spinner-glow.yellow{background:radial-gradient(circle,#ffd700 0%,transparent 70%);}
+    .spinner-img{
       position:absolute;top:0;left:0;width:100%;height:100%;
       object-fit:contain;
       animation:spin 6s linear infinite;
     }
     @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
     @keyframes breathe{0%,100%{transform:scale(0.9);opacity:0.5;}50%{transform:scale(1.1);opacity:1;}}
+    canvas{margin-top:20px;border-radius:20px;background:rgba(0,0,0,0.6);}
   </style>
 </head>
 <body>
-  <div class="app">
-    <h1>🚀 Ton Plus</h1>
+  <h1>🚀 Ton Plus</h1>
+
+  <div class="card">
     <div class="balance-label">Balance</div>
     <div id="balance" class="balance">0.000000 TON</div>
 
     <div class="spinner-container">
-      <div class="spinner"></div>
-      <img src="https://cdn-icons-png.flaticon.com/512/270/270798.png" alt="spinner">
+      <div class="spinner-glow"></div>
+      <div class="spinner-glow yellow"></div>
+      <img class="spinner-img" src="https://cdn-icons-png.flaticon.com/512/270/270798.png">
     </div>
 
-    <button class="btn mine-btn" onclick="mine()">⛏ Tap to Mine</button>
-    <button class="btn boost-btn" onclick="boost()">⚡ Boost Mining</button>
-    <button class="btn referral-btn" onclick="invite()">👥 Invite Friend</button>
+    <button class="mine-btn" onclick="mine()">⛏ Tap to Mine</button>
+    <button class="boost-btn" onclick="boost()">⚡ Boost Mining</button>
+    <button class="referral-btn" onclick="invite()">👥 Invite Friend</button>
 
     <div class="info">
       Mining power: <span id="power">2.0</span> GH/s<br>
@@ -80,6 +94,11 @@
     </div>
   </div>
 
+  <div class="card">
+    <canvas id="chart" width="320" height="150"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     if(window.Telegram && Telegram.WebApp) Telegram.WebApp.ready();
     document.addEventListener("keydown", e => { if(e.key==="Enter"||e.key==="e") e.preventDefault(); });
@@ -87,7 +106,6 @@
     let balance=parseFloat(localStorage.getItem("ton_balance"))||0;
     let power=parseFloat(localStorage.getItem("ton_power"))||2.0;
     let cooldown=0;
-
     const balanceEl=document.getElementById("balance");
     const powerEl=document.getElementById("power");
     const cooldownEl=document.getElementById("cooldown");
@@ -117,23 +135,27 @@
         if(cooldown<=0){cooldown=0;clearInterval(interval);}
         updateUI();
       },1000);
+      addChartData(balance);
     }
 
-    function boost(){
-      power+=1.0;
-      localStorage.setItem("ton_power",power.toFixed(1));
-      updateUI();
-      alert("Boost activated! Mining power +1 GH/s");
-    }
+    function boost(){power+=1.0;localStorage.setItem("ton_power",power.toFixed(1));updateUI();alert("Boost activated! +1 GH/s");}
+    function invite(){power+=0.5;localStorage.setItem("ton_power",power.toFixed(1));updateUI();alert("Referral bonus! +0.5 GH/s");}
 
-    function invite(){
-      power+=0.5;
-      localStorage.setItem("ton_power",power.toFixed(1));
-      updateUI();
-      alert("Referral bonus! +0.5 GH/s");
+    // نمودار پیشرفت استخراج
+    const ctx=document.getElementById("chart").getContext("2d");
+    const data={labels:[],datasets:[{label:"Balance (TON)",data:[],borderColor:"#00e5ff",backgroundColor:"rgba(0,188,212,0.2)",fill:true,tension:0.3}]};
+    const config={type:"line",data:data,options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{beginAtZero:true}}}};
+    const chart=new Chart(ctx,config);
+    function addChartData(value){
+      const time=new Date().toLocaleTimeString();
+      data.labels.push(time);
+      data.datasets[0].data.push(value.toFixed(6));
+      if(data.labels.length>20){data.labels.shift();data.datasets[0].data.shift();}
+      chart.update();
     }
 
     updateUI();
   </script>
 </body>
 </html>
+
