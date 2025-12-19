@@ -1,140 +1,159 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TON Mining</title>
+<title>Ton Plus | WebApp</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Chivo+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
 <style>
-body{
-  margin:0;
-  background:#050505;
-  color:#fff;
-  font-family:sans-serif;
+:root {
+    --bg: #050505;
+    --primary: #00bcd4;
+    --accent: #ffd700;
+    --text-main: #fff;
+    --text-muted: #888;
 }
-.page{
-  display:none;
-  padding:30px;
-  text-align:center;
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    overflow-x: hidden;
 }
-.page.active{display:block}
+header { display: flex; justify-content: space-between; padding: 12px 20px; }
+.glass-card {
+    background: rgba(20,20,25,0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 12px;
+    margin: 10px 0;
+}
+button {
+    background: var(--primary);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: #000;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+button:active { transform: scale(0.95); }
 
-.balance{
-  font-size:34px;
-  color:#00d0ff;
-  margin-top:20px;
-  font-weight:bold;
+nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    background: rgba(20,20,25,0.9);
+    backdrop-filter: blur(12px);
 }
+.nav-item { text-align: center; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+.nav-item.active { color: var(--primary); font-weight: 700; }
 
-.mine{
-  width:170px;
-  height:170px;
-  border-radius:50%;
-  background:radial-gradient(circle,#00e5ff,#005b8f);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:40px auto;
-  font-size:24px;
-  font-weight:bold;
-  box-shadow:0 0 40px rgba(0,208,255,.6);
-  transition:transform .05s;
-}
-.mine:active{transform:scale(.94)}
+.page { display: none; padding: 20px; }
+.page.active { display: block; }
 
-nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-  background:#0b0b0b;
-  padding:10px 0;
-  border-top:1px solid #111;
-}
-.nav{
-  color:#777;
-  font-size:14px;
-}
-.nav.active{color:#00d0ff}
+#balance { font-size: 2.5rem; font-family: 'Chivo Mono', monospace; color: var(--primary); transition: all 0.2s ease; }
 </style>
 </head>
-
 <body>
 
-<!-- HOME -->
-<div id="home" class="page active">
-  <div class="balance" id="bal">0.000000</div>
-  <div class="mine" id="mineBtn">MINE</div>
-</div>
+<header>
+    <h1>Ton Plus</h1>
+    <div id="online-status" class="glass-card" style="padding:4px 8px; font-size:12px;">Online</div>
+</header>
 
-<!-- WALLET -->
-<div id="wallet" class="page">
-  <h2>Wallet</h2>
-  <p>Balance:</p>
-  <p class="balance" id="walletBal">0.000000</p>
-</div>
+<main>
+    <!-- Home Page -->
+    <div id="page-home" class="page active">
+        <div class="glass-card" style="text-align:center;">
+            <h2>Balance</h2>
+            <div id="balance">0.000000 TON</div>
+            <button onclick="mine()">⛏ Mine</button>
+        </div>
+    </div>
 
-<!-- FRIENDS -->
-<div id="friends" class="page">
-  <h2>Friends</h2>
-  <p>Referral system coming soon</p>
-</div>
+    <!-- Wallet Page -->
+    <div id="page-wallet" class="page">
+        <div class="glass-card">
+            <h2>Wallet</h2>
+            <p id="wallet-balance">Balance: 0.000000 TON</p>
+        </div>
+    </div>
 
-<!-- TASKS -->
-<div id="tasks" class="page">
-  <h2>Tasks</h2>
-  <p>Complete tasks & earn more TON</p>
-</div>
+    <!-- Friends Page -->
+    <div id="page-friends" class="page">
+        <div class="glass-card">
+            <h2>Referrals</h2>
+            <p id="ref-count">Total Referrals: 0</p>
+            <p>Referral Link:</p>
+            <input type="text" id="ref-link" value="https://t.me/TonPlusBot?start=USERID" readonly style="width:100%; padding:6px; border-radius:8px; border:none;">
+        </div>
+    </div>
 
-<!-- NAV -->
+    <!-- Tasks Page -->
+    <div id="page-tasks" class="page">
+        <div class="glass-card">
+            <h2>Tasks</h2>
+            <p>Complete tasks to earn TON!</p>
+        </div>
+    </div>
+</main>
+
 <nav>
-  <div class="nav active" data-page="home">Home</div>
-  <div class="nav" data-page="wallet">Wallet</div>
-  <div class="nav" data-page="friends">Friends</div>
-  <div class="nav" data-page="tasks">Tasks</div>
+    <div class="nav-item active" data-page="page-home">Home</div>
+    <div class="nav-item" data-page="page-wallet">Wallet</div>
+    <div class="nav-item" data-page="page-friends">Friends</div>
+    <div class="nav-item" data-page="page-tasks">Tasks</div>
 </nav>
 
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
+Telegram.WebApp.ready();
 
-/* ===== LOAD SAVED BALANCE ===== */
-let balance = localStorage.getItem("ton_balance");
-balance = balance ? parseFloat(balance) : 0;
+// SPA navigation
+const navItems = document.querySelectorAll('.nav-item');
+const pages = document.querySelectorAll('.page');
+navItems.forEach(item => {
+    item.addEventListener('click', () => {
+        navItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const pageId = item.getAttribute('data-page');
+        pages.forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    });
+});
 
-const bal = document.getElementById("bal");
-const walletBal = document.getElementById("walletBal");
-bal.textContent = balance.toFixed(6);
-walletBal.textContent = balance.toFixed(6);
+// Balance handling
+let balance = parseFloat(localStorage.getItem('ton_balance') || '0');
+let refCount = parseInt(localStorage.getItem('ton_ref') || '0');
 
-/* ===== MINE FUNCTION ===== */
-const mineBtn = document.getElementById("mineBtn");
-
-function mine(){
-  balance += 0.0001;
-  bal.textContent = balance.toFixed(6);
-  walletBal.textContent = balance.toFixed(6);
-  localStorage.setItem("ton_balance", balance);
+function updateBalance() {
+    document.getElementById('balance').innerText = balance.toFixed(6) + ' TON';
+    document.getElementById('wallet-balance').innerText = 'Balance: ' + balance.toFixed(6) + ' TON';
+    document.getElementById('ref-count').innerText = 'Total Referrals: ' + refCount;
 }
 
-/* click + touch (safe for iOS / GitHub / Telegram) */
-mineBtn.addEventListener("click", mine);
-mineBtn.addEventListener("touchstart", (e)=>{
-  e.preventDefault();
-  mine();
-},{passive:false});
+function mine() {
+    balance += 0.0001;
+    localStorage.setItem('ton_balance', balance);
+    updateBalance();
+    // confetti effect
+    confetti({ particleCount: 15, spread: 70, origin: { y: 0.6 } });
+}
 
-/* ===== NAVIGATION ===== */
-document.querySelectorAll(".nav").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".nav").forEach(n=>n.classList.remove("active"));
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.page).classList.add("active");
-  });
-});
-
-});
+// Initialize display
+updateBalance();
 </script>
 
 </body>
