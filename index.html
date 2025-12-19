@@ -1,81 +1,20 @@
-<!DOCTYPE html>
-<html lang="fa">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TON Mining</title>
-
-<style>
-body{
-  margin:0;
-  background:#050505;
-  color:#fff;
-  font-family:sans-serif;
-}
-.page{display:none;padding:30px;text-align:center}
-.page.active{display:block}
-
-.balance{
-  font-size:34px;
-  color:#00d0ff;
-  margin-top:20px;
-}
-
-.mine{
-  width:160px;
-  height:160px;
-  border-radius:50%;
-  background:linear-gradient(145deg,#00d0ff,#005b8f);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:40px auto;
-  font-size:24px;
-  font-weight:bold;
-}
-
-nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-  background:#0b0b0b;
-  padding:10px 0;
-}
-.nav{color:#777}
-.nav.active{color:#00d0ff}
-</style>
-</head>
-
-<body>
-
-<div id="home" class="page active">
-  <div class="balance" id="bal">0.000000</div>
-  <div class="mine" id="mineBtn">MINE</div>
-</div>
-
-<div id="wallet" class="page"><h2>Wallet</h2></div>
-<div id="friends" class="page"><h2>Friends</h2></div>
-<div id="tasks" class="page"><h2>Tasks</h2></div>
-
-<nav>
-  <div class="nav active" data-page="home">Home</div>
-  <div class="nav" data-page="wallet">Wallet</div>
-  <div class="nav" data-page="friends">Friends</div>
-  <div class="nav" data-page="tasks">Tasks</div>
-</nav>
-
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
-let balance = 0;
+/* ===== LOAD BALANCE ===== */
+let balance = localStorage.getItem("ton_balance");
+balance = balance ? parseFloat(balance) : 0;
+
 const bal = document.getElementById("bal");
+bal.textContent = balance.toFixed(6);
+
+/* ===== MINE ===== */
 const mine = document.getElementById("mineBtn");
 
 function add(){
   balance += 0.0001;
   bal.textContent = balance.toFixed(6);
+  localStorage.setItem("ton_balance", balance);
 }
 
 mine.addEventListener("click",add);
@@ -84,6 +23,7 @@ mine.addEventListener("touchstart",(e)=>{
   add();
 },{passive:false});
 
+/* ===== NAVIGATION ===== */
 document.querySelectorAll(".nav").forEach(btn=>{
   btn.addEventListener("click",()=>{
     document.querySelectorAll(".nav").forEach(n=>n.classList.remove("active"));
@@ -95,6 +35,3 @@ document.querySelectorAll(".nav").forEach(btn=>{
 
 });
 </script>
-
-</body>
-</html>
