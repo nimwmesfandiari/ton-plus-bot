@@ -1,164 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ton Plus</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ton Plus | Mining Dashboard</title>
+
+<!-- فونت‌ها -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Chivo+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Telegram WebApp JS -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
 <style>
-  /* --- طراحی کلی --- */
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  header {
-    padding: 15px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #00bcd4;
-  }
-  main {
-    flex: 1;
-    padding: 20px;
-  }
-  .balance-card {
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  #balance {
-    font-size: 32px;
-    color: #00e5ff;
-  }
-  button {
-    padding: 15px 30px;
-    font-size: 18px;
-    border: none;
-    border-radius: 12px;
-    background: #00bcd4;
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
-  button:active {
-    transform: scale(0.96);
-  }
-  nav {
-    display: flex;
-    justify-content: space-around;
-    background: rgba(0,0,0,0.7);
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-  }
-  nav button {
-    background: transparent;
-    color: #aaa;
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 8px 16px;
-  }
-  nav button.active {
-    background: #00bcd4;
-    color: #000;
-  }
-  .page-section {
-    display: none;
-  }
-  .page-section.active {
-    display: block;
-  }
+:root{
+    --bg-color:#050505;
+    --card-bg:rgba(20,20,25,0.6);
+    --card-border:rgba(255,255,255,0.08);
+    --primary:#00bcd4;
+    --primary-ton:#0098EA;
+    --primary-glow:rgba(0,188,212,0.4);
+    --accent:#ffd700;
+    --text-main:#ffffff;
+    --text-muted:#a0a0a0;
+}
+body{
+    margin:0;
+    padding:0;
+    background-color:var(--bg-color);
+    font-family:'Inter',sans-serif;
+    color:var(--text-main);
+    overflow-x:hidden;
+}
+button{
+    cursor:pointer;
+}
+.glass-card{
+    background:var(--card-bg);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.page-section{display:none;}
+.page-section.active{display:block;}
+.btn-primary{
+    background:linear-gradient(90deg,#00bcd4,#00e5ff);
+    color:#000;
+    font-weight:700;
+    border:none;
+    border-radius:14px;
+    padding:12px 20px;
+    box-shadow:0 0 15px rgba(0,188,212,0.2);
+    transition:transform 0.1s,box-shadow 0.2s;
+}
+.btn-primary:active{transform:scale(0.96);}
+.miner-num{font-family:'Chivo Mono',monospace;font-size:2.5rem;text-shadow:0 0 10px var(--primary-glow);}
+nav.floating-nav{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    width:92%;max-width:400px;
+    background:rgba(20,20,25,0.9);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:24px;
+    display:flex;justify-content:space-between;
+    padding:10px 20px;z-index:50;
+}
+.nav-item{color:#6b7280;text-align:center;text-decoration:none;flex:1;}
+.nav-item.active{color:var(--primary);}
 </style>
 </head>
 <body>
 
-<header>Ton Plus</header>
-
-<main>
-  <div id="page-home" class="page-section active">
-    <div class="balance-card">
-      <p>Balance</p>
-      <h2 id="balance">0.000000 TON</h2>
-      <button id="mineButton">⛏ Mine</button>
+<main class="px-4 pt-8 pb-32 max-w-md mx-auto">
+    <!-- بالانس -->
+    <div class="glass-card p-6 mb-6 text-center">
+        <h1 class="text-3xl font-bold mb-2">Ton Plus ⛏️</h1>
+        <div class="miner-num mb-4" id="miner-num">0.000000 TON</div>
+        <button class="btn-primary w-full" id="mine-btn">Mine</button>
     </div>
-    <p style="text-align:center;color:#888;">Mining Power: 2.0 GH/s</p>
-  </div>
 
-  <div id="page-wallet" class="page-section">
-    <div class="balance-card">
-      <p>Wallet</p>
-      <h2 id="walletBalance">0.000000 TON</h2>
+    <!-- صفحات -->
+    <div id="page-wallet" class="page-section glass-card p-4 mb-4">
+        <h2 class="text-xl font-bold mb-2">Wallet</h2>
+        <p id="wallet-balance">Balance: 0.000000 TON</p>
     </div>
-  </div>
 
-  <div id="page-friends" class="page-section">
-    <div class="balance-card">
-      <p>Friends</p>
-      <h2 id="friendsCount">0</h2>
+    <div id="page-friends" class="page-section glass-card p-4 mb-4">
+        <h2 class="text-xl font-bold mb-2">Friends</h2>
+        <p>Total Invites: 0</p>
+        <p>Total Earned: 0.000000 TON</p>
     </div>
-  </div>
 
-  <div id="page-tasks" class="page-section">
-    <div class="balance-card">
-      <p>Tasks</p>
-      <h2>Complete tasks to earn TON</h2>
+    <div id="page-tasks" class="page-section glass-card p-4 mb-4">
+        <h2 class="text-xl font-bold mb-2">Tasks</h2>
+        <p>Complete tasks & earn TON!</p>
     </div>
-  </div>
 </main>
 
-<nav>
-  <button data-page="page-home" class="active">Home</button>
-  <button data-page="page-wallet">Wallet</button>
-  <button data-page="page-friends">Friends</button>
-  <button data-page="page-tasks">Tasks</button>
+<!-- نوار پایین -->
+<nav class="floating-nav">
+    <a href="#" class="nav-item active" data-page="home">Home</a>
+    <a href="#" class="nav-item" data-page="wallet">Wallet</a>
+    <a href="#" class="nav-item" data-page="friends">Friends</a>
+    <a href="#" class="nav-item" data-page="tasks">Tasks</a>
 </nav>
 
 <script>
-  // Telegram WebApp ready
-  Telegram.WebApp.ready();
+const TelegramWebApp = window.Telegram.WebApp;
+TelegramWebApp.ready();
 
-  // --- مدیریت صفحات ---
-  const navButtons = document.querySelectorAll('nav button');
-  const pages = document.querySelectorAll('.page-section');
-  navButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      navButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const target = btn.getAttribute('data-page');
-      pages.forEach(p => p.classList.remove('active'));
-      document.getElementById(target).classList.add('active');
-    });
-  });
+// بالانس
+let balance = parseFloat(localStorage.getItem("ton_balance")) || 0;
+const minerNum = document.getElementById("miner-num");
+const walletBalance = document.getElementById("wallet-balance");
+const mineBtn = document.getElementById("mine-btn");
 
-  // --- مدیریت Mine و موجودی ---
-  let balance = parseFloat(localStorage.getItem('ton_balance') || '0');
-  const balanceDisplay = document.getElementById('balance');
-  const walletDisplay = document.getElementById('walletBalance');
-
-  function updateBalanceDisplay() {
-    balanceDisplay.textContent = balance.toFixed(6) + ' TON';
-    walletDisplay.textContent = balance.toFixed(6) + ' TON';
-  }
-  updateBalanceDisplay();
-
-  const mineButton = document.getElementById('mineButton');
-  mineButton.addEventListener('click', () => {
+// Mine
+mineBtn.addEventListener("click",()=>{
     balance += 0.0001;
-    localStorage.setItem('ton_balance', balance);
-    updateBalanceDisplay();
-    Telegram.WebApp.HapticFeedback.impactOccurred('light');
-  });
+    localStorage.setItem("ton_balance",balance.toFixed(6));
+    updateDisplay();
+});
+
+function updateDisplay(){
+    minerNum.innerText = balance.toFixed(6)+" TON";
+    walletBalance.innerText = "Balance: "+balance.toFixed(6)+" TON";
+}
+
+// صفحات SPA
+const pages = {home:document.querySelector("main"), wallet:document.getElementById("page-wallet"), friends:document.getElementById("page-friends"), tasks:document.getElementById("page-tasks")};
+const navItems = document.querySelectorAll(".nav-item");
+
+navItems.forEach(item=>{
+    item.addEventListener("click",e=>{
+        e.preventDefault();
+        navItems.forEach(i=>i.classList.remove("active"));
+        item.classList.add("active");
+        const page = item.dataset.page;
+        if(page==="home"){
+            pages.home.style.display="block";
+            pages.wallet.style.display="none";
+            pages.friends.style.display="none";
+            pages.tasks.style.display="none";
+        } else{
+            pages.home.style.display="none";
+            pages.wallet.style.display=page==="wallet"?"block":"none";
+            pages.friends.style.display=page==="friends"?"block":"none";
+            pages.tasks.style.display=page==="tasks"?"block":"none";
+        }
+    });
+});
+
+// لود اولیه
+updateDisplay();
 </script>
 
 </body>
