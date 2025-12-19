@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TON Miner | ربات استخراج تلگرام</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Telegram WebApp API -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -26,6 +25,7 @@
             --online-color: #00d166;
             --warning-color: #ff4757;
             --success-color: #00d166;
+            --info-color: #0088cc;
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             --transition: all 0.3s ease;
         }
@@ -47,7 +47,7 @@
             padding: 0 20px;
         }
 
-        /* بخش ۱: هدر */
+        /* هدر */
         header {
             padding: 20px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -62,6 +62,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .logo {
@@ -106,7 +108,8 @@
         .status {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .online-status {
@@ -132,7 +135,7 @@
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 50px;
             font-weight: 600;
             cursor: pointer;
@@ -141,6 +144,7 @@
             align-items: center;
             gap: 8px;
             box-shadow: var(--shadow);
+            font-size: 14px;
         }
 
         .connect-btn:hover {
@@ -152,7 +156,27 @@
             background: linear-gradient(135deg, var(--online-color), #00a852);
         }
 
-        /* بخش ۲: صفحه اصلی Home / Miner */
+        .test-btn {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        /* صفحات */
         .page {
             display: none;
             animation: fadeIn 0.5s ease;
@@ -175,11 +199,18 @@
             color: var(--accent-color);
         }
 
+        /* کارت‌ها */
         .cards-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         .card {
@@ -222,6 +253,7 @@
             margin-right: 5px;
         }
 
+        /* ماینر */
         .miner-container {
             text-align: center;
             padding: 40px 20px;
@@ -269,10 +301,12 @@
             justify-content: center;
             gap: 40px;
             margin-top: 30px;
+            flex-wrap: wrap;
         }
 
         .stat-item {
             text-align: center;
+            min-width: 120px;
         }
 
         .stat-value {
@@ -287,15 +321,17 @@
             margin-top: 5px;
         }
 
-        /* بخش ۳: صفحه کیف پول (Wallet) */
+        /* کیف پول */
         .wallet-actions {
             display: flex;
             gap: 15px;
             margin: 20px 0 30px;
+            flex-wrap: wrap;
         }
 
         .wallet-btn {
             flex: 1;
+            min-width: 150px;
             padding: 15px;
             border-radius: 15px;
             border: none;
@@ -341,12 +377,15 @@
         .address-input {
             display: flex;
             margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .address-input input {
             flex: 1;
+            min-width: 250px;
             padding: 15px;
-            border-radius: 10px 0 0 10px;
+            border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-color);
@@ -358,10 +397,11 @@
             background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 0 10px 10px 0;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
             transition: var(--transition);
+            min-width: 140px;
         }
 
         .save-btn:hover {
@@ -377,12 +417,14 @@
             word-break: break-all;
         }
 
+        /* تراکنش‌ها */
         .transaction-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
         }
 
         .transaction-item:last-child {
@@ -393,6 +435,8 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            flex: 1;
+            min-width: 250px;
         }
 
         .transaction-icon {
@@ -403,6 +447,7 @@
             justify-content: center;
             align-items: center;
             font-size: 18px;
+            flex-shrink: 0;
         }
 
         .receive .transaction-icon {
@@ -433,6 +478,8 @@
         .transaction-amount {
             font-weight: 700;
             font-size: 18px;
+            min-width: 120px;
+            text-align: left;
         }
 
         .receive .transaction-amount {
@@ -447,7 +494,7 @@
             color: var(--accent-color);
         }
 
-        /* بخش ۴: صفحه دوستان / رفرال */
+        /* دعوت */
         .referral-link-container {
             background: rgba(0, 136, 204, 0.1);
             border-radius: 15px;
@@ -459,12 +506,15 @@
         .referral-link {
             display: flex;
             margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .referral-link input {
             flex: 1;
+            min-width: 250px;
             padding: 15px;
-            border-radius: 10px 0 0 10px;
+            border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-color);
@@ -476,16 +526,18 @@
             background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 0 10px 10px 0;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
             transition: var(--transition);
+            min-width: 140px;
         }
 
         .copy-btn:hover {
             background: #0066a0;
         }
 
+        /* رتبه‌بندی */
         .leaderboard {
             margin-top: 30px;
         }
@@ -514,6 +566,7 @@
             align-items: center;
             font-weight: 700;
             margin-left: 15px;
+            flex-shrink: 0;
         }
 
         .rank-1 {
@@ -533,6 +586,7 @@
 
         .leaderboard-user {
             flex: 1;
+            min-width: 200px;
         }
 
         .leaderboard-user h4 {
@@ -549,9 +603,11 @@
             font-weight: 700;
             color: var(--accent-color);
             font-size: 18px;
+            min-width: 100px;
+            text-align: left;
         }
 
-        /* بخش ۵: صفحه تسک‌ها (Tasks / Earn Zone) */
+        /* تسک‌ها */
         .task-item {
             display: flex;
             justify-content: space-between;
@@ -561,6 +617,8 @@
             background: rgba(255, 255, 255, 0.03);
             margin-bottom: 15px;
             transition: var(--transition);
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .task-item:hover {
@@ -571,6 +629,8 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            flex: 1;
+            min-width: 250px;
         }
 
         .task-icon {
@@ -583,6 +643,7 @@
             align-items: center;
             font-size: 22px;
             color: var(--primary-color);
+            flex-shrink: 0;
         }
 
         .task-details h4 {
@@ -599,7 +660,8 @@
             color: var(--accent-color);
             font-weight: 700;
             font-size: 18px;
-            margin-left: 15px;
+            min-width: 100px;
+            text-align: center;
         }
 
         .task-btn {
@@ -611,6 +673,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
+            min-width: 120px;
         }
 
         .task-btn:hover {
@@ -622,7 +685,7 @@
             cursor: default;
         }
 
-        /* بخش ۶: ناوبری پایین صفحه */
+        /* ناوبری */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -651,6 +714,7 @@
             transition: var(--transition);
             padding: 5px 15px;
             border-radius: 15px;
+            min-width: 70px;
         }
 
         .nav-item.active {
@@ -672,7 +736,7 @@
             color: var(--primary-color);
         }
 
-        /* بخش ۷: مدال‌ها و پنجره‌های پاپ‌آپ */
+        /* مدال‌ها */
         .modal {
             display: none;
             position: fixed;
@@ -685,6 +749,7 @@
             justify-content: center;
             align-items: center;
             animation: fadeIn 0.3s ease;
+            padding: 20px;
         }
 
         .modal.active {
@@ -694,12 +759,14 @@
         .modal-content {
             background: var(--card-bg);
             border-radius: 25px;
-            width: 90%;
+            width: 100%;
             max-width: 500px;
             padding: 30px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
             animation: slideUp 0.4s ease;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -721,6 +788,7 @@
             font-size: 28px;
             cursor: pointer;
             transition: var(--transition);
+            line-height: 1;
         }
 
         .close-btn:hover {
@@ -762,6 +830,7 @@
             font-size: 16px;
             cursor: pointer;
             transition: var(--transition);
+            min-width: 120px;
         }
 
         .confirm-btn {
@@ -776,6 +845,35 @@
 
         .modal-btn:hover {
             transform: translateY(-3px);
+        }
+
+        /* نوتیفیکیشن‌ها */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: rgba(25, 35, 60, 0.95);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+            max-width: 350px;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .notification.success {
+            border-left-color: var(--success-color);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .notification.info {
+            border-left-color: var(--info-color);
         }
 
         /* انیمیشن‌ها */
@@ -801,34 +899,6 @@
             }
         }
 
-        @keyframes glow {
-            0% { box-shadow: 0 0 10px rgba(0, 136, 204, 0.5); }
-            50% { box-shadow: 0 0 20px rgba(0, 136, 204, 0.8); }
-            100% { box-shadow: 0 0 10px rgba(0, 136, 204, 0.5); }
-        }
-
-        /* بخش ۸: جلوه‌های ویژه */
-        .glow-effect {
-            animation: glow 3s infinite;
-        }
-
-        /* اعلان‌ها */
-        .notification {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: rgba(25, 35, 60, 0.95);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            border-left: 4px solid var(--accent-color);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            z-index: 10000;
-            backdrop-filter: blur(10px);
-            max-width: 350px;
-            animation: slideInRight 0.3s ease;
-        }
-
         @keyframes slideInRight {
             from {
                 opacity: 0;
@@ -840,10 +910,37 @@
             }
         }
 
+        /* ردیابی وضعیت ربات */
+        .bot-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .bot-status.online {
+            background: rgba(0, 209, 102, 0.2);
+            color: var(--online-color);
+        }
+
+        .bot-status.offline {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--warning-color);
+        }
+
         /* ریسپانسیو */
         @media (max-width: 768px) {
-            .cards-container {
-                grid-template-columns: 1fr;
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .status {
+                justify-content: center;
             }
             
             .stats {
@@ -855,44 +952,33 @@
                 flex-direction: column;
             }
             
-            .referral-link, .address-input {
-                flex-direction: column;
-            }
-            
-            .referral-link input, .address-input input {
-                border-radius: 10px;
-                margin-bottom: 10px;
-            }
-            
-            .copy-btn, .save-btn {
-                border-radius: 10px;
-                width: 100%;
-            }
-            
-            .modal-content {
-                width: 95%;
-                padding: 20px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
             .task-item {
                 flex-direction: column;
-                gap: 15px;
                 text-align: center;
             }
             
             .task-info {
                 flex-direction: column;
             }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .notification {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- بخش ۱: هدر (Header) -->
+    <!-- هدر -->
     <header>
         <div class="container header-content">
             <div class="logo">
@@ -906,20 +992,31 @@
             </div>
             
             <div class="status">
+                <span class="bot-status offline" id="botStatus">
+                    <i class="fas fa-circle"></i>
+                    <span>ربات قطع</span>
+                </span>
+                
                 <div class="online-status">
                     <div class="online-dot"></div>
                     <span class="online-count" id="onlineCount">۴,۲۸۱ کاربر آنلاین</span>
                 </div>
+                
                 <button class="connect-btn" id="connectBtn">
                     <i class="fas fa-plug"></i>
                     اتصال به ربات
+                </button>
+                
+                <button class="test-btn" id="testBotBtn">
+                    <i class="fas fa-bug"></i>
+                    تست ربات
                 </button>
             </div>
         </div>
     </header>
 
     <div class="container">
-        <!-- بخش ۲: صفحه اصلی Home / Miner -->
+        <!-- صفحه اصلی -->
         <div class="page active" id="homePage">
             <h2 class="page-title"><i class="fas fa-home"></i> صفحه اصلی استخراج</h2>
             
@@ -984,7 +1081,7 @@
             </div>
         </div>
 
-        <!-- بخش ۳: صفحه کیف پول (Wallet) -->
+        <!-- کیف پول -->
         <div class="page" id="walletPage">
             <h2 class="page-title"><i class="fas fa-wallet"></i> کیف پول</h2>
             
@@ -1033,12 +1130,12 @@
             <div class="card">
                 <h3 class="card-title">تراکنش‌های اخیر</h3>
                 <div class="transaction-list" id="transactionList">
-                    <!-- تراکنش‌ها توسط JavaScript اضافه می‌شوند -->
+                    <!-- تراکنش‌ها -->
                 </div>
             </div>
         </div>
 
-        <!-- بخش ۴: صفحه دوستان / رفرال -->
+        <!-- دعوت -->
         <div class="page" id="friendsPage">
             <h2 class="page-title"><i class="fas fa-user-friends"></i> دوستان و دعوت</h2>
             
@@ -1080,12 +1177,12 @@
             <div class="leaderboard">
                 <h3 class="page-title"><i class="fas fa-trophy"></i> برترین استخراج‌کنندگان</h3>
                 <div id="leaderboardList">
-                    <!-- لیست رتبه‌بندی توسط JavaScript اضافه می‌شود -->
+                    <!-- لیست رتبه‌بندی -->
                 </div>
             </div>
         </div>
 
-        <!-- بخش ۵: صفحه تسک‌ها (Tasks / Earn Zone) -->
+        <!-- تسک‌ها -->
         <div class="page" id="tasksPage">
             <h2 class="page-title"><i class="fas fa-tasks"></i> تسک‌ها و پاداش‌ها</h2>
             
@@ -1103,12 +1200,12 @@
             
             <h3 style="margin: 30px 0 20px; font-size: 20px;">تسک‌های موجود</h3>
             <div id="tasksList">
-                <!-- تسک‌ها توسط JavaScript اضافه می‌شوند -->
+                <!-- تسک‌ها -->
             </div>
         </div>
     </div>
 
-    <!-- بخش ۶: ناوبری پایین صفحه -->
+    <!-- ناوبری -->
     <nav class="bottom-nav">
         <div class="nav-items">
             <div class="nav-item active" data-page="homePage">
@@ -1130,9 +1227,7 @@
         </div>
     </nav>
 
-    <!-- بخش ۷: مدال‌ها و پنجره‌های پاپ‌آپ -->
-    
-    <!-- مدال ارسال TON -->
+    <!-- مدال‌ها -->
     <div class="modal" id="sendModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1154,7 +1249,6 @@
         </div>
     </div>
 
-    <!-- مدال تقویت ماینر -->
     <div class="modal" id="boostModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1179,7 +1273,6 @@
         </div>
     </div>
 
-    <!-- مدال برداشت -->
     <div class="modal" id="withdrawModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1210,16 +1303,15 @@
         </div>
     </div>
 
-    <!-- بخش ۹: JavaScript و عملکرد صفحات -->
     <script>
         // ============ تنظیمات ============
         const BOT_TOKEN = '8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw';
         const ADMIN_CHAT_ID = '5972276401';
         const TELEGRAM_API_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
-        const MIN_WITHDRAWAL = 10; // حداقل برداشت 10 TON
-        const WITHDRAWAL_FEE = 0.05; // کارمزد شبکه
+        const MIN_WITHDRAWAL = 10;
+        const WITHDRAWAL_FEE = 0.05;
 
-        // ============ داده‌های کاربر ============
+        // ============ حالت‌ها ============
         let userData = {
             balance: 12.45,
             miningPower: 12.4,
@@ -1237,83 +1329,202 @@
         };
 
         let telegramUser = null;
+        let userTransactions = [];
+        let pendingNotifications = [];
+        let isBotWorking = false;
+        let botTested = false;
+
+        // ============ توابع اصلی ============
         
-        // تراکنش‌های نمونه
-        let userTransactions = [
-            { type: 'receive', title: 'پاداش استخراج', description: '۲ ساعت پیش', amount: 0.25 },
-            { type: 'send', title: 'ارسال به دوست', description: 'دیروز', amount: 1.5 },
-            { type: 'receive', title: 'پاداش دعوت', description: '۲ روز پیش', amount: 0.5 },
-            { type: 'receive', title: 'پاداش روزانه', description: '۳ روز پیش', amount: 0.5 }
-        ];
+        // تست اتصال ربات
+        async function testBotConnection() {
+            console.log('🔍 شروع تست اتصال ربات...');
+            updateBotStatus('testing', 'در حال تست...');
+            
+            try {
+                // تست ۱: اطلاعات ربات
+                const botInfoResponse = await fetch(`${TELEGRAM_API_URL}/getMe`);
+                const botInfo = await botInfoResponse.json();
+                
+                if (!botInfo.ok) {
+                    console.error('❌ خطا در اطلاعات ربات:', botInfo.description);
+                    showNotification(`❌ خطا در ربات: ${botInfo.description}`, 'warning');
+                    updateBotStatus('offline', 'ربات غیرفعال');
+                    isBotWorking = false;
+                    return false;
+                }
+                
+                console.log('✅ ربات فعال است:', botInfo.result.username);
+                
+                // تست ۲: ارسال پیام آزمایشی
+                const testMessage = `🤖 <b>تست سیستم گزارش‌دهی</b>\n\n` +
+                                  `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}\n` +
+                                  `✅ <b>وضعیت:</b> ربات آماده دریافت گزارش‌هاست\n` +
+                                  `👤 <b>ربات:</b> @${botInfo.result.username}\n` +
+                                  `🆔 <b>آیدی شما:</b> ${ADMIN_CHAT_ID}`;
+                
+                const success = await sendTelegramMessage(ADMIN_CHAT_ID, testMessage);
+                
+                if (success) {
+                    console.log('✅ تست ربات موفقیت‌آمیز بود!');
+                    showNotification('✅ اتصال ربات با موفقیت تست شد!', 'success');
+                    updateBotStatus('online', 'ربات متصل');
+                    isBotWorking = true;
+                    botTested = true;
+                    
+                    // ارسال گزارش‌های معوقه
+                    await sendPendingNotifications();
+                    
+                    return true;
+                } else {
+                    console.error('❌ ربات فعال است اما نمی‌تواند پیام بفرستد');
+                    showNotification('❌ ربات نمی‌تواند پیام بفرستد. ممکن است شما ربات را بلاک کرده باشید یا آیدی اشتباه باشد.', 'warning');
+                    updateBotStatus('offline', 'ارسال پیام ناموفق');
+                    isBotWorking = false;
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('❌ خطا در تست ربات:', error);
+                showNotification('❌ خطا در اتصال به ربات. ممکن است اینترنت قطع باشد یا توکن اشتباه است.', 'warning');
+                updateBotStatus('offline', 'اتصال ناموفق');
+                isBotWorking = false;
+                return false;
+            }
+        }
 
-        // تسک‌های نمونه
-        const sampleTasks = [
-            { id: 1, title: 'عضویت در کانال تلگرام', description: 'عضویت در کانال رسمی TON', reward: 0.2, completed: true },
-            { id: 2, title: 'دنبال کردن در توییتر', description: 'صفحه رسمی TON Miner', reward: 0.3, completed: true },
-            { id: 3, title: 'دعوت ۳ دوست', description: 'دعوت ۳ دوست به ربات', reward: 1.5, completed: false },
-            { id: 4, title: 'استخراج ۱۰ TON', description: 'جمع‌آوری ۱۰ TON از استخراج', reward: 0.8, completed: false }
-        ];
-
-        // لیست رتبه‌بندی
-        const leaderboardData = [
-            { name: 'علی محمدی', points: 245.67, rank: 1 },
-            { name: 'سارا احمدی', points: 198.34, rank: 2 },
-            { name: 'رضا کریمی', points: 156.89, rank: 3 },
-            { name: 'فاطمه حسینی', points: 134.56, rank: 4 },
-            { name: 'محمد رضایی', points: 112.23, rank: 5 }
-        ];
-
-        // ============ توابع ارسال نوتیفیکیشن به تلگرام ============
-        
-        // ارسال پیام به ادمین (شما)
-        async function sendTelegramNotification(message) {
-            if (!ADMIN_CHAT_ID) {
-                console.warn('آیدی ادمین تنظیم نشده است.');
+        // ارسال پیام به تلگرام
+        async function sendTelegramMessage(chatId, message) {
+            if (!chatId || !message) {
+                console.error('❌ پارامترهای ارسال پیام ناقص است');
                 return false;
             }
             
             try {
-                const url = `${TELEGRAM_API_URL}/sendMessage`;
-                const response = await fetch(url, {
+                const response = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        chat_id: ADMIN_CHAT_ID,
+                        chat_id: chatId,
                         text: message,
-                        parse_mode: 'HTML'
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: true
                     })
                 });
                 
                 const data = await response.json();
-                return data.ok;
+                
+                if (data.ok) {
+                    console.log('✅ پیام با موفقیت ارسال شد');
+                    return true;
+                } else {
+                    console.error('❌ خطا در ارسال پیام:', data.description);
+                    
+                    // ذخیره پیام ارسال نشده
+                    pendingNotifications.push({
+                        chatId,
+                        message,
+                        timestamp: new Date().toISOString(),
+                        error: data.description
+                    });
+                    
+                    // محدود کردن تعداد
+                    if (pendingNotifications.length > 50) {
+                        pendingNotifications = pendingNotifications.slice(-50);
+                    }
+                    
+                    savePendingNotifications();
+                    
+                    return false;
+                }
+                
             } catch (error) {
-                console.error('خطا در ارسال نوتیفیکیشن:', error);
+                console.error('❌ خطای شبکه در ارسال پیام:', error);
+                
+                pendingNotifications.push({
+                    chatId,
+                    message,
+                    timestamp: new Date().toISOString(),
+                    error: error.message
+                });
+                
+                savePendingNotifications();
                 return false;
             }
         }
-        
-        // گزارش ورود کاربر
+
+        // ارسال گزارش‌های معوقه
+        async function sendPendingNotifications() {
+            if (pendingNotifications.length === 0 || !isBotWorking) return;
+            
+            console.log(`📨 تلاش برای ارسال ${pendingNotifications.length} گزارش معوقه...`);
+            
+            const failedNotifications = [];
+            
+            for (const notification of pendingNotifications) {
+                try {
+                    const success = await sendTelegramMessage(notification.chatId, notification.message);
+                    if (!success) {
+                        failedNotifications.push(notification);
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                } catch (error) {
+                    console.error('❌ خطا در ارسال گزارش معوقه:', error);
+                    failedNotifications.push(notification);
+                }
+            }
+            
+            pendingNotifications = failedNotifications;
+            savePendingNotifications();
+            
+            if (failedNotifications.length > 0) {
+                console.log(`⚠️ ${failedNotifications.length} گزارش ارسال نشد`);
+            } else {
+                console.log('✅ تمام گزارش‌های معوقه ارسال شدند');
+            }
+        }
+
+        // ذخیره و بارگذاری گزارش‌های معوقه
+        function savePendingNotifications() {
+            try {
+                localStorage.setItem('tonMiner_pending', JSON.stringify(pendingNotifications));
+            } catch (error) {
+                console.error('❌ خطا در ذخیره گزارش‌ها:', error);
+            }
+        }
+
+        function loadPendingNotifications() {
+            try {
+                const saved = localStorage.getItem('tonMiner_pending');
+                if (saved) {
+                    pendingNotifications = JSON.parse(saved);
+                    console.log(`📨 ${pendingNotifications.length} گزارش معوقه بارگذاری شد`);
+                }
+            } catch (error) {
+                console.error('❌ خطا در بارگذاری گزارش‌ها:', error);
+            }
+        }
+
+        // توابع گزارش‌دهی
         async function reportUserLogin() {
-            if (!telegramUser) return;
+            if (!telegramUser) return false;
             
-            const userInfo = telegramUser;
-            const message = `🔔 <b>ورود کاربر جدید</b>\n\n` +
-                          `👤 <b>نام:</b> ${userInfo.first_name || 'نامشخص'} ${userInfo.last_name || ''}\n` +
-                          `📛 <b>یوزرنیم:</b> @${userInfo.username || 'ندارد'}\n` +
-                          `🆔 <b>آیدی:</b> <code>${userInfo.id}</code>\n` +
-                          `🌐 <b>زبان:</b> ${userInfo.language_code || 'نامشخص'}\n` +
+            const message = `👋 <b>ورود کاربر جدید</b>\n\n` +
+                          `👤 <b>نام:</b> ${telegramUser.first_name || 'نامشخص'} ${telegramUser.last_name || ''}\n` +
+                          `📛 <b>یوزرنیم:</b> @${telegramUser.username || 'ندارد'}\n` +
+                          `🆔 <b>آیدی:</b> <code>${telegramUser.id}</code>\n` +
+                          `🌐 <b>زبان:</b> ${telegramUser.language_code || 'نامشخص'}\n` +
                           `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}\n` +
-                          `📱 <b>از طریق:</b> Telegram WebApp\n\n` +
-                          `✅ کاربر با موفقیت وارد وب‌اپ شد.`;
+                          `📱 <b>از طریق:</b> Telegram WebApp`;
             
-            await sendTelegramNotification(message);
+            return await sendTelegramMessage(ADMIN_CHAT_ID, message);
         }
         
-        // گزارش فعالیت استخراج
         async function reportMiningActivity(amount) {
-            if (!telegramUser) return;
+            if (!telegramUser) return false;
             
             const message = `⛏️ <b>فعالیت استخراج</b>\n\n` +
                           `👤 <b>کاربر:</b> ${telegramUser.first_name || 'نامشخص'} (@${telegramUser.username || 'ندارد'})\n` +
@@ -1323,12 +1534,11 @@
                           `🏆 <b>کل استخراج شده:</b> ${userData.totalMined.toFixed(2)} TON\n` +
                           `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}`;
             
-            await sendTelegramNotification(message);
+            return await sendTelegramMessage(ADMIN_CHAT_ID, message);
         }
         
-        // گزارش ارسال TON
         async function reportSendTON(recipient, amount) {
-            if (!telegramUser) return;
+            if (!telegramUser) return false;
             
             const message = `📤 <b>ارسال TON</b>\n\n` +
                           `👤 <b>فرستنده:</b> ${telegramUser.first_name || 'نامشخص'} (@${telegramUser.username || 'ندارد'})\n` +
@@ -1337,12 +1547,11 @@
                           `💵 <b>موجودی جدید:</b> ${userData.balance.toFixed(2)} TON\n` +
                           `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}`;
             
-            await sendTelegramNotification(message);
+            return await sendTelegramMessage(ADMIN_CHAT_ID, message);
         }
         
-        // گزارش تقویت ماینر
         async function reportBoostMiner(amount, newPower) {
-            if (!telegramUser) return;
+            if (!telegramUser) return false;
             
             const message = `⚡ <b>تقویت ماینر</b>\n\n` +
                           `👤 <b>کاربر:</b> ${telegramUser.first_name || 'نامشخص'} (@${telegramUser.username || 'ندارد'})\n` +
@@ -1352,25 +1561,22 @@
                           `💵 <b>موجودی جدید:</b> ${userData.balance.toFixed(2)} TON\n` +
                           `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}`;
             
-            await sendTelegramNotification(message);
+            return await sendTelegramMessage(ADMIN_CHAT_ID, message);
         }
         
-        // گزارش ثبت آدرس کیف پول
         async function reportWalletAddressSet(address) {
-            if (!telegramUser) return;
+            if (!telegramUser) return false;
             
             const message = `🏦 <b>ثبت آدرس کیف پول</b>\n\n` +
                           `👤 <b>کاربر:</b> ${telegramUser.first_name || 'نامشخص'} (@${telegramUser.username || 'ندارد'})\n` +
                           `📧 <b>آدرس کیف پول:</b>\n<code>${address}</code>\n` +
-                          `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}\n\n` +
-                          `✅ کاربر آدرس کیف پول خود را برای برداشت تنظیم کرد.`;
+                          `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}`;
             
-            await sendTelegramNotification(message);
+            return await sendTelegramMessage(ADMIN_CHAT_ID, message);
         }
         
-        // گزارش برداشت
         async function reportWithdrawal(amount, address) {
-            if (!telegramUser) return;
+            if (!telegramUser) return false;
             
             const message = `💸 <b>درخواست برداشت</b>\n\n` +
                           `👤 <b>کاربر:</b> ${telegramUser.first_name || 'نامشخص'} (@${telegramUser.username || 'ندارد'})\n` +
@@ -1380,14 +1586,13 @@
                           `💵 <b>مبلغ قابل پرداخت:</b> ${(amount - WITHDRAWAL_FEE).toFixed(2)} TON\n` +
                           `💵 <b>موجودی جدید:</b> ${userData.balance.toFixed(2)} TON\n` +
                           `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}\n\n` +
-                          `⚠️ این یک درخواست برداشت است. لطفاً برای پرداخت اقدام کنید.`;
+                          `⚠️ <b>لطفاً برای پرداخت اقدام کنید.</b>`;
             
-            await sendTelegramNotification(message);
+            return await sendTelegramMessage(ADMIN_CHAT_ID, message);
         }
-        
-        // گزارش انجام تسک
+
         async function reportTaskCompletion(taskTitle, reward) {
-            if (!telegramUser) return;
+            if (!telegramUser) return false;
             
             const message = `✅ <b>انجام تسک</b>\n\n` +
                           `👤 <b>کاربر:</b> ${telegramUser.first_name || 'نامشخص'} (@${telegramUser.username || 'ندارد'})\n` +
@@ -1396,55 +1601,79 @@
                           `💵 <b>موجودی جدید:</b> ${userData.balance.toFixed(2)} TON\n` +
                           `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}`;
             
-            await sendTelegramNotification(message);
-        }
-        
-        // گزارش کپی لینک دعوت
-        async function reportReferralLinkCopy() {
-            if (!telegramUser) return;
-            
-            const message = `📢 <b>کپی لینک دعوت</b>\n\n` +
-                          `👤 <b>کاربر:</b> ${telegramUser.first_name || 'نامشخص'} (@${telegramUser.username || 'ندارد'})\n` +
-                          `📋 <b>فعالیت:</b> کپی لینک دعوت\n` +
-                          `👥 <b>دعوت‌شدگان:</b> ${userData.totalInvites} نفر\n` +
-                          `💰 <b>درآمد از دعوت:</b> ${userData.referralEarnings.toFixed(2)} TON\n` +
-                          `⏰ <b>زمان:</b> ${new Date().toLocaleString('fa-IR')}`;
-            
-            await sendTelegramNotification(message);
+            return await sendTelegramMessage(ADMIN_CHAT_ID, message);
         }
 
-        // ============ مدیریت داده‌های محلی ============
-        
-        function saveToLocalStorage() {
-            const dataToSave = {
-                ...userData,
-                transactions: userTransactions,
-                lastUpdate: new Date().toISOString()
-            };
-            localStorage.setItem('tonMinerData', JSON.stringify(dataToSave));
-        }
-
-        function loadFromLocalStorage() {
-            const savedData = localStorage.getItem('tonMinerData');
-            if (savedData) {
-                const parsedData = JSON.parse(savedData);
-                Object.assign(userData, parsedData);
-                
-                if (parsedData.transactions) {
-                    userTransactions = parsedData.transactions;
-                }
-                
-                // نمایش آدرس کیف پول اگر ذخیره شده باشد
-                if (userData.walletAddress) {
-                    document.getElementById('currentAddress').textContent = userData.walletAddress;
-                    document.getElementById('currentAddressContainer').style.display = 'block';
-                    document.getElementById('withdrawAddress').textContent = userData.walletAddress;
-                }
+        // به‌روزرسانی وضعیت ربات
+        function updateBotStatus(status, message = '') {
+            const botStatusEl = document.getElementById('botStatus');
+            
+            if (status === 'online') {
+                botStatusEl.className = 'bot-status online';
+                botStatusEl.innerHTML = `<i class="fas fa-circle"></i><span>${message || 'ربات متصل'}</span>`;
+            } else if (status === 'offline') {
+                botStatusEl.className = 'bot-status offline';
+                botStatusEl.innerHTML = `<i class="fas fa-circle"></i><span>${message || 'ربات قطع'}</span>`;
+            } else if (status === 'testing') {
+                botStatusEl.className = 'bot-status offline';
+                botStatusEl.innerHTML = `<i class="fas fa-sync fa-spin"></i><span>${message || 'در حال تست...'}</span>`;
             }
         }
 
-        // ============ مدیریت Telegram WebApp ============
-        
+        // نمایش نوتیفیکیشن
+        function showNotification(message, type = 'info') {
+            console.log(`📢 ${type}: ${message}`);
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // مدیریت داده‌های کاربر
+        function saveUserData() {
+            try {
+                const dataToSave = {
+                    ...userData,
+                    transactions: userTransactions,
+                    lastUpdate: new Date().toISOString()
+                };
+                localStorage.setItem('tonMiner_userData', JSON.stringify(dataToSave));
+            } catch (error) {
+                console.error('❌ خطا در ذخیره داده‌ها:', error);
+            }
+        }
+
+        function loadUserData() {
+            try {
+                const savedData = localStorage.getItem('tonMiner_userData');
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    Object.assign(userData, parsedData);
+                    
+                    if (parsedData.transactions) {
+                        userTransactions = parsedData.transactions;
+                    }
+                    
+                    if (userData.walletAddress) {
+                        document.getElementById('currentAddress').textContent = userData.walletAddress;
+                        document.getElementById('currentAddressContainer').style.display = 'block';
+                        document.getElementById('withdrawAddress').textContent = userData.walletAddress;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ خطا در بارگذاری داده‌ها:', error);
+            }
+        }
+
+        // مدیریت تلگرام WebApp
         function initTelegramWebApp() {
             if (window.Telegram && Telegram.WebApp) {
                 const tg = Telegram.WebApp;
@@ -1467,12 +1696,15 @@
                     }, 1000);
                 }
                 
-                updateConnectButton(true);
+                document.getElementById('connectBtn').innerHTML = '<i class="fas fa-check"></i> متصل به Telegram';
+                document.getElementById('connectBtn').classList.add('connected');
+                document.getElementById('connectBtn').disabled = true;
+                
                 return true;
             }
             return false;
         }
-        
+
         function displayUserInfo() {
             if (!telegramUser) return;
             
@@ -1492,120 +1724,8 @@
                 userInfoDiv.style.display = 'flex';
             }
         }
-        
-        function updateConnectButton(connected) {
-            const connectBtn = document.getElementById('connectBtn');
-            if (connected) {
-                connectBtn.innerHTML = '<i class="fas fa-check"></i> متصل به Telegram';
-                connectBtn.classList.add('connected');
-                connectBtn.disabled = true;
-            } else {
-                connectBtn.innerHTML = '<i class="fas fa-plug"></i> اتصال به ربات';
-                connectBtn.classList.remove('connected');
-                connectBtn.disabled = false;
-            }
-        }
 
-        // ============ توابع به‌روزرسانی صفحات ============
-        
-        function updateHomePage() {
-            document.getElementById('balance').textContent = userData.balance.toFixed(2);
-            document.getElementById('miningPower').textContent = userData.miningPower.toFixed(1);
-            document.getElementById('totalMined').textContent = userData.totalMined.toFixed(2);
-            document.getElementById('todayEarnings').textContent = userData.todayEarnings.toFixed(2);
-            document.getElementById('miningSpeed').textContent = userData.miningPower.toFixed(1);
-            document.getElementById('nextBoost').textContent = Math.ceil(15 - (userData.balance % 15));
-        }
-
-        function updateFriendsPage() {
-            document.getElementById('totalInvites').textContent = userData.totalInvites;
-            document.getElementById('referralEarnings').textContent = userData.referralEarnings.toFixed(2);
-        }
-
-        function updateTasksPage() {
-            document.getElementById('dailyReward').textContent = userData.dailyReward.toFixed(1);
-        }
-
-        function updateWalletPage() {
-            document.getElementById('totalAssets').textContent = userData.balance.toFixed(2);
-            
-            const transactionList = document.getElementById('transactionList');
-            transactionList.innerHTML = '';
-            
-            userTransactions.forEach(transaction => {
-                const transactionItem = document.createElement('div');
-                transactionItem.className = `transaction-item ${transaction.type}`;
-                
-                transactionItem.innerHTML = `
-                    <div class="transaction-info">
-                        <div class="transaction-icon">
-                            <i class="fas ${transaction.type === 'receive' ? 'fa-arrow-down' : transaction.type === 'send' ? 'fa-arrow-up' : 'fa-money-bill-wave'}"></i>
-                        </div>
-                        <div class="transaction-details">
-                            <h4>${transaction.title}</h4>
-                            <p>${transaction.description}</p>
-                        </div>
-                    </div>
-                    <div class="transaction-amount">
-                        ${transaction.type === 'receive' ? '+' : '-'}${transaction.amount} TON
-                    </div>
-                `;
-                
-                transactionList.appendChild(transactionItem);
-            });
-        }
-
-        function renderLeaderboard() {
-            const leaderboardList = document.getElementById('leaderboardList');
-            leaderboardList.innerHTML = '';
-            
-            leaderboardData.forEach(user => {
-                const leaderboardItem = document.createElement('div');
-                leaderboardItem.className = 'leaderboard-item';
-                
-                leaderboardItem.innerHTML = `
-                    <div class="leaderboard-rank rank-${user.rank}">${user.rank}</div>
-                    <div class="leaderboard-user">
-                        <h4>${user.name}</h4>
-                        <p>${user.points.toFixed(2)} TON استخراج شده</p>
-                    </div>
-                    <div class="leaderboard-points">${user.points.toFixed(2)}</div>
-                `;
-                
-                leaderboardList.appendChild(leaderboardItem);
-            });
-        }
-
-        function renderTasks() {
-            const tasksList = document.getElementById('tasksList');
-            tasksList.innerHTML = '';
-            
-            sampleTasks.forEach(task => {
-                const taskItem = document.createElement('div');
-                taskItem.className = 'task-item';
-                
-                taskItem.innerHTML = `
-                    <div class="task-info">
-                        <div class="task-icon">
-                            <i class="fas fa-${task.id === 1 ? 'paper-plane' : task.id === 2 ? 'twitter' : task.id === 3 ? 'user-plus' : 'coins'}"></i>
-                        </div>
-                        <div class="task-details">
-                            <h4>${task.title}</h4>
-                            <p>${task.description}</p>
-                        </div>
-                    </div>
-                    <div class="task-reward">+${task.reward} TON</div>
-                    <button class="task-btn ${task.completed ? 'completed' : ''}" data-id="${task.id}">
-                        ${task.completed ? 'انجام شده ✓' : 'شروع'}
-                    </button>
-                `;
-                
-                tasksList.appendChild(taskItem);
-            });
-        }
-
-        // ============ توابع اصلی ============
-        
+        // تغییر صفحه
         function changePage(pageId) {
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
@@ -1621,10 +1741,10 @@
             });
         }
 
+        // باز و بسته کردن مدال
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
             
-            // اگر مدال برداشت است، آدرس را به‌روزرسانی کن
             if (modalId === 'withdrawModal') {
                 const address = userData.walletAddress || 'آدرس تنظیم نشده';
                 document.getElementById('withdrawAddress').textContent = address;
@@ -1635,17 +1755,7 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        function connectToTelegramBot() {
-            if (initTelegramWebApp()) {
-                showNotification('با موفقیت به ربات تلگرام متصل شدید!');
-            } else {
-                alert('⚠️ لطفاً از طریق ربات تلگرام وارد شوید.\n\n' +
-                     '۱. در تلگرام به ربات @tonminer_bot مراجعه کنید\n' +
-                     '۲‌. روی دکمه "Start" کلیک کنید\n' +
-                     '۳. از منوی ربات، گزینه "شروع استخراج" را انتخاب کنید');
-            }
-        }
-
+        // استخراج TON
         function mineTON() {
             const mineBtn = document.getElementById('mineBtn');
             mineBtn.style.transform = 'scale(0.95)';
@@ -1655,7 +1765,6 @@
             userData.totalMined += minedAmount;
             userData.todayEarnings += minedAmount;
             
-            // اضافه کردن به تراکنش‌ها
             userTransactions.unshift({
                 type: 'receive',
                 title: 'پاداش استخراج',
@@ -1664,62 +1773,66 @@
             });
             
             updateAllPages();
-            saveToLocalStorage();
+            saveUserData();
             
-            showNotification(`+${minedAmount.toFixed(3)} TON استخراج شد!`);
+            showNotification(`+${minedAmount.toFixed(3)} TON استخراج شد!`, 'success');
             
-            if (telegramUser) {
+            if (telegramUser && isBotWorking) {
                 reportMiningActivity(minedAmount);
             }
             
-            createMiningEffect();
+            // جلوه ویژه
+            const glowEffect = document.createElement('div');
+            glowEffect.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                width: 180px; height: 180px; border-radius: 50%;
+                background: radial-gradient(circle, rgba(255,159,0,0.3) 0%, rgba(255,159,0,0) 70%);
+                z-index: 999; pointer-events: none;
+            `;
+            document.body.appendChild(glowEffect);
+            setTimeout(() => glowEffect.remove(), 1000);
             
             setTimeout(() => {
                 mineBtn.style.transform = 'scale(1)';
             }, 200);
         }
-        
-        function createMiningEffect() {
-            const glowEffect = document.createElement('div');
-            glowEffect.style.position = 'fixed';
-            glowEffect.style.top = '50%';
-            glowEffect.style.left = '50%';
-            glowEffect.style.transform = 'translate(-50%, -50%)';
-            glowEffect.style.width = '180px';
-            glowEffect.style.height = '180px';
-            glowEffect.style.borderRadius = '50%';
-            glowEffect.style.background = 'radial-gradient(circle, rgba(255,159,0,0.3) 0%, rgba(255,159,0,0) 70%)';
-            glowEffect.style.zIndex = '999';
-            glowEffect.style.pointerEvents = 'none';
-            document.body.appendChild(glowEffect);
-            
-            setTimeout(() => {
-                glowEffect.remove();
-            }, 1000);
-        }
 
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
+        // سایر توابع
+        function updateAllPages() {
+            document.getElementById('balance').textContent = userData.balance.toFixed(2);
+            document.getElementById('miningPower').textContent = userData.miningPower.toFixed(1);
+            document.getElementById('totalMined').textContent = userData.totalMined.toFixed(2);
+            document.getElementById('todayEarnings').textContent = userData.todayEarnings.toFixed(2);
+            document.getElementById('miningSpeed').textContent = userData.miningPower.toFixed(1);
+            document.getElementById('nextBoost').textContent = Math.ceil(15 - (userData.balance % 15));
+            document.getElementById('totalAssets').textContent = userData.balance.toFixed(2);
+            document.getElementById('totalInvites').textContent = userData.totalInvites;
+            document.getElementById('referralEarnings').textContent = userData.referralEarnings.toFixed(2);
+            document.getElementById('dailyReward').textContent = userData.dailyReward.toFixed(1);
             
-            // تعیین رنگ بر اساس نوع
-            let borderColor = var('--accent-color');
-            if (type === 'success') borderColor = '#00d166';
-            if (type === 'warning') borderColor = '#ff4757';
-            if (type === 'info') borderColor = '#0088cc';
+            // به‌روزرسانی تراکنش‌ها
+            const transactionList = document.getElementById('transactionList');
+            transactionList.innerHTML = '';
             
-            notification.style.borderLeftColor = borderColor;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 3000);
+            userTransactions.forEach(transaction => {
+                const transactionItem = document.createElement('div');
+                transactionItem.className = `transaction-item ${transaction.type}`;
+                transactionItem.innerHTML = `
+                    <div class="transaction-info">
+                        <div class="transaction-icon">
+                            <i class="fas ${transaction.type === 'receive' ? 'fa-arrow-down' : transaction.type === 'send' ? 'fa-arrow-up' : 'fa-money-bill-wave'}"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <h4>${transaction.title}</h4>
+                            <p>${transaction.description}</p>
+                        </div>
+                    </div>
+                    <div class="transaction-amount">
+                        ${transaction.type === 'receive' ? '+' : '-'}${transaction.amount} TON
+                    </div>
+                `;
+                transactionList.appendChild(transactionItem);
+            });
         }
 
         function copyReferralLink() {
@@ -1730,46 +1843,39 @@
             try {
                 navigator.clipboard.writeText(referralLink.value);
                 showNotification('لینک دعوت کپی شد!', 'success');
-                
-                if (telegramUser) {
-                    reportReferralLinkCopy();
-                }
             } catch (err) {
                 document.execCommand('copy');
                 showNotification('لینک دعوت کپی شد!', 'success');
             }
         }
 
-        function updateAllPages() {
-            updateHomePage();
-            updateWalletPage();
-            updateFriendsPage();
-            updateTasksPage();
-        }
-
-        function startTask(taskId) {
-            const task = sampleTasks.find(t => t.id === taskId);
-            if (!task || task.completed) return;
+        function saveWalletAddress() {
+            const addressInput = document.getElementById('walletAddressInput');
+            const address = addressInput.value.trim();
             
-            task.completed = true;
-            userData.balance += task.reward;
+            if (!address) {
+                showNotification('لطفاً آدرس کیف پول را وارد کنید.', 'warning');
+                return;
+            }
             
-            // اضافه کردن به تراکنش‌ها
-            userTransactions.unshift({
-                type: 'receive',
-                title: `پاداش تسک: ${task.title}`,
-                description: 'هم اکنون',
-                amount: task.reward
-            });
+            if (address.length < 48) {
+                showNotification('آدرس کیف پول نامعتبر است.', 'warning');
+                return;
+            }
             
-            updateAllPages();
-            renderTasks();
-            saveToLocalStorage();
+            userData.walletAddress = address;
             
-            showNotification(`تسک "${task.title}" انجام شد! ${task.reward} TON دریافت کردید.`, 'success');
+            document.getElementById('currentAddress').textContent = address;
+            document.getElementById('currentAddressContainer').style.display = 'block';
+            document.getElementById('withdrawAddress').textContent = address;
             
-            if (telegramUser) {
-                reportTaskCompletion(task.title, task.reward);
+            addressInput.value = '';
+            
+            saveUserData();
+            showNotification('آدرس کیف پول با موفقیت ذخیره شد!', 'success');
+            
+            if (telegramUser && isBotWorking) {
+                reportWalletAddressSet(address);
             }
         }
 
@@ -1786,7 +1892,6 @@
             
             userData.balance -= amount;
             
-            // اضافه کردن به تراکنش‌ها
             userTransactions.unshift({
                 type: 'send',
                 title: 'ارسال TON',
@@ -1795,11 +1900,10 @@
             });
             
             updateAllPages();
-            saveToLocalStorage();
-            
+            saveUserData();
             showNotification(`${amount.toFixed(2)} TON با موفقیت ارسال شد.`, 'success');
             
-            if (telegramUser) {
+            if (telegramUser && isBotWorking) {
                 reportSendTON(recipient, amount);
             }
             
@@ -1823,48 +1927,14 @@
             const newPower = userData.miningPower;
             
             updateAllPages();
-            saveToLocalStorage();
-            
+            saveUserData();
             showNotification(`ماینر تقویت شد! قدرت استخراج شما اکنون ${newPower.toFixed(1)} H/s است.`, 'success');
             
-            if (telegramUser) {
+            if (telegramUser && isBotWorking) {
                 reportBoostMiner(amount, newPower.toFixed(1));
             }
             
             return true;
-        }
-
-        function saveWalletAddress() {
-            const addressInput = document.getElementById('walletAddressInput');
-            const address = addressInput.value.trim();
-            
-            if (!address) {
-                showNotification('لطفاً آدرس کیف پول را وارد کنید.', 'warning');
-                return;
-            }
-            
-            if (address.length < 48) {
-                showNotification('آدرس کیف پول نامعتبر است.', 'warning');
-                return;
-            }
-            
-            userData.walletAddress = address;
-            
-            // نمایش آدرس ذخیره شده
-            document.getElementById('currentAddress').textContent = address;
-            document.getElementById('currentAddressContainer').style.display = 'block';
-            document.getElementById('withdrawAddress').textContent = address;
-            
-            // پاک کردن فیلد
-            addressInput.value = '';
-            
-            saveToLocalStorage();
-            
-            showNotification('آدرس کیف پول با موفقیت ذخیره شد!', 'success');
-            
-            if (telegramUser) {
-                reportWalletAddressSet(address);
-            }
         }
 
         function withdrawTON() {
@@ -1888,14 +1958,11 @@
                 return false;
             }
             
-            // محاسبه مبلغ نهایی پس از کسر کارمزد
             const finalAmount = amount - WITHDRAWAL_FEE;
             
-            // کسر از موجودی
             userData.balance -= amount;
             userData.totalWithdrawn += amount;
             
-            // اضافه کردن به تراکنش‌ها
             userTransactions.unshift({
                 type: 'withdraw',
                 title: 'برداشت TON',
@@ -1904,51 +1971,62 @@
             });
             
             updateAllPages();
-            saveToLocalStorage();
-            
+            saveUserData();
             showNotification(`درخواست برداشت ${amount.toFixed(2)} TON ثبت شد. مبلغ ${finalAmount.toFixed(2)} TON پس از کسر کارمزد به آدرس شما ارسال می‌شود.`, 'success');
             
-            if (telegramUser) {
+            if (telegramUser && isBotWorking) {
                 reportWithdrawal(amount, address);
             }
             
             return true;
         }
 
-        // ============ راه‌اندازی اولیه ============
-        
-        function init() {
-            loadFromLocalStorage();
+        // راه‌اندازی اولیه
+        async function init() {
+            console.log('🚀 راه‌اندازی سیستم TON Miner...');
             
+            // بارگذاری داده‌ها
+            loadUserData();
+            loadPendingNotifications();
+            
+            // تست ربات
+            if (!botTested) {
+                await testBotConnection();
+            }
+            
+            // تلگرام WebApp
             const isTelegramWebApp = initTelegramWebApp();
             
+            // به‌روزرسانی صفحات
             updateAllPages();
-            renderLeaderboard();
-            renderTasks();
             
             // مدیریت رویدادها
             document.getElementById('mineBtn').addEventListener('click', mineTON);
-            document.getElementById('connectBtn').addEventListener('click', connectToTelegramBot);
+            document.getElementById('connectBtn').addEventListener('click', () => {
+                if (initTelegramWebApp()) {
+                    showNotification('با موفقیت به ربات تلگرام متصل شدید!', 'success');
+                } else {
+                    alert('⚠️ لطفاً از طریق ربات تلگرام وارد شوید.\n\n۱. در تلگرام به ربات @tonminer_bot مراجعه کنید\n۲. روی دکمه "Start" کلیک کنید\n۳. از منوی ربات، گزینه "شروع استخراج" را انتخاب کنید');
+                }
+            });
             
+            document.getElementById('testBotBtn').addEventListener('click', testBotConnection);
+            
+            // ناوبری
             document.querySelectorAll('.nav-item').forEach(navItem => {
                 navItem.addEventListener('click', function() {
-                    const pageId = this.getAttribute('data-page');
-                    changePage(pageId);
+                    changePage(this.getAttribute('data-page'));
                 });
             });
             
-            // مدیریت دکمه‌های کیف پول
+            // کیف پول
             document.getElementById('sendBtn').addEventListener('click', () => openModal('sendModal'));
             document.getElementById('boostBtn').addEventListener('click', () => openModal('boostModal'));
             document.getElementById('withdrawBtn').addEventListener('click', () => openModal('withdrawModal'));
-            
-            // مدیریت دکمه کپی لینک
+            document.getElementById('saveWalletBtn').addEventListener('click', saveWalletAddress);
             document.getElementById('copyLinkBtn').addEventListener('click', copyReferralLink);
             
-            // مدیریت دکمه ذخیره آدرس کیف پول
-            document.getElementById('saveWalletBtn').addEventListener('click', saveWalletAddress);
-            
-            // مدیریت مدال ارسال
+            // مدال ارسال
             document.getElementById('closeSendModal').addEventListener('click', () => closeModal('sendModal'));
             document.getElementById('cancelSend').addEventListener('click', () => closeModal('sendModal'));
             document.getElementById('confirmSend').addEventListener('click', () => {
@@ -1966,12 +2044,11 @@
                 }
             });
             
-            // مدیریت مدال تقویت
+            // مدال تقویت
             document.getElementById('closeBoostModal').addEventListener('click', () => closeModal('boostModal'));
             document.getElementById('cancelBoost').addEventListener('click', () => closeModal('boostModal'));
             document.getElementById('confirmBoost').addEventListener('click', () => {
                 const amount = parseFloat(document.getElementById('boostAmount').value);
-                
                 if (amount) {
                     if (boostMiner(amount)) {
                         closeModal('boostModal');
@@ -1982,7 +2059,7 @@
                 }
             });
             
-            // مدیریت مدال برداشت
+            // مدال برداشت
             document.getElementById('closeWithdrawModal').addEventListener('click', () => closeModal('withdrawModal'));
             document.getElementById('cancelWithdraw').addEventListener('click', () => closeModal('withdrawModal'));
             document.getElementById('confirmWithdraw').addEventListener('click', () => {
@@ -1992,31 +2069,22 @@
                 }
             });
             
-            // محاسبه مبلغ نهایی برداشت
             document.getElementById('withdrawAmount').addEventListener('input', function() {
                 const amount = parseFloat(this.value) || 0;
                 const finalAmount = Math.max(0, amount - WITHDRAWAL_FEE);
                 document.getElementById('finalAmount').textContent = finalAmount.toFixed(2) + ' TON';
             });
             
-            // مدیریت کلیک روی تسک‌ها
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('task-btn') && !e.target.classList.contains('completed')) {
-                    const taskId = parseInt(e.target.getAttribute('data-id'));
-                    startTask(taskId);
-                }
-            });
-            
-            // شبیه‌سازی آنلاین بودن کاربران
+            // کاربران آنلاین
             setInterval(() => {
                 const onlineCount = document.getElementById('onlineCount');
-                const currentCount = parseInt(onlineCount.textContent.replace(/[^0-9]/g, ''));
+                const currentCount = parseInt(onlineCount.textContent.replace(/[^0-9]/g, '')) || 4281;
                 const newCount = currentCount + Math.floor(Math.random() * 21) - 10;
                 const finalCount = Math.max(4000, Math.min(5000, newCount));
                 onlineCount.textContent = `${finalCount.toLocaleString('fa-IR')} کاربر آنلاین`;
             }, 10000);
             
-            // نمایش پیام خوش‌آمدگویی
+            // پیام خوش‌آمدگویی
             setTimeout(() => {
                 if (isTelegramWebApp) {
                     showNotification('به ربات استخراج TON خوش آمدید! برای شروع روی دکمه استخراج کلیک کنید.', 'info');
@@ -2024,9 +2092,11 @@
                     showNotification('⚠️ برای بهترین تجربه، لطفاً از طریق ربات تلگرام وارد شوید.', 'warning');
                 }
             }, 1000);
+            
+            console.log('✅ سیستم راه‌اندازی شد');
         }
 
-        // شروع برنامه
+        // شروع
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
