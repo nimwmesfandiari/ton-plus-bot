@@ -1,130 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ton Plus</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
 <style>
-body{
-  margin:0;
-  background:#050505;
-  color:#fff;
-  font-family:Arial,Helvetica,sans-serif;
-}
-.page{
-  display:none;
-  padding:20px;
-}
-.page.active{
-  display:block;
-}
-.balance{
-  font-size:32px;
-  color:#00baff;
-  margin:20px 0;
-}
+body{margin:0;background:#050505;color:#fff;font-family:sans-serif}
+.page{display:none;padding:20px}
+.page.active{display:block}
+.balance{font-size:34px;color:#00baff}
 .mine{
-  width:180px;
-  height:180px;
-  border-radius:50%;
-  background:radial-gradient(circle,#00baff,#005a9e);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:24px;
-  font-weight:bold;
-  margin:40px auto;
-  user-select:none;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,#00baff,#005b9e);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:bold;margin:40px auto;
 }
-.mine:active{
-  transform:scale(.95);
-}
-nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:#111;
-  display:flex;
-  justify-content:space-around;
-  padding:10px 0;
-}
-.nav{
-  color:#777;
-}
-.nav.active{
-  color:#00baff;
-  font-weight:bold;
-}
+nav{position:fixed;bottom:0;width:100%;display:flex;
+justify-content:space-around;background:#111;padding:10px}
+.nav.active{color:#00baff}
 </style>
 </head>
 
 <body>
 
-<!-- HOME -->
 <div id="home" class="page active">
-  <h2>Ton Plus</h2>
-  <div id="balance" class="balance">0.000000 TON</div>
-  <div id="mineBtn" class="mine">MINE</div>
+  <div class="balance" id="balance">0.000000</div>
+  <div class="mine" id="mine">MINE</div>
 </div>
 
-<!-- WALLET -->
 <div id="wallet" class="page">
-  <h2>Wallet</h2>
-  <div id="walletBalance" class="balance">0.000000 TON</div>
+  <div class="balance" id="walletBalance"></div>
 </div>
 
-<!-- FRIENDS -->
 <div id="friends" class="page">
-  <h2>Friends</h2>
-  <p>Invite friends</p>
+  Invite friends to earn more TON
 </div>
 
-<!-- TASKS -->
 <div id="tasks" class="page">
-  <h2>Tasks</h2>
-  <p>Complete tasks</p>
+  Tasks coming soon
 </div>
 
 <nav>
-  <div class="nav active" data-page="home">Home</div>
-  <div class="nav" data-page="wallet">Wallet</div>
-  <div class="nav" data-page="friends">Friends</div>
-  <div class="nav" data-page="tasks">Tasks</div>
+  <div class="nav active" data="home">Home</div>
+  <div class="nav" data="wallet">Wallet</div>
+  <div class="nav" data="friends">Friends</div>
+  <div class="nav" data="tasks">Tasks</div>
 </nav>
 
 <script>
 Telegram.WebApp.ready();
+const userId = Telegram.WebApp.initDataUnsafe.user.id;
+const API = "https://YOUR_BACKEND_URL";
 
-/* BALANCE */
-let balance = Number(localStorage.getItem("ton_balance")) || 0;
-const balanceEl = document.getElementById("balance");
-const walletEl = document.getElementById("walletBalance");
+let balance = 0;
+const bal = document.getElementById("balance");
+const wbal = document.getElementById("walletBalance");
 
-function update(){
-  balanceEl.textContent = balance.toFixed(6)+" TON";
-  walletEl.textContent = balance.toFixed(6)+" TON";
-  localStorage.setItem("ton_balance", balance);
+function animate(newVal){
+  let start = balance;
+  let t = 0;
+  const i = setInterval(()=>{
+    t+=0.1;
+    const v = start + (newVal-start)*t;
+    bal.innerText = v.toFixed(6);
+    if(t>=1){clearInterval(i);balance=newVal;}
+  },16);
 }
-update();
 
-/* FAST MINE (مخصوص موبایل) */
-document.getElementById("mineBtn").addEventListener("pointerdown",()=>{
-  balance += 0.0001;
-  update();
-  Telegram.WebApp.HapticFeedback.impactOccurred("light");
+fetch(API+"/user",{method:"POST",headers:{'Content-Type':'application/json'},
+body:JSON.stringify({userId})})
+.then(r=>r.json()).then(d=>{
+  balance=d.balance;
+  bal.innerText=balance.toFixed(6);
+  wbal.innerText=balance.toFixed(6);
 });
 
-/* NAVIGATION */
-document.querySelectorAll(".nav").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".nav").forEach(n=>n.classList.remove("active"));
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.page).classList.add("active");
+document.getElementById("mine").addEventListener("pointerdown",()=>{
+  fetch(API+"/mine",{method:"POST",headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({userId})})
+  .then(r=>r.json()).then(d=>{
+    animate(d.balance);
+    wbal.innerText=d.balance.toFixed(6);
   });
+});
+
+document.querySelectorAll(".nav").forEach(n=>{
+  n.onclick=()=>{
+    document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    n.classList.add("active");
+    document.getElementById(n.getAttribute("data")).classList.add("active");
+  }
 });
 </script>
 
