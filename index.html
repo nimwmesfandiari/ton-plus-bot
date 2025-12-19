@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TON Plus</title>
 
+  <!-- Telegram WebApp (safe) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
     * {
       margin: 0;
@@ -32,7 +35,7 @@
       flex-direction: column;
     }
 
-    /* ====== PAGES ====== */
+    /* صفحات */
     .page {
       flex: 1;
       display: none;
@@ -59,7 +62,7 @@
       color: var(--primary);
     }
 
-    /* ====== MINE ====== */
+    /* ماین */
     #balance {
       font-size: 34px;
       font-weight: bold;
@@ -83,7 +86,7 @@
       transform: scale(.95);
     }
 
-    /* ====== BOTTOM NAV ====== */
+    /* نوار پایین */
     .nav {
       position: fixed;
       bottom: 0;
@@ -133,7 +136,7 @@
   <div id="wallet" class="page">
     <div class="card">
       <h1>💼 کیف پول</h1>
-      <p class="text">موجودی فعلی شما:</p>
+      <p class="text">موجودی شما:</p>
       <div id="wallet-balance" style="font-size:26px;margin-top:15px"></div>
     </div>
   </div>
@@ -142,8 +145,32 @@
   <div id="friends" class="page">
     <div class="card">
       <h1>👥 رفرال</h1>
-      <p class="text">لینک دعوت (آماده اتصال به تلگرام)</p>
-      <p class="text" style="margin-top:15px">به‌زودی فعال می‌شود</p>
+
+      <p class="text">لینک دعوت شما:</p>
+
+      <div id="ref-link" style="
+        background:#0b1020;
+        padding:12px;
+        border-radius:12px;
+        font-size:13px;
+        word-break:break-all;
+        margin:15px 0;
+      ">در حال ساخت...</div>
+
+      <button id="copy-ref" style="
+        width:100%;
+        padding:14px;
+        border:none;
+        border-radius:14px;
+        background:var(--primary);
+        color:#fff;
+        font-size:16px;
+        cursor:pointer;
+      ">کپی لینک</button>
+
+      <p class="text" style="margin-top:15px">
+        👤 تعداد رفرال: <span id="ref-count">0</span>
+      </p>
     </div>
   </div>
 
@@ -151,26 +178,26 @@
   <div id="tasks" class="page">
     <div class="card">
       <h1>🎯 تسک‌ها</h1>
-      <p class="text">ماموریت‌ها به‌زودی اضافه می‌شوند</p>
+      <p class="text">به‌زودی...</p>
     </div>
   </div>
 
   <!-- NAV -->
   <div class="nav">
-    <button onclick="showPage('home')" class="active">Home</button>
-    <button onclick="showPage('wallet')">Wallet</button>
-    <button onclick="showPage('friends')">Friends</button>
-    <button onclick="showPage('tasks')">Tasks</button>
+    <button class="active" onclick="showPage('home', this)">Home</button>
+    <button onclick="showPage('wallet', this)">Wallet</button>
+    <button onclick="showPage('friends', this)">Friends</button>
+    <button onclick="showPage('tasks', this)">Tasks</button>
   </div>
 
   <script>
     /* ====== PAGE SWITCH ====== */
-    function showPage(id) {
+    function showPage(id, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(id).classList.add('active');
 
       document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      btn.classList.add('active');
 
       if (id === "wallet") {
         walletBalance.textContent = balance.toFixed(6) + " TON";
@@ -186,19 +213,50 @@
     const walletBalance = document.getElementById("wallet-balance");
     const mineBtn = document.getElementById("mine-btn");
 
-    function render() {
+    function renderBalance() {
       balanceEl.textContent = balance.toFixed(6) + " TON";
       balanceEl.style.transform = "scale(1.1)";
       setTimeout(() => balanceEl.style.transform = "scale(1)", 120);
     }
 
-    render();
+    renderBalance();
 
     mineBtn.addEventListener("click", () => {
       balance += 0.0001;
       localStorage.setItem("ton_balance", balance);
-      render();
+      renderBalance();
     });
+
+    /* ====== TELEGRAM & REFERRAL ====== */
+    let userId = null;
+
+    if (window.Telegram && Telegram.WebApp) {
+      Telegram.WebApp.ready();
+      const user = Telegram.WebApp.initDataUnsafe?.user;
+      if (user) userId = user.id;
+    }
+
+    if (!userId) {
+      userId = localStorage.getItem("demo_user_id");
+      if (!userId) {
+        userId = Math.floor(Math.random() * 1e9);
+        localStorage.setItem("demo_user_id", userId);
+      }
+    }
+
+    const BOT_USERNAME = "YourBotUsername"; // بعداً عوض می‌کنی
+    const refLink = `https://t.me/${BOT_USERNAME}?start=${userId}`;
+
+    document.getElementById("ref-link").textContent = refLink;
+
+    document.getElementById("copy-ref").onclick = () => {
+      navigator.clipboard.writeText(refLink);
+      alert("لینک کپی شد ✅");
+    };
+
+    let refCount = localStorage.getItem("ref_count");
+    if (!refCount) refCount = 0;
+    document.getElementById("ref-count").textContent = refCount;
   </script>
 
 </body>
