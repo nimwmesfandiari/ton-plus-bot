@@ -5,63 +5,83 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ton Plus | Mining</title>
 
-<!-- فونت و Tailwind برای دیزاین -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
 <style>
-    body { font-family: 'Inter', sans-serif; margin:0; padding:0; background: radial-gradient(circle at top right, #050505, #111111); color:white; overflow-x:hidden;}
+    body {
+        margin:0;
+        padding:0;
+        font-family:sans-serif;
+        background: linear-gradient(180deg,#0a0a0a,#111111);
+        color:white;
+        overflow-x:hidden;
+    }
     .container { max-width:420px; margin:0 auto; padding:16px;}
-    .glass-card { background: rgba(20,20,25,0.7); backdrop-filter: blur(12px); border-radius:16px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);}
-    h1,h2,h3 { margin:0; }
+    .glass-card {
+        background: rgba(20,20,25,0.7);
+        backdrop-filter: blur(12px);
+        border-radius:16px;
+        padding:16px;
+        margin-bottom:16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    h1,h2,h3 { margin:0;}
     button { cursor:pointer; }
-    .nav { position: fixed; bottom: 16px; left:50%; transform: translateX(-50%); width:95%; max-width:400px; background: rgba(20,20,25,0.8); backdrop-filter: blur(16px); border-radius:24px; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 10px 40px rgba(0,0,0,0.7);}
-    .nav button { background:none; border:none; color:#aaa; display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12px; transition:0.2s; }
-    .nav button.active { color:#00bcd4; }
-    #mineBtn { background: linear-gradient(90deg,#00bcd4,#0098ea); color:#fff; padding:16px 24px; font-size:18px; border:none; border-radius:12px; margin-top:16px; width:100%; transition:0.1s; }
+    .nav { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); width:95%; max-width:400px; background: rgba(20,20,25,0.8); backdrop-filter: blur(16px); border-radius:24px; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 10px 40px rgba(0,0,0,0.7);}
+    .nav button { background:none; border:none; color:#aaa; display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12px; transition:0.2s;}
+    .nav button.active { color:#00bcd4;}
+    #mineBtn {
+        background: linear-gradient(90deg,#00bcd4,#0098ea);
+        color:#fff;
+        padding:16px 24px;
+        font-size:18px;
+        border:none;
+        border-radius:12px;
+        margin-top:16px;
+        width:100%;
+        transition:0.1s;
+    }
     #mineBtn:active { transform:scale(0.96);}
+    .hidden { display:none;}
+    .balance-num { font-family: monospace; font-size:1.8em; color:#00bcd4; transition:0.1s;}
 </style>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
-
 <div class="container">
 
     <!-- صفحه Home -->
-    <div id="page-home" class="page active">
+    <div id="page-home" class="page">
         <div class="glass-card text-center">
-            <h1 class="text-2xl font-bold mb-2">🚀 Ton Plus</h1>
-            <h2 class="text-xl mb-2">موجودی شما</h2>
-            <div id="balance" class="text-3xl font-mono text-[#00bcd4] mb-4">0.000000 TON</div>
+            <h1>🚀 Ton Plus</h1>
+            <h2>موجودی شما</h2>
+            <div id="balance" class="balance-num">0.000000 TON</div>
             <button id="mineBtn">⛏ Mine</button>
-            <p class="mt-2 text-sm text-gray-400">قدرت استخراج: <span id="minerPower">2.0 GH/s</span></p>
+            <p class="mt-2 text-gray">قدرت استخراج: <span id="minerPower">2.0 GH/s</span></p>
         </div>
     </div>
 
     <!-- صفحه Wallet -->
     <div id="page-wallet" class="page hidden">
         <div class="glass-card">
-            <h2 class="text-xl font-bold mb-2">کیف پول TonPlus</h2>
-            <p class="text-gray-400 text-sm mb-2">موجودی کل:</p>
-            <div id="walletBalance" class="text-2xl font-mono text-[#00bcd4]">0.000000 TON</div>
+            <h2>کیف پول شما</h2>
+            <div id="walletBalance" class="balance-num">0.000000 TON</div>
         </div>
     </div>
 
     <!-- صفحه Friends -->
     <div id="page-friends" class="page hidden">
         <div class="glass-card">
-            <h2 class="text-xl font-bold mb-2">رفرال‌ها</h2>
-            <p class="text-gray-400 text-sm mb-2">تعداد افراد دعوت شده: <span id="refCount">0</span></p>
-            <p class="text-gray-400 text-sm mb-2">میزان کسب شده: <span id="refEarnings">0.000000 TON</span></p>
+            <h2>رفرال‌ها</h2>
+            <p>تعداد دعوت شده: <span id="refCount">0</span></p>
+            <p>کسب شده: <span id="refEarnings">0.000000 TON</span></p>
         </div>
     </div>
 
     <!-- صفحه Tasks -->
     <div id="page-tasks" class="page hidden">
         <div class="glass-card">
-            <h2 class="text-xl font-bold mb-2">وظایف</h2>
-            <p class="text-gray-400 text-sm">کاربر می‌تواند با انجام وظایف پاداش کسب کند.</p>
+            <h2>وظایف</h2>
+            <p>انجام وظایف برای کسب پاداش</p>
         </div>
     </div>
 
@@ -76,52 +96,47 @@
 </div>
 
 <script>
-    // Telegram ready
-    Telegram.WebApp.ready();
+Telegram.WebApp.ready();
 
-    // داده‌ها
-    let balance = parseFloat(localStorage.getItem("ton_balance")) || 0;
-    let refCount = parseInt(localStorage.getItem("ton_ref")) || 0;
-    let refEarnings = parseFloat(localStorage.getItem("ton_ref_earn")) || 0;
+// داده‌ها از LocalStorage
+let balance = parseFloat(localStorage.getItem("ton_balance")) || 0;
+let refCount = parseInt(localStorage.getItem("ton_ref")) || 0;
+let refEarnings = parseFloat(localStorage.getItem("ton_ref_earn")) || 0;
 
-    const balanceEl = document.getElementById("balance");
-    const walletEl = document.getElementById("walletBalance");
-    const refCountEl = document.getElementById("refCount");
-    const refEarningsEl = document.getElementById("refEarnings");
+const balanceEl = document.getElementById("balance");
+const walletEl = document.getElementById("walletBalance");
+const refCountEl = document.getElementById("refCount");
+const refEarningsEl = document.getElementById("refEarnings");
 
-    function updateUI() {
-        // انیمیشن عدد
-        balanceEl.innerText = balance.toFixed(6) + " TON";
-        walletEl.innerText = balance.toFixed(6) + " TON";
-        refCountEl.innerText = refCount;
-        refEarningsEl.innerText = refEarnings.toFixed(6) + " TON";
-    }
+function updateUI(){
+    balanceEl.innerText = balance.toFixed(6) + " TON";
+    walletEl.innerText = balance.toFixed(6) + " TON";
+    refCountEl.innerText = refCount;
+    refEarningsEl.innerText = refEarnings.toFixed(6) + " TON";
+}
 
-    // Mine
-    document.getElementById("mineBtn").addEventListener("click", ()=>{
-        balance += 0.0001; // هر ضربه
-        localStorage.setItem("ton_balance", balance);
-        updateUI();
-        Telegram.WebApp.HapticFeedback.impactOccurred("light");
-    });
-
+// Mine
+document.getElementById("mineBtn").addEventListener("click", ()=>{
+    balance += 0.0001;
+    localStorage.setItem("ton_balance", balance);
     updateUI();
+    Telegram.WebApp.HapticFeedback.impactOccurred("light");
+});
 
-    // جابجایی صفحات
-    const pages = document.querySelectorAll(".page");
-    const navBtns = document.querySelectorAll(".nav button");
+// جابجایی صفحات
+const pages = document.querySelectorAll(".page");
+const navBtns = document.querySelectorAll(".nav button");
 
-    navBtns.forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-            pages.forEach(p=>p.classList.add("hidden"));
-            pages.forEach(p=>p.classList.remove("active"));
-            document.getElementById(btn.dataset.page).classList.remove("hidden");
-            document.getElementById(btn.dataset.page).classList.add("active");
-
-            navBtns.forEach(b=>b.classList.remove("active"));
-            btn.classList.add("active");
-        });
+navBtns.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+        pages.forEach(p=>p.classList.add("hidden"));
+        document.getElementById(btn.dataset.page).classList.remove("hidden");
+        navBtns.forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
     });
+});
+
+updateUI();
 </script>
 
 </body>
