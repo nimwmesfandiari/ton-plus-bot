@@ -1,142 +1,164 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ton Plus | Mining</title>
-
-<style>
-    body {
-        margin:0;
-        padding:0;
-        font-family:sans-serif;
-        background: linear-gradient(180deg,#0a0a0a,#111111);
-        color:white;
-        overflow-x:hidden;
-    }
-    .container { max-width:420px; margin:0 auto; padding:16px;}
-    .glass-card {
-        background: rgba(20,20,25,0.7);
-        backdrop-filter: blur(12px);
-        border-radius:16px;
-        padding:16px;
-        margin-bottom:16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-    h1,h2,h3 { margin:0;}
-    button { cursor:pointer; }
-    .nav { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); width:95%; max-width:400px; background: rgba(20,20,25,0.8); backdrop-filter: blur(16px); border-radius:24px; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 10px 40px rgba(0,0,0,0.7);}
-    .nav button { background:none; border:none; color:#aaa; display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12px; transition:0.2s;}
-    .nav button.active { color:#00bcd4;}
-    #mineBtn {
-        background: linear-gradient(90deg,#00bcd4,#0098ea);
-        color:#fff;
-        padding:16px 24px;
-        font-size:18px;
-        border:none;
-        border-radius:12px;
-        margin-top:16px;
-        width:100%;
-        transition:0.1s;
-    }
-    #mineBtn:active { transform:scale(0.96);}
-    .hidden { display:none;}
-    .balance-num { font-family: monospace; font-size:1.8em; color:#00bcd4; transition:0.1s;}
-</style>
+<title>Ton Plus</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  /* --- طراحی کلی --- */
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #00bcd4;
+  }
+  main {
+    flex: 1;
+    padding: 20px;
+  }
+  .balance-card {
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  #balance {
+    font-size: 32px;
+    color: #00e5ff;
+  }
+  button {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    background: #00bcd4;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  button:active {
+    transform: scale(0.96);
+  }
+  nav {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(0,0,0,0.7);
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  nav button {
+    background: transparent;
+    color: #aaa;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 8px 16px;
+  }
+  nav button.active {
+    background: #00bcd4;
+    color: #000;
+  }
+  .page-section {
+    display: none;
+  }
+  .page-section.active {
+    display: block;
+  }
+</style>
 </head>
-
 <body>
-<div class="container">
 
-    <!-- صفحه Home -->
-    <div id="page-home" class="page">
-        <div class="glass-card text-center">
-            <h1>🚀 Ton Plus</h1>
-            <h2>موجودی شما</h2>
-            <div id="balance" class="balance-num">0.000000 TON</div>
-            <button id="mineBtn">⛏ Mine</button>
-            <p class="mt-2 text-gray">قدرت استخراج: <span id="minerPower">2.0 GH/s</span></p>
-        </div>
+<header>Ton Plus</header>
+
+<main>
+  <div id="page-home" class="page-section active">
+    <div class="balance-card">
+      <p>Balance</p>
+      <h2 id="balance">0.000000 TON</h2>
+      <button id="mineButton">⛏ Mine</button>
     </div>
+    <p style="text-align:center;color:#888;">Mining Power: 2.0 GH/s</p>
+  </div>
 
-    <!-- صفحه Wallet -->
-    <div id="page-wallet" class="page hidden">
-        <div class="glass-card">
-            <h2>کیف پول شما</h2>
-            <div id="walletBalance" class="balance-num">0.000000 TON</div>
-        </div>
+  <div id="page-wallet" class="page-section">
+    <div class="balance-card">
+      <p>Wallet</p>
+      <h2 id="walletBalance">0.000000 TON</h2>
     </div>
+  </div>
 
-    <!-- صفحه Friends -->
-    <div id="page-friends" class="page hidden">
-        <div class="glass-card">
-            <h2>رفرال‌ها</h2>
-            <p>تعداد دعوت شده: <span id="refCount">0</span></p>
-            <p>کسب شده: <span id="refEarnings">0.000000 TON</span></p>
-        </div>
+  <div id="page-friends" class="page-section">
+    <div class="balance-card">
+      <p>Friends</p>
+      <h2 id="friendsCount">0</h2>
     </div>
+  </div>
 
-    <!-- صفحه Tasks -->
-    <div id="page-tasks" class="page hidden">
-        <div class="glass-card">
-            <h2>وظایف</h2>
-            <p>انجام وظایف برای کسب پاداش</p>
-        </div>
+  <div id="page-tasks" class="page-section">
+    <div class="balance-card">
+      <p>Tasks</p>
+      <h2>Complete tasks to earn TON</h2>
     </div>
+  </div>
+</main>
 
-</div>
-
-<!-- نوار پایین -->
-<div class="nav">
-    <button data-page="page-home" class="active">خانه</button>
-    <button data-page="page-wallet">کیف پول</button>
-    <button data-page="page-friends">رفرال</button>
-    <button data-page="page-tasks">وظایف</button>
-</div>
+<nav>
+  <button data-page="page-home" class="active">Home</button>
+  <button data-page="page-wallet">Wallet</button>
+  <button data-page="page-friends">Friends</button>
+  <button data-page="page-tasks">Tasks</button>
+</nav>
 
 <script>
-Telegram.WebApp.ready();
+  // Telegram WebApp ready
+  Telegram.WebApp.ready();
 
-// داده‌ها از LocalStorage
-let balance = parseFloat(localStorage.getItem("ton_balance")) || 0;
-let refCount = parseInt(localStorage.getItem("ton_ref")) || 0;
-let refEarnings = parseFloat(localStorage.getItem("ton_ref_earn")) || 0;
-
-const balanceEl = document.getElementById("balance");
-const walletEl = document.getElementById("walletBalance");
-const refCountEl = document.getElementById("refCount");
-const refEarningsEl = document.getElementById("refEarnings");
-
-function updateUI(){
-    balanceEl.innerText = balance.toFixed(6) + " TON";
-    walletEl.innerText = balance.toFixed(6) + " TON";
-    refCountEl.innerText = refCount;
-    refEarningsEl.innerText = refEarnings.toFixed(6) + " TON";
-}
-
-// Mine
-document.getElementById("mineBtn").addEventListener("click", ()=>{
-    balance += 0.0001;
-    localStorage.setItem("ton_balance", balance);
-    updateUI();
-    Telegram.WebApp.HapticFeedback.impactOccurred("light");
-});
-
-// جابجایی صفحات
-const pages = document.querySelectorAll(".page");
-const navBtns = document.querySelectorAll(".nav button");
-
-navBtns.forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-        pages.forEach(p=>p.classList.add("hidden"));
-        document.getElementById(btn.dataset.page).classList.remove("hidden");
-        navBtns.forEach(b=>b.classList.remove("active"));
-        btn.classList.add("active");
+  // --- مدیریت صفحات ---
+  const navButtons = document.querySelectorAll('nav button');
+  const pages = document.querySelectorAll('.page-section');
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.getAttribute('data-page');
+      pages.forEach(p => p.classList.remove('active'));
+      document.getElementById(target).classList.add('active');
     });
-});
+  });
 
-updateUI();
+  // --- مدیریت Mine و موجودی ---
+  let balance = parseFloat(localStorage.getItem('ton_balance') || '0');
+  const balanceDisplay = document.getElementById('balance');
+  const walletDisplay = document.getElementById('walletBalance');
+
+  function updateBalanceDisplay() {
+    balanceDisplay.textContent = balance.toFixed(6) + ' TON';
+    walletDisplay.textContent = balance.toFixed(6) + ' TON';
+  }
+  updateBalanceDisplay();
+
+  const mineButton = document.getElementById('mineButton');
+  mineButton.addEventListener('click', () => {
+    balance += 0.0001;
+    localStorage.setItem('ton_balance', balance);
+    updateBalanceDisplay();
+    Telegram.WebApp.HapticFeedback.impactOccurred('light');
+  });
 </script>
 
 </body>
