@@ -1,26 +1,127 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TON Mining</title>
+
+<style>
+body{
+  margin:0;
+  background:#050505;
+  color:#fff;
+  font-family:sans-serif;
+}
+.page{
+  display:none;
+  padding:30px;
+  text-align:center;
+}
+.page.active{display:block}
+
+.balance{
+  font-size:34px;
+  color:#00d0ff;
+  margin-top:20px;
+  font-weight:bold;
+}
+
+.mine{
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  background:radial-gradient(circle,#00e5ff,#005b8f);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:40px auto;
+  font-size:24px;
+  font-weight:bold;
+  box-shadow:0 0 40px rgba(0,208,255,.6);
+  transition:transform .05s;
+}
+.mine:active{transform:scale(.94)}
+
+nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  background:#0b0b0b;
+  padding:10px 0;
+  border-top:1px solid #111;
+}
+.nav{
+  color:#777;
+  font-size:14px;
+}
+.nav.active{color:#00d0ff}
+</style>
+</head>
+
+<body>
+
+<!-- HOME -->
+<div id="home" class="page active">
+  <div class="balance" id="bal">0.000000</div>
+  <div class="mine" id="mineBtn">MINE</div>
+</div>
+
+<!-- WALLET -->
+<div id="wallet" class="page">
+  <h2>Wallet</h2>
+  <p>Balance:</p>
+  <p class="balance" id="walletBal">0.000000</p>
+</div>
+
+<!-- FRIENDS -->
+<div id="friends" class="page">
+  <h2>Friends</h2>
+  <p>Referral system coming soon</p>
+</div>
+
+<!-- TASKS -->
+<div id="tasks" class="page">
+  <h2>Tasks</h2>
+  <p>Complete tasks & earn more TON</p>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav active" data-page="home">Home</div>
+  <div class="nav" data-page="wallet">Wallet</div>
+  <div class="nav" data-page="friends">Friends</div>
+  <div class="nav" data-page="tasks">Tasks</div>
+</nav>
+
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
-/* ===== LOAD BALANCE ===== */
+/* ===== LOAD SAVED BALANCE ===== */
 let balance = localStorage.getItem("ton_balance");
 balance = balance ? parseFloat(balance) : 0;
 
 const bal = document.getElementById("bal");
+const walletBal = document.getElementById("walletBal");
 bal.textContent = balance.toFixed(6);
+walletBal.textContent = balance.toFixed(6);
 
-/* ===== MINE ===== */
-const mine = document.getElementById("mineBtn");
+/* ===== MINE FUNCTION ===== */
+const mineBtn = document.getElementById("mineBtn");
 
-function add(){
+function mine(){
   balance += 0.0001;
   bal.textContent = balance.toFixed(6);
+  walletBal.textContent = balance.toFixed(6);
   localStorage.setItem("ton_balance", balance);
 }
 
-mine.addEventListener("click",add);
-mine.addEventListener("touchstart",(e)=>{
+/* click + touch (safe for iOS / GitHub / Telegram) */
+mineBtn.addEventListener("click", mine);
+mineBtn.addEventListener("touchstart", (e)=>{
   e.preventDefault();
-  add();
+  mine();
 },{passive:false});
 
 /* ===== NAVIGATION ===== */
@@ -35,3 +136,6 @@ document.querySelectorAll(".nav").forEach(btn=>{
 
 });
 </script>
+
+</body>
+</html>
