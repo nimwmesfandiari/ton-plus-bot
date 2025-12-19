@@ -3,88 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ton Plus | WebApp</title>
-
+<title>Ton Plus | Super Luxury</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Chivo+Mono:wght@400;700&display=swap" rel="stylesheet">
-
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
 <style>
 :root {
-    --bg: #050505;
+    --bg: linear-gradient(135deg, #050505, #0a0a0a);
     --primary: #00bcd4;
     --accent: #ffd700;
     --text-main: #fff;
     --text-muted: #888;
 }
 body {
-    margin: 0;
-    padding: 0;
+    margin:0; padding:0;
     font-family: 'Inter', sans-serif;
     background: var(--bg);
     color: var(--text-main);
-    overflow-x: hidden;
+    overflow-x:hidden;
 }
-header { display: flex; justify-content: space-between; padding: 12px 20px; }
+header { display:flex; justify-content:space-between; padding:12px 20px; }
 .glass-card {
     background: rgba(20,20,25,0.6);
     backdrop-filter: blur(12px);
-    border-radius: 16px;
-    padding: 12px;
-    margin: 10px 0;
+    border-radius:16px;
+    padding:12px;
+    margin:10px 0;
 }
 button {
     background: var(--primary);
-    border: none;
-    border-radius: 12px;
-    padding: 12px 20px;
-    color: #000;
-    font-weight: 700;
-    cursor: pointer;
+    border:none;
+    border-radius:16px;
+    padding:14px 28px;
+    color:#000;
+    font-weight:700;
+    cursor:pointer;
     transition: transform 0.1s;
+    box-shadow:0 0 15px rgba(0,188,212,0.3);
 }
-button:active { transform: scale(0.95); }
-
+button:active { transform:scale(0.95); }
 nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    max-width: 420px;
-    display: flex;
-    justify-content: space-around;
-    padding: 8px 0;
+    position:fixed;
+    bottom:0;
+    width:100%;
+    max-width:420px;
+    display:flex;
+    justify-content:space-around;
+    padding:8px 0;
     background: rgba(20,20,25,0.9);
     backdrop-filter: blur(12px);
 }
-.nav-item { text-align: center; font-size: 12px; color: var(--text-muted); cursor: pointer; }
-.nav-item.active { color: var(--primary); font-weight: 700; }
-
-.page { display: none; padding: 20px; }
-.page.active { display: block; }
-
-#balance { font-size: 2.5rem; font-family: 'Chivo Mono', monospace; color: var(--primary); transition: all 0.2s ease; }
+.nav-item { text-align:center; font-size:12px; color: var(--text-muted); cursor:pointer; }
+.nav-item.active { color: var(--primary); font-weight:700; }
+.page { display:none; padding:20px; }
+.page.active { display:block; }
+#balance { font-size:2.5rem; font-family:'Chivo Mono', monospace; color: var(--primary); transition: all 0.2s ease; }
+.balance-animate { animation: pop 0.2s ease; }
+@keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: #ffd700; }
+    100% { transform: scale(1); color: var(--primary); }
+}
 </style>
 </head>
-<body>
 
+<body>
 <header>
     <h1>Ton Plus</h1>
     <div id="online-status" class="glass-card" style="padding:4px 8px; font-size:12px;">Online</div>
 </header>
 
 <main>
-    <!-- Home Page -->
+    <!-- Home -->
     <div id="page-home" class="page active">
         <div class="glass-card" style="text-align:center;">
             <h2>Balance</h2>
             <div id="balance">0.000000 TON</div>
-            <button onclick="mine()">⛏ Mine</button>
+            <button id="mineBtn">⛏ Mine</button>
         </div>
     </div>
 
-    <!-- Wallet Page -->
+    <!-- Wallet -->
     <div id="page-wallet" class="page">
         <div class="glass-card">
             <h2>Wallet</h2>
@@ -92,7 +93,7 @@ nav {
         </div>
     </div>
 
-    <!-- Friends Page -->
+    <!-- Friends -->
     <div id="page-friends" class="page">
         <div class="glass-card">
             <h2>Referrals</h2>
@@ -102,7 +103,7 @@ nav {
         </div>
     </div>
 
-    <!-- Tasks Page -->
+    <!-- Tasks -->
     <div id="page-tasks" class="page">
         <div class="glass-card">
             <h2>Tasks</h2>
@@ -119,41 +120,48 @@ nav {
 </nav>
 
 <script>
+// Telegram WebApp ready
 Telegram.WebApp.ready();
 
 // SPA navigation
 const navItems = document.querySelectorAll('.nav-item');
 const pages = document.querySelectorAll('.page');
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        navItems.forEach(i => i.classList.remove('active'));
+navItems.forEach(item=>{
+    item.addEventListener('click',()=>{
+        navItems.forEach(i=>i.classList.remove('active'));
         item.classList.add('active');
         const pageId = item.getAttribute('data-page');
-        pages.forEach(p => p.classList.remove('active'));
+        pages.forEach(p=>p.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
     });
 });
 
-// Balance handling
-let balance = parseFloat(localStorage.getItem('ton_balance') || '0');
-let refCount = parseInt(localStorage.getItem('ton_ref') || '0');
+// Balance
+let balance = parseFloat(localStorage.getItem('ton_balance')||'0');
+let refCount = parseInt(localStorage.getItem('ton_ref')||'0');
 
-function updateBalance() {
-    document.getElementById('balance').innerText = balance.toFixed(6) + ' TON';
-    document.getElementById('wallet-balance').innerText = 'Balance: ' + balance.toFixed(6) + ' TON';
-    document.getElementById('ref-count').innerText = 'Total Referrals: ' + refCount;
+const balanceEl = document.getElementById('balance');
+const walletEl = document.getElementById('wallet-balance');
+const refEl = document.getElementById('ref-count');
+
+function updateBalanceAnim() {
+    balanceEl.classList.add('balance-animate');
+    setTimeout(()=> balanceEl.classList.remove('balance-animate'),200);
+    balanceEl.innerText = balance.toFixed(6)+' TON';
+    walletEl.innerText = 'Balance: '+balance.toFixed(6)+' TON';
+    refEl.innerText = 'Total Referrals: '+refCount;
 }
 
-function mine() {
+// Mine button
+document.getElementById('mineBtn').addEventListener('click',()=>{
     balance += 0.0001;
-    localStorage.setItem('ton_balance', balance);
-    updateBalance();
-    // confetti effect
-    confetti({ particleCount: 15, spread: 70, origin: { y: 0.6 } });
-}
+    localStorage.setItem('ton_balance',balance);
+    updateBalanceAnim();
+    confetti({particleCount:20,spread:70,origin:{y:0.6}});
+});
 
-// Initialize display
-updateBalance();
+// Initialize
+updateBalanceAnim();
 </script>
 
 </body>
