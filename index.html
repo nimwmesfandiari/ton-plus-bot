@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
+<!-- TON Connect UI -->
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1288,7 +1292,52 @@
         </div>
     </div>
 
-    <script>
+<script>
+/* ================= TON CONNECT ================= */
+
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    manifestUrl: 'https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO/tonconnect-manifest.json',
+    buttonRootId: null
+});
+
+async function connectToWallet() {
+    try {
+        await tonConnectUI.connectWallet();
+    } catch (e) {
+        showNotification('اتصال لغو شد', 'warning');
+    }
+}
+
+tonConnectUI.onStatusChange(wallet => {
+    if (wallet) {
+        const address = wallet.account.address;
+        const shortAddress = address.slice(0, 6) + '...' + address.slice(-6);
+
+        document.getElementById('connectBtn').innerHTML =
+            `<i class="fas fa-check"></i> ${shortAddress}`;
+        document.getElementById('connectBtn').classList.add('connected');
+
+        userData.walletAddress = address;
+        document.getElementById('currentAddress').textContent = address;
+        document.getElementById('currentAddressContainer').style.display = 'block';
+        document.getElementById('withdrawAddress').textContent = address;
+
+        saveUserData();
+        showNotification('کیف پول با موفقیت متصل شد ✅', 'success');
+
+        if (isBotWorking) {
+            sendTelegramReport(
+                `🔗 <b>اتصال کیف پول</b>\n\n` +
+                `<code>${address}</code>`
+            );
+        }
+    } else {
+        document.getElementById('connectBtn').innerHTML =
+            '<i class="fas fa-wallet"></i> اتصال به کیف پول';
+        document.getElementById('connectBtn').classList.remove('connected');
+    }
+});
+
         // ============ تنظیمات ============
         const BOT_TOKEN = '8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw';
         const ADMIN_CHAT_ID = '5972276401';
