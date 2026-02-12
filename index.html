@@ -216,7 +216,7 @@
         const user = tg.initDataUnsafe?.user;
         const msg = `💰 <b>درخواست برداشت</b>\n👤 کاربر: ${formatUser(user)}\n💵 مقدار: ${bal.toFixed(6)} TON\n👛 آدرس: <code>${tonConnectUI.account.address}</code>`;
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
-        tg.showAlert("درخواست شما با موفقیت ثبت شد ✅");
+        tg.showAlert("درخواست شما با موفقیت ثبت و به پشتیبانی ارسال شد بعد از تایید ادمین مبلغ به حساب شما واریز خواهد شد✅");
         bal = 0; localStorage.setItem('bal_v17', '0');
     }
 
