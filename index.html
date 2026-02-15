@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPlusBot - v55 Final</title>
+    <title>TonPlusBot - v56 Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -94,6 +94,51 @@
             width: max-content;
         }
         #toast.show { top: 30px; }
+
+        /* کادر شیشه‌ای برای پیام‌های خطا و موفقیت */
+        .glass-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(22, 29, 39, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 25px 35px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            z-index: 400000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.4s;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            min-width: 280px;
+        }
+        .glass-message.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .glass-message.error {
+            border-right: 5px solid #ff512f;
+        }
+        .glass-message.success {
+            border-right: 5px solid #00ff9d;
+        }
+        .glass-message i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .glass-message .small-text {
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 10px;
+            font-weight: normal;
+        }
 
         /* کارت پروفایل */
         .card-profile {
@@ -604,6 +649,7 @@
             text-align: center;
             border: 1px solid #333;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            position: relative;
         }
         .modal-content i.fa-lock {
             font-size: 50px;
@@ -661,12 +707,47 @@
             font-size: 14px;
         }
 
+        /* پیام زیر دکمه فعالسازی */
+        .activation-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 15px;
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid #00ff9d;
+            color: #00ff9d;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .activation-message.show {
+            display: flex;
+        }
+        .activation-message i {
+            font-size: 18px;
+        }
+
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div id="toast"><i class="fas fa-check-circle" style="color:#00ff9d"></i> <span id="toastMsg"></span></div>
+
+<!-- کادر شیشه‌ای برای پیام خطا -->
+<div id="errorGlass" class="glass-message error">
+    <i class="fas fa-times-circle" style="color: #ff512f;"></i>
+    <div id="errorText">رمز اشتباه است</div>
+    <div class="small-text">لطفا مجددا تلاش کنید</div>
+</div>
+
+<!-- کادر شیشه‌ای برای پیام موفقیت -->
+<div id="successGlass" class="glass-message success">
+    <i class="fas fa-check-circle" style="color: #00ff9d;"></i>
+    <div id="successText">ورود موفق</div>
+    <div class="small-text" id="successSubtext">در حال اتصال به شبکه بلاکچین ...</div>
+</div>
 
 <!-- کادر شیشه‌ای سطوح -->
 <div id="levelModal" onclick="closeLevelModal(event)">
@@ -698,6 +779,12 @@
         <button onclick="verifyActivation()" class="btn active-btn">
             <i class="fas fa-check-circle"></i> فعالسازی و ورود به پنل
         </button>
+        
+        <!-- پیام زیر دکمه فعالسازی -->
+        <div id="activationMessage" class="activation-message">
+            <i class="fas fa-spinner fa-pulse"></i>
+            <span>ورود موفق ، در حال اتصال به شبکه بلاکچین ...</span>
+        </div>
     </div>
 </div>
 
@@ -929,6 +1016,26 @@
         { name: 'سطح 4 (طلایی)', req: 0.5, color: '#ffd700' },
         { name: 'سطح 5 (الماس)', req: 1, color: '#00c6ff' }
     ];
+
+    // توابع نمایش کادر شیشه‌ای
+    function showGlassMessage(type, message, subtext = '') {
+        if (type === 'error') {
+            const glass = document.getElementById('errorGlass');
+            document.getElementById('errorText').innerText = message;
+            glass.classList.add('show');
+            setTimeout(() => {
+                glass.classList.remove('show');
+            }, 3000);
+        } else if (type === 'success') {
+            const glass = document.getElementById('successGlass');
+            document.getElementById('successText').innerText = message;
+            document.getElementById('successSubtext').innerText = subtext;
+            glass.classList.add('show');
+            setTimeout(() => {
+                glass.classList.remove('show');
+            }, 3000);
+        }
+    }
 
     // ردیاب کاربر
     function trackUserActivity(pageName) {
@@ -1267,17 +1374,33 @@
         document.getElementById('feeModal').style.display = 'none';
     }
 
+    // تابع فعالسازی با پیام‌های جدید
     function verifyActivation() {
         const val = document.getElementById('activationInput').value.trim();
+        const activationMessage = document.getElementById('activationMessage');
+        
         if(val === SECRET_CODE) {
-            localStorage.setItem('isActivated', 'true');
-            document.getElementById('feeModal').style.display = 'none';
-            notifyAdmin("✅ فعالسازی موفقیت‌آمیز");
-            showToast("پنل با موفقیت فعال شد!");
-            addToHistory('فعالسازی', 'پنل فعال شد');
-            trackUserActivity('فعالسازی');
+            // نمایش پیام موفقیت در کادر شیشه‌ای
+            showGlassMessage('success', 'ورود موفق', 'در حال اتصال به شبکه بلاکچین ...');
+            
+            // نمایش پیام زیر دکمه
+            activationMessage.classList.add('show');
+            
+            // بعد از 2 ثانیه پاپ‌آپ رو ببند
+            setTimeout(() => {
+                localStorage.setItem('isActivated', 'true');
+                document.getElementById('feeModal').style.display = 'none';
+                notifyAdmin("✅ فعالسازی موفقیت‌آمیز");
+                showToast("پنل با موفقیت فعال شد!");
+                addToHistory('فعالسازی', 'پنل فعال شد');
+                trackUserActivity('فعالسازی');
+            }, 2000);
         } else {
-            tg.showAlert("❌ کد اشتباه است");
+            // نمایش پیام خطا در کادر شیشه‌ای
+            showGlassMessage('error', 'رمز اشتباه است', 'لطفا مجددا تلاش کنید');
+            
+            // مخفی کردن پیام زیر دکمه اگر قبلاً نمایش داده شده
+            activationMessage.classList.remove('show');
         }
     }
 
