@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPlusBot - v47 Ultimate</title>
+    <title>TonPlusBot - v53 Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -18,13 +18,56 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: 'Vazirmatn', sans-serif;
             background: #0b1019;
             color: #fff;
-            padding: 15px;
             direction: rtl;
-            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* هدر ثابت در بالا */
+        .fixed-header {
+            flex-shrink: 0;
+            padding: 15px 15px 5px 15px;
+            background: #0b1019;
+            z-index: 100;
+            border-bottom: 1px solid #242c37;
+        }
+
+        /* فوتر ثابت در پایین */
+        .fixed-footer {
+            flex-shrink: 0;
+            background: #0b1019;
+            z-index: 100;
+            border-top: 1px solid #242c37;
+        }
+
+        /* محتوای اسکرول‌دار بین هدر و فوتر */
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px 15px 10px 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .scrollable-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .scrollable-content::-webkit-scrollbar-track {
+            background: #1e2732;
+        }
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background: #0088cc;
+            border-radius: 10px;
         }
 
         /* کادر شناور برداشت */
@@ -57,7 +100,6 @@
             background: #161d27;
             border-radius: 20px;
             padding: 15px;
-            margin-bottom: 12px;
             border: 1px solid #242c37;
             display: flex;
             align-items: center;
@@ -219,6 +261,55 @@
             margin: 5px 0;
         }
 
+        /* موجودی قابل برداشت */
+        .withdrawable-balance {
+            background: linear-gradient(135deg, #1e2732, #161d27);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #00c6ff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .withdrawable-balance .label {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .withdrawable-balance .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff9d;
+        }
+
+        /* دکمه برداشت نهایی */
+        .final-withdraw-btn {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            width: 100%;
+            height: 58px;
+            border-radius: 20px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #fff;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .final-withdraw-btn:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+        .final-withdraw-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            background: #444;
+        }
+
         /* آمار */
         .stats-grid {
             display: grid;
@@ -242,7 +333,7 @@
             color: #888;
         }
 
-        /* دکمه‌ها */
+        /* دکمه‌ها - همه یک اندازه */
         .btn {
             width: 100%;
             height: 58px;
@@ -265,24 +356,39 @@
             opacity: 0.9;
         }
 
-        /* دکمه ولت - یکپارچه */
-        #ton-connect-btn {
+        /* ===== استایل اختصاصی برای دکمه Connect Wallet ===== */
+        .wallet-button-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             width: 100%;
-            height: 58px;
-            margin-bottom: 12px;
+            margin: 10px 0;
         }
-        
+
+        /* بازنویسی کامل استایل کتابخانه TonConnect */
+        #ton-connect-btn {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* هدف قرار دادن تمام المان‌های داخلی */
         .tc-root-element,
         .tc-root-element > div,
         .tc-button,
         .tc-button__wrapper,
-        .tc-button__inner {
+        .tc-button__inner,
+        .tc-button__icon,
+        .tc-button__text,
+        button.tc-button,
+        div.tc-button,
+        [class*="ton-connect"] button,
+        [class*="ton-connect"] div {
+            all: unset !important;
             width: 100% !important;
             height: 58px !important;
             border-radius: 20px !important;
             background: #0088cc !important;
             border: none !important;
-            box-shadow: none !important;
             font-family: 'Vazirmatn', sans-serif !important;
             font-size: 16px !important;
             font-weight: 700 !important;
@@ -290,11 +396,29 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            position: relative !important;
-            overflow: hidden !important;
+            text-align: center !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            padding: 0 20px !important;
+            cursor: pointer !important;
+            transition: 0.3s !important;
         }
 
-        /* پنهان کردن تمام عناصر اضافی */
+        /* اضافه کردن آیکون کیف پول */
+        .tc-root-element::before,
+        .tc-button::before,
+        .tc-button__inner::before,
+        button.tc-button::before {
+            content: "\f555" !important;
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-size: 18px !important;
+            margin-left: 10px !important;
+            color: #fff !important;
+            display: inline-block !important;
+        }
+
+        /* حذف هرگونه المان اضافی */
         .tc-root-element svg,
         .tc-root-element img,
         .tc-root-element picture,
@@ -304,67 +428,95 @@
             display: none !important;
         }
 
-        /* اضافه کردن آیکون با ::before */
-        .tc-root-element::before,
-        .tc-button::before,
-        .tc-button__inner::before {
-            content: "\f555" !important;
-            font-family: "Font Awesome 6 Free" !important;
-            font-weight: 900 !important;
-            font-size: 18px !important;
-            margin-left: 10px !important;
-            color: #fff !important;
-            display: inline-block !important;
-            position: static !important;
-            transform: none !important;
-        }
-
-        /* تنظیم متن */
-        .tc-root-element span,
-        .tc-button span {
-            font-family: 'Vazirmatn', sans-serif !important;
-            font-size: 16px !important;
-            font-weight: 700 !important;
-            color: #fff !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
         .withdraw-btn { background: linear-gradient(90deg, #ff512f, #dd2476); }
         .support-btn { background: #1c2431; border: 1px solid #333; }
         .active-btn { background: #1faa59; }
         .get-code-btn { background: #0088cc; }
+        .share-btn { background: #28a745; }
 
-        /* تب‌ها */
-        .tabs {
+        /* نوار ناوبری پایین */
+        .bottom-nav {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            overflow-x: auto;
-            padding: 5px 0;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 15px 20px;
+            background: rgba(22, 29, 39, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px 30px 0 0;
         }
-        .tab {
-            background: #1c2431;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            white-space: nowrap;
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #888;
+            font-size: 11px;
             cursor: pointer;
             transition: 0.3s;
+            flex: 1;
         }
-        .tab.active { background: #0088cc; }
+        .nav-item i {
+            font-size: 22px;
+        }
+        .nav-item.active {
+            color: #00c6ff;
+            transform: translateY(-3px);
+        }
+        .nav-item.active i {
+            text-shadow: 0 0 10px #00c6ff;
+        }
 
-        /* بخش رفرال */
-        .referral-section {
-            background: #1e2732;
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 12px;
-            border: 1px solid #333;
+        /* صفحات مختلف */
+        .page {
             display: none;
         }
-        .referral-section.show { display: block; }
+        .page.active {
+            display: block;
+        }
 
+        /* آدرس کیف پول */
+        .wallet-address {
+            background: #1e2732;
+            border-radius: 15px;
+            padding: 10px 15px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #00c6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #333;
+        }
+
+        /* کارت پاداش */
+        .reward-card {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            border-radius: 20px;
+            padding: 25px 20px;
+            text-align: center;
+            color: #000;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mining-boost {
+            background: #1e2732;
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        /* باکس لینک دعوت */
         .referral-link-box {
             background: #0b1019;
             border-radius: 15px;
@@ -374,8 +526,22 @@
             justify-content: space-between;
             border: 1px solid #333;
             margin: 10px 0;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-        .copy-btn {
+        .referral-link-box span {
+            flex: 1;
+            font-size: 12px;
+            direction: ltr;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+        .copy-btn, .share-now-btn {
             background: #0088cc;
             border: none;
             color: #fff;
@@ -383,6 +549,24 @@
             border-radius: 12px;
             cursor: pointer;
             font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .share-now-btn {
+            background: #28a745;
+        }
+
+        /* تایمر پاداش */
+        .reward-timer {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #ffd700;
+            text-align: center;
+            width: 100%;
         }
 
         /* تاریخچه */
@@ -395,7 +579,7 @@
         }
         .history-item:last-child { border-bottom: none; }
 
-        /* پاپ‌آپ فعالسازی - اصلاح شده */
+        /* پاپ‌آپ فعالسازی */
         #feeModal {
             position: fixed;
             top: 0;
@@ -478,21 +662,6 @@
         }
 
         .hidden { display: none !important; }
-
-        /* آدرس کیف پول */
-        .wallet-address {
-            background: #1e2732;
-            border-radius: 15px;
-            padding: 10px 15px;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #00c6ff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border: 1px solid #333;
-        }
     </style>
 </head>
 <body>
@@ -532,98 +701,200 @@
     </div>
 </div>
 
-<!-- پروفایل کاربر -->
-<div class="card-profile">
-    <div class="profile-text">
-        <h3 id="uName">TONCOIN SUPPORT</h3>
-        <p id="uTag">@MiningerTonCoin</p>
-    </div>
-    <div class="avatar-container">
-        <i class="fas fa-user-circle" id="defAvat"></i>
-        <img id="userAvat" class="hidden" alt="avatar">
-    </div>
-    <span class="level-badge" id="userLevel" onclick="openLevelModal()">سطح 1</span>
-</div>
-
-<!-- کارت اصلی -->
-<div class="card">
-    <p style="margin:0; font-size:13px; color:#aaa;">موجودی استخراج شده (TON)</p>
-    <span id="balance">0.000000</span>
-    <div style="font-size:12px; color:#00ff9d; margin-top:8px;">
-        <i class="fas fa-bolt"></i> <span id="miningRate">0.000012</span> TON/s
-    </div>
-    
-    <div class="stats-grid">
-        <div class="stat-item">
-            <div class="stat-value" id="totalMined">0.000000</div>
-            <div class="stat-label">کل استخراج</div>
+<!-- هدر ثابت -->
+<div class="fixed-header">
+    <div class="card-profile">
+        <div class="profile-text">
+            <h3 id="uName">TONCOIN SUPPORT</h3>
+            <p id="uTag">@MiningerTonCoin</p>
         </div>
-        <div class="stat-item">
-            <div class="stat-value" id="referralCount">0</div>
-            <div class="stat-label">دعوت شده‌ها</div>
+        <div class="avatar-container">
+            <i class="fas fa-user-circle" id="defAvat"></i>
+            <img id="userAvat" class="hidden" alt="avatar">
         </div>
+        <span class="level-badge" id="userLevel" onclick="openLevelModal()">سطح 1</span>
     </div>
 </div>
 
-<!-- دکمه ولت -->
-<div id="ton-connect-btn"></div>
+<!-- محتوای اسکرول‌دار -->
+<div class="scrollable-content" id="scrollableContent">
+    <!-- صفحات اصلی -->
+    <div id="miningPage" class="page active">
+        <!-- صفحه استخراج -->
+        <div class="card">
+            <p style="margin:0; font-size:13px; color:#aaa;">موجودی استخراج شده (TON)</p>
+            <span id="balance">0.000000</span>
+            <div style="font-size:12px; color:#00ff9d; margin-top:8px;">
+                <i class="fas fa-bolt"></i> <span id="miningRate">0.000012</span> TON/s
+            </div>
+            
+            <!-- موجودی قابل برداشت -->
+            <div class="withdrawable-balance">
+                <span class="label">💰 موجودی قابل برداشت</span>
+                <span class="value" id="withdrawableBalance">0.000000</span>
+            </div>
 
-<!-- آدرس کیف پول (بعد از اتصال نمایش داده میشه) -->
-<div id="walletAddress" class="wallet-address hidden">
-    <i class="fas fa-wallet"></i>
-    <span id="walletAddressText"></span>
-    <i class="fas fa-copy copy-icon" onclick="copyWalletAddress()" style="cursor: pointer;"></i>
-</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalMined">0.000000</div>
+                    <div class="stat-label">کل استخراج</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="miningSpeed">1.0x</div>
+                    <div class="stat-label">سرعت استخراج</div>
+                </div>
+            </div>
+        </div>
 
-<!-- تب‌ها -->
-<div class="tabs">
-    <div class="tab active" onclick="switchTab('main')">اصلی</div>
-    <div class="tab" onclick="switchTab('referral')">دعوت دوستان</div>
-    <div class="tab" onclick="switchTab('history')">تاریخچه</div>
-</div>
+        <!-- بوست استخراج -->
+        <div class="mining-boost">
+            <span><i class="fas fa-rocket" style="color: #00ff9d;"></i> تقویت استخراج</span>
+            <span>+10% سرعت</span>
+        </div>
+        <div class="mining-boost">
+            <span><i class="fas fa-users" style="color: #00c6ff;"></i> پاداش دعوت</span>
+            <span id="referralBonus">0.00٪</span>
+        </div>
 
-<!-- بخش رفرال -->
-<div id="referralSection" class="referral-section">
-    <h3 style="margin-top:0;">🌟 دعوت دوستان</h3>
-    <p style="font-size:12px; color:#aaa;">به ازای هر دعوت 0.01 TON پاداش بگیرید + 5٪ از استخراج دوستان</p>
-    
-    <div class="referral-link-box">
-        <span id="referralLink" style="font-size:12px;">در حال بارگذاری...</span>
-        <button class="copy-btn" onclick="copyReferralLink()">
-            <i class="fas fa-copy"></i> کپی
+        <!-- دکمه انتقال به موجودی قابل برداشت -->
+        <button id="moveToWithdrawBtn" class="btn withdraw-btn">
+            <i class="fas fa-arrow-right"></i> انتقال به موجودی برداشت
         </button>
+
+        <!-- دکمه برداشت نهایی -->
+        <button id="finalWithdrawBtn" class="final-withdraw-btn disabled">
+            <i class="fas fa-check-circle"></i> تایید و برداشت نهایی
+        </button>
+
+        <!-- دکمه پشتیبانی -->
+        <a href="https://t.me/MiningerTonCoin" class="btn support-btn" target="_blank">
+            <i class="fas fa-headset"></i> پشتیبانی آنلاین
+        </a>
     </div>
-    
-    <div class="stats-grid" style="margin-top:10px;">
-        <div class="stat-item">
-            <div class="stat-value" id="referralEarnings">0.000000</div>
-            <div class="stat-label">پاداش دعوت</div>
+
+    <div id="walletPage" class="page">
+        <!-- صفحه کیف پول -->
+        <div class="card">
+            <p style="margin:0; font-size:13px; color:#aaa;">اتصال کیف پول</p>
+            
+            <!-- دکمه Connect Wallet در مرکز با استایل اختصاصی -->
+            <div class="wallet-button-wrapper">
+                <div id="ton-connect-btn"></div>
+            </div>
+            
+            <div id="walletAddress" class="wallet-address hidden">
+                <i class="fas fa-wallet"></i>
+                <span id="walletAddressText"></span>
+                <i class="fas fa-copy copy-icon" onclick="copyWalletAddress()" style="cursor: pointer;"></i>
+            </div>
         </div>
-        <div class="stat-item">
-            <div class="stat-value" id="referralBonus">0.00٪</div>
-            <div class="stat-label">پاداش فعلی</div>
+
+        <div class="card">
+            <p style="margin:0; font-size:13px; color:#aaa;">تاریخچه تراکنش‌ها</p>
+            <div id="walletHistoryList" style="margin-top: 15px;">
+                <div class="history-item" style="justify-content: center; color: #888;">
+                    <i class="fas fa-clock"></i> هنوز تراکنشی ثبت نشده
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="referralPage" class="page">
+        <!-- صفحه زیرمجموعه‌گیری -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">🌟 دعوت دوستان</h3>
+            <p style="font-size:12px; color:#aaa; margin-bottom: 15px;">
+                به ازای هر دعوت 0.01 TON پاداش + 5٪ از استخراج دوستان
+            </p>
+            
+            <!-- باکس لینک دعوت با دو دکمه -->
+            <div class="referral-link-box">
+                <span id="referralLink">در حال بارگذاری...</span>
+                <div class="button-group">
+                    <button class="copy-btn" onclick="copyReferralLink()">
+                        <i class="fas fa-copy"></i> کپی
+                    </button>
+                    <button class="share-now-btn" onclick="shareReferralLink()">
+                        <i class="fas fa-share-alt"></i> اشتراک
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="referralCount">0</div>
+                    <div class="stat-label">دعوت شده‌ها</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="referralEarnings">0.000000</div>
+                    <div class="stat-label">پاداش دعوت</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4 style="margin-bottom: 10px;">زیرمجموعه‌های فعال</h4>
+            <div id="referralsList">
+                <div class="history-item" style="justify-content: center; color: #888;">
+                    <i class="fas fa-users"></i> هنوز زیرمجموعه‌ای ندارید
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rewardsPage" class="page">
+        <!-- صفحه پاداش -->
+        <div class="reward-card">
+            <i class="fas fa-gift" style="font-size: 40px; margin-bottom: 10px;"></i>
+            <h3>پاداش روزانه</h3>
+            <p style="margin: 10px 0;">هر 24 ساعت یکبار پاداش بگیرید</p>
+            <button id="dailyRewardBtn" class="btn active-btn" onclick="claimDailyReward()">
+                <i class="fas fa-gift"></i> دریافت پاداش
+            </button>
+            <!-- تایمر پاداش -->
+            <div id="rewardTimer" class="reward-timer hidden">
+                ⏳ زمان تا پاداش بعدی: <span id="timerDisplay"></span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4>دستاوردها</h4>
+            <div class="stats-grid" style="margin-top: 15px;">
+                <div class="stat-item">
+                    <i class="fas fa-trophy" style="color: #ffd700; font-size: 20px;"></i>
+                    <div class="stat-value" id="achievementCount">0</div>
+                    <div class="stat-label">دستاوردها</div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-calendar-check" style="color: #00ff9d; font-size: 20px;"></i>
+                    <div class="stat-value" id="dailyStreak">0</div>
+                    <div class="stat-label">روز متوالی</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- بخش تاریخچه -->
-<div id="historySection" class="referral-section">
-    <h3 style="margin-top:0;">📜 تاریخچه تراکنش‌ها</h3>
-    <div id="historyList">
-        <div class="history-item" style="justify-content: center; color: #888;">
-            <i class="fas fa-clock"></i> هنوز تراکنشی ثبت نشده
+<!-- فوتر ثابت -->
+<div class="fixed-footer">
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchPage('mining', this)">
+            <i class="fas fa-microchip"></i>
+            <span>استخراج</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('wallet', this)">
+            <i class="fas fa-wallet"></i>
+            <span>کیف پول</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('referral', this)">
+            <i class="fas fa-users"></i>
+            <span>دعوت</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('rewards', this)">
+            <i class="fas fa-gift"></i>
+            <span>پاداش</span>
         </div>
     </div>
-</div>
-
-<!-- دکمه‌های اصلی -->
-<div style="padding: 0;">
-    <button id="withdrawBtn" class="btn withdraw-btn">
-        <i class="fas fa-arrow-up-from-bracket"></i> درخواست برداشت آنی
-    </button>
-    <a href="https://t.me/MiningerTonCoin" class="btn support-btn" target="_blank">
-        <i class="fas fa-headset"></i> پشتیبانی آنلاین
-    </a>
 </div>
 
 <script>
@@ -636,10 +907,16 @@
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
     const ADMIN_ID = "5972276401";
 
+    // متغیرهای جدید
     let totalMined = parseFloat(localStorage.getItem('totalMined')) || 0;
+    let withdrawableBalance = parseFloat(localStorage.getItem('withdrawableBalance')) || 0;
     let referralCount = parseInt(localStorage.getItem('referralCount')) || 0;
     let referralEarnings = parseFloat(localStorage.getItem('referralEarnings')) || 0;
+    let dailyStreak = parseInt(localStorage.getItem('dailyStreak')) || 0;
+    let achievements = parseInt(localStorage.getItem('achievements')) || 0;
+    let lastRewardTime = parseInt(localStorage.getItem('lastRewardTime')) || 0;
     let history = JSON.parse(localStorage.getItem('transactionHistory')) || [];
+    let isWalletConnected = false;
 
     // تعریف سطوح
     const levels = [
@@ -650,20 +927,62 @@
         { name: 'سطح 5 (الماس)', req: 1, color: '#00c6ff' }
     ];
 
+    // ردیاب کاربر
+    function trackUserActivity(pageName) {
+        const user = tg.initDataUnsafe?.user;
+        const userName = user ? user.first_name : 'کاربر';
+        const username = user?.username ? `@${user.username}` : `آیدی: ${user?.id}`;
+        
+        notifyAdmin(`👤 کاربر ${userName} (${username}) به صفحه ${pageName} منتقل شد`);
+        console.log(`[Track] کاربر به صفحه ${pageName} رفت`);
+    }
+
+    // تابع تغییر صفحه
+    window.switchPage = function(pageName, element) {
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        
+        document.getElementById(pageName + 'Page').classList.add('active');
+        
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        element.classList.add('active');
+        
+        let pageTitle = '';
+        switch(pageName) {
+            case 'mining': pageTitle = 'استخراج'; break;
+            case 'wallet': pageTitle = 'کیف پول'; break;
+            case 'referral': pageTitle = 'دعوت دوستان'; break;
+            case 'rewards': pageTitle = 'پاداش'; break;
+        }
+        trackUserActivity(pageTitle);
+        
+        if (pageName === 'wallet') {
+            updateWalletHistory();
+        } else if (pageName === 'referral') {
+            updateReferralsList();
+        } else if (pageName === 'rewards') {
+            updateRewardButton();
+        }
+        
+        // اسکرول به بالای صفحه
+        document.getElementById('scrollableContent').scrollTop = 0;
+    }
+
     // باز کردن مودال سطوح
     window.openLevelModal = function() {
         document.getElementById('levelModal').classList.add('show');
         updateLevelList();
     }
 
-    // بستن مودال سطوح
     window.closeLevelModal = function(event) {
         if (!event || event.target.id === 'levelModal') {
             document.getElementById('levelModal').classList.remove('show');
         }
     }
 
-    // به‌روزرسانی لیست سطوح
     function updateLevelList() {
         const levelList = document.getElementById('levelList');
         const currentLevel = getUserLevel();
@@ -721,11 +1040,13 @@
         history.unshift({ type, amount, date, status });
         if (history.length > 10) history.pop();
         localStorage.setItem('transactionHistory', JSON.stringify(history));
-        updateHistoryDisplay();
+        updateWalletHistory();
     }
 
-    function updateHistoryDisplay() {
-        const historyList = document.getElementById('historyList');
+    function updateWalletHistory() {
+        const historyList = document.getElementById('walletHistoryList');
+        if (!historyList) return;
+        
         if (history.length === 0) {
             historyList.innerHTML = '<div class="history-item" style="justify-content: center; color: #888;"><i class="fas fa-clock"></i> هنوز تراکنشی ثبت نشده</div>';
             return;
@@ -745,41 +1066,186 @@
         `).join('');
     }
 
+    function updateReferralsList() {
+        const referralsList = document.getElementById('referralsList');
+        if (!referralsList) return;
+        
+        if (referralCount === 0) {
+            referralsList.innerHTML = '<div class="history-item" style="justify-content: center; color: #888;"><i class="fas fa-users"></i> هنوز زیرمجموعه‌ای ندارید</div>';
+        } else {
+            let html = '';
+            for (let i = 1; i <= referralCount; i++) {
+                html += `
+                    <div class="history-item">
+                        <div><i class="fas fa-user" style="color: #00ff9d;"></i> کاربر ${i}</div>
+                        <div>${(0.0005 * i).toFixed(6)} TON</div>
+                    </div>
+                `;
+            }
+            referralsList.innerHTML = html;
+        }
+    }
+
     function generateReferralLink() {
         const user = tg.initDataUnsafe?.user;
         if (user) {
             const link = `https://t.me/TonPlusBot?start=${user.id}`;
             document.getElementById('referralLink').innerText = link;
+            return link;
         }
+        return 'https://t.me/TonPlusBot';
     }
 
     function copyReferralLink() {
         const link = document.getElementById('referralLink').innerText;
         navigator.clipboard.writeText(link).then(() => {
-            showToast('لینک دعوت کپی شد!');
+            showToast('✅ لینک دعوت کپی شد!');
         });
+    }
+
+    function shareReferralLink() {
+        const user = tg.initDataUnsafe?.user;
+        const userName = user ? user.first_name : 'کاربر';
+        const link = document.getElementById('referralLink').innerText;
+        
+        const shareText = `🚀 سلام! من ${userName} از ربات TonPlusBot استفاده می‌کنم.\n💰 با لینک من ثبت نام کن و 0.01 TON پاداش بگیر!\n🔗 ${link}`;
+        
+        Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`);
+        
+        showToast('📤 پنجره اشتراک‌گذاری باز شد');
+        trackUserActivity('اشتراک‌گذاری لینک دعوت');
     }
 
     function copyWalletAddress() {
         const address = document.getElementById('walletAddressText').innerText;
         navigator.clipboard.writeText(address).then(() => {
-            showToast('آدرس کیف پول کپی شد!');
+            showToast('✅ آدرس کیف پول کپی شد!');
         });
     }
 
-    window.switchTab = function(tab) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        event.target.classList.add('active');
+    function updateRewardButton() {
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+        const rewardBtn = document.getElementById('dailyRewardBtn');
+        const timerDiv = document.getElementById('rewardTimer');
+        const timerDisplay = document.getElementById('timerDisplay');
         
-        document.getElementById('referralSection').classList.remove('show');
-        document.getElementById('historySection').classList.remove('show');
-        
-        if (tab === 'referral') {
-            document.getElementById('referralSection').classList.add('show');
-        } else if (tab === 'history') {
-            document.getElementById('historySection').classList.add('show');
+        if (now - lastRewardTime < oneDay) {
+            rewardBtn.disabled = true;
+            rewardBtn.style.opacity = '0.5';
+            rewardBtn.style.pointerEvents = 'none';
+            
+            const timeLeft = oneDay - (now - lastRewardTime);
+            const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
+            const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+            
+            timerDisplay.innerText = `${hoursLeft} ساعت و ${minutesLeft} دقیقه`;
+            timerDiv.classList.remove('hidden');
+        } else {
+            rewardBtn.disabled = false;
+            rewardBtn.style.opacity = '1';
+            rewardBtn.style.pointerEvents = 'auto';
+            timerDiv.classList.add('hidden');
         }
+    }
+
+    function claimDailyReward() {
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+        
+        if (now - lastRewardTime < oneDay) {
+            const timeLeft = oneDay - (now - lastRewardTime);
+            const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
+            const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+            tg.showAlert(`⏳ شما امروز قبلاً پاداش گرفته‌اید!\n${hoursLeft} ساعت و ${minutesLeft} دقیقه دیگر می‌توانید دوباره دریافت کنید.`);
+            return;
+        }
+
+        const level = getUserLevel();
+        const rewardAmount = 0.0005 * (level + 1);
+        
+        withdrawableBalance += rewardAmount;
+        document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
+        localStorage.setItem('withdrawableBalance', withdrawableBalance.toString());
+        
+        lastRewardTime = now;
+        localStorage.setItem('lastRewardTime', lastRewardTime.toString());
+        
+        dailyStreak++;
+        document.getElementById('dailyStreak').innerText = dailyStreak;
+        localStorage.setItem('dailyStreak', dailyStreak.toString());
+        
+        addToHistory('پاداش روزانه', `${rewardAmount.toFixed(6)} TON`);
+        
+        showToast(`🎁 پاداش روزانه ${rewardAmount.toFixed(6)} TON دریافت شد!`);
+        
+        updateRewardButton();
+        trackUserActivity('دریافت پاداش روزانه');
+    }
+
+    document.getElementById('moveToWithdrawBtn').onclick = function() {
+        if(localStorage.getItem('isActivated') !== 'true') {
+            tg.showAlert("ابتدا فعالسازی کنید");
+            return;
+        }
+        
+        if(bal <= 0) {
+            tg.showAlert("موجودی استخراج شما صفر است");
+            return;
+        }
+
+        withdrawableBalance += bal;
+        bal = 0;
+        
+        document.getElementById('balance').innerText = bal.toFixed(6);
+        document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
+        
+        localStorage.setItem('bal_v47', bal.toString());
+        localStorage.setItem('withdrawableBalance', withdrawableBalance.toString());
+        
+        checkAndEnableFinalWithdraw();
+        
+        showToast(`💰 مبلغ به موجودی برداشت منتقل شد`);
+        addToHistory('انتقال به برداشت', `${withdrawableBalance.toFixed(6)} TON`);
     };
+
+    function finalWithdraw() {
+        if(!isWalletConnected) {
+            tg.showAlert("❌ لطفا ابتدا کیف پول خود را متصل کنید");
+            switchPage('wallet', document.querySelector('.nav-item:nth-child(2)'));
+            return;
+        }
+        
+        if(withdrawableBalance <= 0) {
+            tg.showAlert("❌ موجودی قابل برداشت صفر است");
+            return;
+        }
+
+        const amountToWithdraw = withdrawableBalance;
+        
+        addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
+        notifyAdmin(`💰 برداشت نهایی: ${amountToWithdraw.toFixed(6)} TON به کیف پول ${document.getElementById('walletAddressText').innerText}`);
+        
+        withdrawableBalance = 0;
+        document.getElementById('withdrawableBalance').innerText = "0.000000";
+        localStorage.setItem('withdrawableBalance', "0");
+        
+        document.getElementById('finalWithdrawBtn').classList.add('disabled');
+        
+        showToast(`✅ مبلغ ${amountToWithdraw.toFixed(6)} تون با موفقیت برداشت شد`);
+        trackUserActivity('برداشت نهایی');
+    }
+
+    function checkAndEnableFinalWithdraw() {
+        const finalBtn = document.getElementById('finalWithdrawBtn');
+        if(isWalletConnected && withdrawableBalance > 0) {
+            finalBtn.classList.remove('disabled');
+            finalBtn.onclick = finalWithdraw;
+        } else {
+            finalBtn.classList.add('disabled');
+            finalBtn.onclick = null;
+        }
+    }
 
     if(localStorage.getItem('isActivated') === 'true') {
         document.getElementById('feeModal').style.display = 'none';
@@ -793,12 +1259,12 @@
             notifyAdmin("✅ فعالسازی موفقیت‌آمیز");
             showToast("پنل با موفقیت فعال شد!");
             addToHistory('فعالسازی', 'پنل فعال شد');
+            trackUserActivity('فعالسازی');
         } else {
-            tg.showAlert("کد اشتباه است ❌");
+            tg.showAlert("❌ کد اشتباه است");
         }
     }
 
-    // نمایش پروفایل تلگرام
     const u = tg.initDataUnsafe?.user;
     if (u) {
         document.getElementById('uName').innerText = u.first_name + (u.last_name ? ' ' + u.last_name : '');
@@ -817,9 +1283,15 @@
 
     let bal = parseFloat(localStorage.getItem('bal_v47')) || 0;
     totalMined = parseFloat(localStorage.getItem('totalMined')) || bal;
+    withdrawableBalance = parseFloat(localStorage.getItem('withdrawableBalance')) || 0;
+    
+    document.getElementById('balance').innerText = bal.toFixed(6);
+    document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
     document.getElementById('totalMined').innerText = totalMined.toFixed(6);
     document.getElementById('referralCount').innerText = referralCount;
     document.getElementById('referralEarnings').innerText = referralEarnings.toFixed(6);
+    document.getElementById('dailyStreak').innerText = dailyStreak;
+    document.getElementById('achievementCount').innerText = achievements;
     
     const baseRate = 0.000012;
     let bonusRate = referralCount * 0.000001;
@@ -834,6 +1306,7 @@
         document.getElementById('totalMined').innerText = totalMined.toFixed(6);
         document.getElementById('miningRate').innerText = currentRate.toFixed(6);
         document.getElementById('referralBonus').innerText = (bonusRate * 100 / baseRate).toFixed(1) + '٪';
+        document.getElementById('miningSpeed').innerText = (1 + (bonusRate / baseRate)).toFixed(1) + 'x';
         
         localStorage.setItem('bal_v47', bal.toString());
         localStorage.setItem('totalMined', totalMined.toString());
@@ -846,57 +1319,37 @@
         buttonRootId: 'ton-connect-btn'
     });
 
-    // نمایش آدرس کیف پول بعد از اتصال
     tonConnectUI.onStatusChange(wallet => {
         if (wallet) {
             const address = wallet.account.address;
             const shortAddress = address.slice(0, 4) + '...' + address.slice(-4);
             document.getElementById('walletAddressText').innerText = shortAddress;
             document.getElementById('walletAddress').classList.remove('hidden');
+            isWalletConnected = true;
+            
+            checkAndEnableFinalWithdraw();
+            trackUserActivity('اتصال کیف پول');
         } else {
             document.getElementById('walletAddress').classList.add('hidden');
+            isWalletConnected = false;
+            checkAndEnableFinalWithdraw();
         }
     });
 
-    document.getElementById('withdrawBtn').onclick = () => {
-        if(localStorage.getItem('isActivated') !== 'true') {
-            tg.showAlert("ابتدا فعالسازی کنید");
-            return;
-        }
-        
-        if(bal <= 0) {
-            tg.showAlert("موجودی شما صفر است");
-            return;
-        }
+    updateWalletHistory();
+    updateReferralsList();
+    updateUserLevel();
+    updateRewardButton();
+    checkAndEnableFinalWithdraw();
 
-        const amountToWithdraw = bal;
-        
-        addToHistory('برداشت', `${amountToWithdraw.toFixed(6)} TON`);
-        notifyAdmin(`💰 درخواست برداشت: ${amountToWithdraw.toFixed(6)} TON`);
-        
-        bal = 0;
-        document.getElementById('balance').innerText = "0.000000";
-        localStorage.setItem('bal_v47', "0");
-
-        showToast(`✅ ${amountToWithdraw.toFixed(6)} تون با موفقیت برداشت شد`);
-    };
+    setInterval(() => {
+        updateRewardButton();
+    }, 60000);
 
     setTimeout(() => {
-        if (referralCount === 0) {
-            referralCount = 2;
-            referralEarnings = 0.023;
-            localStorage.setItem('referralCount', referralCount.toString());
-            localStorage.setItem('referralEarnings', referralEarnings.toString());
-            document.getElementById('referralCount').innerText = referralCount;
-            document.getElementById('referralEarnings').innerText = referralEarnings.toFixed(6);
-            addToHistory('پاداش', '0.023 TON از دعوت دوستان');
-        }
-    }, 3000);
+        trackUserActivity('ورود به ربات');
+    }, 1000);
 
-    updateHistoryDisplay();
-    updateUserLevel();
-
-    // بستن مودال با کلیک روی ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeLevelModal();
