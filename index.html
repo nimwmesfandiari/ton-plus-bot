@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPlusBot - v53 Final</title>
+    <title>TonPlusBot - v55 Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -906,6 +906,9 @@
     const SECRET_CODE = "T61O96N12";
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
     const ADMIN_ID = "5972276401";
+    
+    // نام کاربری ربات
+    const BOT_USERNAME = "TonDropyBot";
 
     // متغیرهای جدید
     let totalMined = parseFloat(localStorage.getItem('totalMined')) || 0;
@@ -1086,14 +1089,15 @@
         }
     }
 
+    // تولید لینک اختصاصی هر کاربر با نام ربات صحیح
     function generateReferralLink() {
         const user = tg.initDataUnsafe?.user;
         if (user) {
-            const link = `https://t.me/TonPlusBot?start=${user.id}`;
+            const link = `https://t.me/${BOT_USERNAME}?start=${user.id}`;
             document.getElementById('referralLink').innerText = link;
             return link;
         }
-        return 'https://t.me/TonPlusBot';
+        return `https://t.me/${BOT_USERNAME}`;
     }
 
     function copyReferralLink() {
@@ -1103,13 +1107,16 @@
         });
     }
 
+    // اشتراک‌گذاری لینک دعوت با نام ربات صحیح
     function shareReferralLink() {
         const user = tg.initDataUnsafe?.user;
         const userName = user ? user.first_name : 'کاربر';
         const link = document.getElementById('referralLink').innerText;
         
-        const shareText = `🚀 سلام! من ${userName} از ربات TonPlusBot استفاده می‌کنم.\n💰 با لینک من ثبت نام کن و 0.01 TON پاداش بگیر!\n🔗 ${link}`;
+        // متن دعوت با لینک صحیح
+        const shareText = `🚀 سلام! من ${userName} از ربات ${BOT_USERNAME} استفاده می‌کنم.\n💰 با لینک من ثبت نام کن و 0.01 TON پاداش بگیر!\n🔗 ${link}`;
         
+        // باز کردن پنجره اشتراک‌گذاری تلگرام
         Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`);
         
         showToast('📤 پنجره اشتراک‌گذاری باز شد');
@@ -1209,6 +1216,7 @@
         addToHistory('انتقال به برداشت', `${withdrawableBalance.toFixed(6)} TON`);
     };
 
+    // تابع برداشت نهایی با پیام جدید
     function finalWithdraw() {
         if(!isWalletConnected) {
             tg.showAlert("❌ لطفا ابتدا کیف پول خود را متصل کنید");
@@ -1223,16 +1231,24 @@
 
         const amountToWithdraw = withdrawableBalance;
         
+        // ثبت در تاریخچه
         addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
+        
+        // گزارش به ادمین
         notifyAdmin(`💰 برداشت نهایی: ${amountToWithdraw.toFixed(6)} TON به کیف پول ${document.getElementById('walletAddressText').innerText}`);
         
+        // خالی کردن موجودی برداشت
         withdrawableBalance = 0;
         document.getElementById('withdrawableBalance').innerText = "0.000000";
         localStorage.setItem('withdrawableBalance', "0");
         
+        // غیرفعال کردن دکمه
         document.getElementById('finalWithdrawBtn').classList.add('disabled');
         
-        showToast(`✅ مبلغ ${amountToWithdraw.toFixed(6)} تون با موفقیت برداشت شد`);
+        // نمایش پیام جدید درخواستی
+        showToast(`✅ برداشت شما انجام شد و پس از تایید مدیریت به حسابتان واریز خواهد شد`);
+        
+        // ردیاب
         trackUserActivity('برداشت نهایی');
     }
 
