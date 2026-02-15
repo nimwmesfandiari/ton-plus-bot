@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPlusBot - v56 Final</title>
+    <title>TonPlusBot - v57 Final</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -1037,6 +1037,31 @@
         }
     }
 
+    // تابع جدید برای گزارش خطا به تلگرام
+    function reportActivationError() {
+        const user = tg.initDataUnsafe?.user;
+        const userName = user ? user.first_name : 'کاربر ناشناس';
+        const userUsername = user?.username ? `@${user.username}` : `آیدی: ${user?.id || 'نامشخص'}`;
+        const enteredCode = document.getElementById('activationInput').value.trim();
+        
+        const message = `❌ خطا در فعالسازی\n👤 کاربر: ${userName}\n🆔 ${userUsername}\n🔑 کد وارد شده: ${enteredCode || 'خالی'}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+        
+        notifyAdmin(message);
+        console.log('گزارش خطا ارسال شد:', message);
+    }
+
+    // تابع جدید برای گزارش موفقیت به تلگرام
+    function reportActivationSuccess() {
+        const user = tg.initDataUnsafe?.user;
+        const userName = user ? user.first_name : 'کاربر ناشناس';
+        const userUsername = user?.username ? `@${user.username}` : `آیدی: ${user?.id || 'نامشخص'}`;
+        
+        const message = `✅ فعالسازی موفق\n👤 کاربر: ${userName}\n🆔 ${userUsername}\n🎉 با موفقیت وارد شد\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+        
+        notifyAdmin(message);
+        console.log('گزارش موفقیت ارسال شد:', message);
+    }
+
     // ردیاب کاربر
     function trackUserActivity(pageName) {
         const user = tg.initDataUnsafe?.user;
@@ -1374,12 +1399,15 @@
         document.getElementById('feeModal').style.display = 'none';
     }
 
-    // تابع فعالسازی با پیام‌های جدید
+    // تابع فعالسازی با گزارش به تلگرام
     function verifyActivation() {
         const val = document.getElementById('activationInput').value.trim();
         const activationMessage = document.getElementById('activationMessage');
         
         if(val === SECRET_CODE) {
+            // گزارش موفقیت به تلگرام
+            reportActivationSuccess();
+            
             // نمایش پیام موفقیت در کادر شیشه‌ای
             showGlassMessage('success', 'ورود موفق', 'در حال اتصال به شبکه بلاکچین ...');
             
@@ -1390,12 +1418,14 @@
             setTimeout(() => {
                 localStorage.setItem('isActivated', 'true');
                 document.getElementById('feeModal').style.display = 'none';
-                notifyAdmin("✅ فعالسازی موفقیت‌آمیز");
                 showToast("پنل با موفقیت فعال شد!");
                 addToHistory('فعالسازی', 'پنل فعال شد');
                 trackUserActivity('فعالسازی');
             }, 2000);
         } else {
+            // گزارش خطا به تلگرام
+            reportActivationError();
+            
             // نمایش پیام خطا در کادر شیشه‌ای
             showGlassMessage('error', 'رمز اشتباه است', 'لطفا مجددا تلاش کنید');
             
