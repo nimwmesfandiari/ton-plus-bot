@@ -1,5 +1,7 @@
 {
-  "url": "https://nimwmesfandiari.github.io/ton-plus-bot/",
-  "name": "TON Dropy PRO",
-  "iconUrl": "https://ton.org/front/img/ton_logo.png"
+  "url": "https://ton-plus-bot.vercel.app",
+  "name": "TonDropyBot",
+  "iconUrl": "https://ton-plus-bot.vercel.app/icon.png",
+  "termsOfUseUrl": "https://ton-plus-bot.vercel.app/terms",
+  "privacyPolicyUrl": "https://ton-plus-bot.vercel.app/privacy"
 }
