@@ -1,19 +1,11 @@
-// این فایل باید دقیقاً همین باشه
+// فایل api/config.js باید دقیقاً این باشد:
 export default function handler(req, res) {
-  // تنظیم CORS برای دسترسی از هر جایی
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  // برگردوندن تنظیمات
   res.status(200).json({
-    botToken: process.env.BOT_TOKEN,
-    adminId: process.env.ADMIN_ID,
-    adminUsername: process.env.ADMIN_USERNAME,
-    walletAddress: process.env.WALLET_ADDRESS,
-    secretCodes: process.env.SECRET_CODES ? JSON.parse(process.env.SECRET_CODES) : []
+    botToken: process.env.BOT_TOKEN || "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw",
+    adminId: process.env.ADMIN_ID || "5972276401",
+    adminUsername: process.env.ADMIN_USERNAME || "miningertoncoin",
+    walletAddress: process.env.WALLET_ADDRESS || "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
+    secretCodes: ["T61O96N12", "VipTonDropy"]
   });
 }
