@@ -1,7 +1,5 @@
 {
   "url": "https://ton-plus-bot.vercel.app",
   "name": "TonDropyBot",
-  "iconUrl": "https://ton-plus-bot.vercel.app/icon.png",
-  "termsOfUseUrl": "https://ton-plus-bot.vercel.app/terms",
-  "privacyPolicyUrl": "https://ton-plus-bot.vercel.app/privacy"
+  "iconUrl": "https://ton-plus-bot.vercel.app/icon.png"
 }
