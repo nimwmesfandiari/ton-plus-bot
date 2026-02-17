@@ -1,5 +1,5 @@
 {
-  "name": "tondropy-backend",
+  "name": "ton-plus-bot",
   "version": "1.0.0",
   "scripts": {
     "dev": "vercel dev"
