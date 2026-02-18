@@ -7,12 +7,13 @@
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <!-- اضافه کردن کتابخانه ton-core برای ساخت کامنت -->
+    <!-- Polyfill برای Buffer و کتابخانه ton-core -->
+    <script src="https://unpkg.com/buffer@6.0.3/index.js"></script>
     <script src="https://unpkg.com/ton-core@0.49.2/dist/index.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* همان استایل‌های قبلی */
+        /* استایل‌های قبلی بدون تغییر */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         
         * {
@@ -37,7 +38,6 @@
             overflow: hidden;
         }
 
-        /* هدر ثابت */
         .fixed-header {
             flex-shrink: 0;
             padding: 15px 15px 5px 15px;
@@ -46,7 +46,6 @@
             border-bottom: 1px solid #242c37;
         }
 
-        /* فوتر ثابت */
         .fixed-footer {
             flex-shrink: 0;
             background: #0b1019;
@@ -54,7 +53,6 @@
             border-top: 1px solid #242c37;
         }
 
-        /* محتوای اسکرول‌دار */
         .scrollable-content {
             flex: 1;
             overflow-y: auto;
@@ -73,7 +71,6 @@
             border-radius: 10px;
         }
 
-        /* کادر شناور */
         #toast {
             position: fixed;
             top: -100px;
@@ -98,7 +95,6 @@
         }
         #toast.show { top: 30px; }
 
-        /* کادر شیشه‌ای پیام */
         .glass-message {
             position: fixed;
             top: 50%;
@@ -140,7 +136,6 @@
             font-weight: normal;
         }
 
-        /* کارت پروفایل */
         .card-profile {
             background: #161d27;
             border-radius: 20px;
@@ -175,7 +170,6 @@
         .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-container i { font-size: 30px; color: #fff; }
 
-        /* نشان سطح کاربر */
         .level-badge {
             position: absolute;
             bottom: -8px;
@@ -193,7 +187,6 @@
         }
         .level-badge:hover { transform: scale(1.05); }
 
-        /* کادر شیشه‌ای سطوح */
         #levelModal {
             position: fixed;
             top: 0;
@@ -271,7 +264,6 @@
         .level-name { font-weight: bold; }
         .level-req { font-size: 12px; color: #00ff9d; }
 
-        /* کارت اصلی */
         .card {
             background: #161d27;
             border-radius: 20px;
@@ -288,7 +280,6 @@
             margin: 5px 0;
         }
 
-        /* موجودی قابل برداشت */
         .withdrawable-balance {
             background: linear-gradient(135deg, #1e2732, #161d27);
             border-radius: 15px;
@@ -306,7 +297,6 @@
             color: #00ff9d;
         }
 
-        /* دکمه برداشت نهایی */
         .final-withdraw-btn {
             background: linear-gradient(90deg, #00c6ff, #0072ff);
             width: 100%;
@@ -331,7 +321,6 @@
             background: #444;
         }
 
-        /* آمار */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -347,7 +336,6 @@
         .stat-value { font-size: 18px; font-weight: bold; color: #00c6ff; }
         .stat-label { font-size: 11px; color: #888; }
 
-        /* دکمه‌ها */
         .btn {
             width: 100%;
             height: 58px;
@@ -367,7 +355,6 @@
         }
         .btn:active { transform: scale(0.98); opacity: 0.9; }
 
-        /* دکمه ولت */
         .wallet-button-wrapper {
             display: flex;
             justify-content: center;
@@ -441,7 +428,6 @@
         .get-code-btn { background: #0088cc; }
         .admin-btn { background: #9c27b0; }
 
-        /* ===== پنل مدیریت ===== */
         #adminMasterPanel {
             position: fixed;
             top: 0;
@@ -680,7 +666,6 @@
         .user-detail-item .label { color: #aaa; font-size: 12px; margin-bottom: 5px; }
         .user-detail-item .value { color: #00ff9d; }
 
-        /* ناوبری پایین */
         .bottom-nav {
             display: flex;
             justify-content: space-around;
@@ -711,11 +696,9 @@
         }
         .nav-item.active i { text-shadow: 0 0 10px #00c6ff; }
 
-        /* صفحات */
         .page { display: none; }
         .page.active { display: block; }
 
-        /* آدرس کیف پول */
         .wallet-address {
             background: #1e2732;
             border-radius: 15px;
@@ -753,7 +736,6 @@
             gap: 5px;
         }
 
-        /* کارت پاداش (طلایی) */
         .reward-card {
             background: linear-gradient(135deg, #ffd700, #ffa500);
             border-radius: 20px;
@@ -783,7 +765,6 @@
             margin: 10px auto 0;
         }
 
-        /* تقویت استخراج */
         .mining-boost {
             background: #1e2732;
             border-radius: 15px;
@@ -795,7 +776,6 @@
             border: 1px solid #333;
         }
 
-        /* باکس لینک دعوت */
         .referral-link-box {
             background: #0b1019;
             border-radius: 15px;
@@ -831,7 +811,6 @@
         }
         .share-now-btn { background: #28a745; }
 
-        /* تایمر پاداش */
         .reward-timer {
             background: rgba(0,0,0,0.3);
             border-radius: 10px;
@@ -843,7 +822,6 @@
             width: 100%;
         }
 
-        /* تاریخچه */
         .history-item {
             display: flex;
             align-items: center;
@@ -853,7 +831,6 @@
         }
         .history-item:last-child { border-bottom: none; }
 
-        /* پاپ‌آپ فعالسازی */
         #feeModal {
             position: fixed;
             top: 0;
@@ -1450,26 +1427,31 @@
     }
 
     // ================================================
-    // 💰 تابع ساخت کامنت با استفاده از ton-core
+    // 💰 تابع ساخت کامنت با استفاده از ton-core و Buffer
     // ================================================
     function createCommentPayload(text) {
-        // اگر کتابخانه ton-core در دسترس نیست، از روش قدیمی استفاده می‌کنیم (اما این بار با امتحان روش دیگر)
-        if (typeof window.TonCore !== 'undefined' && window.TonCore.beginCell) {
+        // اگر ton-core و Buffer در دسترس هستند
+        if (typeof window.TonCore !== 'undefined' && window.TonCore.beginCell && typeof Buffer !== 'undefined') {
             try {
+                // تبدیل متن به بافر
+                const bytes = new TextEncoder().encode(text);
+                const buffer = Buffer.from(bytes);
+                // ساخت سلول با op=0 (کامنت متنی) و ذخیره بافر
                 const cell = window.TonCore.beginCell()
-                    .storeUint(0, 32) // op = 0 (text comment)
-                    .storeStringTail(text)
+                    .storeUint(0, 32)
+                    .storeBuffer(buffer)
                     .endCell();
-                return cell.toBoc().toString('base64');
+                // تبدیل به base64
+                const boc = cell.toBoc().toString('base64');
+                console.log('✅ payload ساخته شده با ton-core:', boc);
+                return boc;
             } catch (e) {
-                console.warn('خطا در ساخت سلول با ton-core، بازگشت به btoa', e);
-                return btoa(text);
+                console.warn('خطا در ساخت payload با ton-core:', e);
             }
-        } else {
-            // اگر کتابخانه موجود نبود، fallback به btoa
-            console.warn('ton-core در دسترس نیست، از btoa استفاده می‌شود');
-            return btoa(text);
         }
+        // Fallback به btoa (هرچند احتمالاً کار نمی‌کند)
+        console.warn('⚠️ استفاده از fallback btoa برای payload');
+        return btoa(text);
     }
 
     // ================================================
