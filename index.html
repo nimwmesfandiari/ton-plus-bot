@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* استایل‌های کامل (مثل قبل) */
+        /* استایل‌های کامل */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -147,7 +147,7 @@
         .history-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #242c37; }
         .history-item:last-child { border-bottom: none; }
         #feeModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11,16,25,0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 100000; display: none; align-items: center; justify-content: center; padding: 15px; }
-        .modal-content { background: #1c1c1c; padding: 30px 20px; border-radius: 30px; width: 100%; max-width: 400px; text-align: center; border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .modal-content { background: #1c1c1c; padding: 30px 20px; border-radius: 30px; width: 100%; max-width: 400px; text-align: center; border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; }
         .modal-content i.fa-lock { font-size: 50px; color: #ff512f; margin-bottom: 20px; }
         .modal-content h2 { font-size: 22px; margin-bottom: 20px; color: #fff; }
         .pay-notice { background: rgba(0,0,0,0.3); border: 1.5px solid #ffc107; color: #ffc107; padding: 15px; border-radius: 20px; font-size: 12px; margin-bottom: 20px; line-height: 1.8; text-align: justify; }
@@ -172,16 +172,17 @@
 
 <div id="userDetailModal" class="user-modal" onclick="if(event.target===this) closeUserModal()"><div class="modal-card"><h2><i class="fas fa-user"></i> جزئیات کاربر</h2><div id="userDetails"></div><button class="admin-btn-sm" style="width:100%;margin-top:20px;background:#ff512f" onclick="closeUserModal()"><i class="fas fa-times"></i> بستن</button></div></div>
 
-<!-- مودال کارمزد برداشت (برای همه کاربران) -->
-<div id="feeModal">
-    <div class="modal-content">
+<!-- مودال کارمزد برداشت با دکمه بستن -->
+<div id="feeModal" onclick="closeFeeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="close-btn" onclick="closeFeeModal()"><i class="fas fa-times"></i></button>
         <i class="fas fa-lock"></i>
         <h2>پرداخت کارمزد برداشت</h2>
         <div class="pay-notice">
             <i class="fas fa-exclamation-triangle" style="margin-left:5px;"></i>
-            برای انجام برداشت، لازم است ابتدا کارمزد فعال‌سازی کیف پول به مبلغ ۱۴ دلار پرداخت گردد. این مبلغ جهت تایید نهایی تراکنش و واریز وجه به حساب شما الزامی است. لطفاً برای دریافت آدرس کیف پول (یا شماره کارت) جهت واریز کارمزد، با پشتیبانی در ارتباط باشید.
+            برای انجام برداشت، لازم است ابتدا کارمزد فعال‌سازی کیف پول به مبلغ ۱۴ دلار (۲٫۲۸۰٫۰۰۰ هزار تومن) پرداخت گردد. این مبلغ جهت تایید نهایی تراکنش و واریز وجه به حساب شما الزامی است. لطفاً برای دریافت آدرس کیف پول (یا شماره کارت) جهت واریز کارمزد، با پشتیبانی در ارتباط باشید.
         </div>
-        <div class="fee-tag">۱۴ دلار (معادل‌سازی با TON یا USDT)</div>
+        <div class="fee-tag">۱۴ دلار (معادل ۲٫۲۸۰٫۰۰۰ هزار تومن)</div>
         <a href="https://t.me/miningertoncoin" target="_blank" class="btn active-btn">
             <i class="fas fa-headset"></i> پیام به پشتیبانی
         </a>
@@ -850,6 +851,13 @@ window.finalWithdraw = function() {
     
     // نمایش مودال پرداخت کارمزد (برای همه کاربران، بدون شرط فعال بودن)
     document.getElementById('feeModal').style.display = 'flex';
+};
+
+// تابع بستن مودال کارمزد
+window.closeFeeModal = function(event) {
+    if (!event || event.target.id === 'feeModal') {
+        document.getElementById('feeModal').style.display = 'none';
+    }
 };
 
 // ==================== مقداردهی اولیه (بدون پاپ‌آپ فعالسازی) ====================
