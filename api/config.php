@@ -5,8 +5,15 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-API-Key');
 
-// کلید امنیتی - حتماً این رو عوض کنید
+// تنظیمات امنیتی - کلید مخفی برای ارتباط با پنل مدیریت
 define('API_SECRET_KEY', 'TonDropy@1403SecretKey');
+
+// توکن ربات تلگرام و اطلاعات ادمین (برای استفاده‌های بعدی)
+define('BOT_TOKEN', '8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw');
+define('ADMIN_ID', '5972276401');
+define('ADMIN_USERNAME', 'miningertoncoin');
+define('WALLET_ADDRESS', 'UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y');
+define('SECRET_CODES', json_encode(['T61O96N12', 'VipTonDropy']));
 
 // بررسی کلید امنیتی
 function checkAuth() {
@@ -19,7 +26,7 @@ function checkAuth() {
     }
 }
 
-// اگر درخواست OPTIONS بود
+// اگر درخواست OPTIONS بود (برای CORS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
