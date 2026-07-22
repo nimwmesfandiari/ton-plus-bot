@@ -1,27 +1,44 @@
 <?php
-// api/sync.php
-require_once 'config.php';
-checkAuth();
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, X-API-Key');
 
-$input = json_decode(file_get_contents('php://input'), true);
+$API_KEY = 'TonDropy@1403SecretKey';
 
+// بررسی کلید
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit(0); }
+
+$headers = getallheaders();
+if (!isset($headers['X-API-Key']) || $headers['X-API-Key'] !== $API_KEY) {
+    http_response_code(403);
+    die(json_encode(['error' => 'Unauthorized']));
+}
+
+// Health check
+if (isset($_GET['health']) || isset($_GET['ping'])) {
+    die(json_encode(['status' => 'ok', 'time' => time()]));
+}
+
+// دریافت داده
+$input = file_get_contents('php://input');
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid data']);
-    exit;
+    die(json_encode(['error' => 'No data']));
 }
 
-// ایجاد پوشه data اگر وجود نداره
-if (!file_exists(__DIR__ . '/data')) {
-    mkdir(__DIR__ . '/data', 0777, true);
+$data = json_decode($input, true);
+if (!$data) {
+    http_response_code(400);
+    die(json_encode(['error' => 'Invalid JSON']));
 }
 
-// ذخیره داده‌ها
-file_put_contents(__DIR__ . '/data/users.json', json_encode($input['users'] ?? [], JSON_PRETTY_PRINT));
-file_put_contents(__DIR__ . '/data/banned.json', json_encode($input['bannedUsers'] ?? [], JSON_PRETTY_PRINT));
-file_put_contents(__DIR__ . '/data/transactions.json', json_encode($input['transactions'] ?? [], JSON_PRETTY_PRINT));
-file_put_contents(__DIR__ . '/data/wallets.json', json_encode($input['wallets'] ?? [], JSON_PRETTY_PRINT));
-file_put_contents(__DIR__ . '/data/stats.json', json_encode($input['stats'] ?? [], JSON_PRETTY_PRINT));
+// ذخیره در فایل یا دیتابیس
+$backupDir = __DIR__ . '/backups/';
+if (!is_dir($backupDir)) mkdir($backupDir, 0777, true);
 
-echo json_encode(['success' => true]);
-?>
+$filename = $backupDir . 'data_' . date('Y-m-d') . '.json';
+file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+// پاسخ
+echo json_encode(['status' => 'ok', 'received' => count($data['users'] ?? []) . ' users']);
